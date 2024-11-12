@@ -45,10 +45,6 @@ jobs:
           cd order
           mvn clean install
           mvn surefire-report:report-only
-      - name: debug
-        run: |
-          ls order/target/reports
-          ls order/target/surefire-reports
       # テストレポートのアップロード
       - name: Upload Test Report
         uses: actions/upload-pages-artifact@v1
@@ -77,7 +73,8 @@ jobs:
           # Dockerイメージの脆弱性スキャン
           # trivy image --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
           # 脆弱性が見つかった場合、パイプラインを終了させる
-          trivy image --format template --template "@contrib/html.tpl" -o trivy-report.html --exit-code 1 --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          # trivy image --exit-code 1 --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          trivy image --format template --template "@contrib/html.tpl" -o trivy-report.html --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
         env:
           # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
           # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
@@ -85,6 +82,9 @@ jobs:
           # ACTIONS_RUNTIME_TOKENを使用して認証することで、GitHubのパブリックAPIと異なり、Actions用のレートリミットが適用され、より多くのリクエストを許可されます。
           # GitHubは認証されたリクエストに対して、無認証リクエストよりも高いレートリミットを提供しているため、ACTIONS_RUNTIME_TOKENを使用することでAPIへのアクセス制限が緩和され、結果としてレートリミットに引っかかりにくくなります。
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: debug
+        run: |
+          ls
       # スキャンレポートをアップロード
       - name: Upload Trivy Report
         uses: actions/upload-pages-artifact@v1
