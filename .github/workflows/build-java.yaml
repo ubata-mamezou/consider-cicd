@@ -31,6 +31,8 @@ jobs:
           cd order
           mvn clean package
       - name: Publish to GitHub Packages
-        run: mvn deploy
+        run: |
+          cd order
+          mvn deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
