@@ -63,31 +63,34 @@ jobs:
           cd order
           docker build -t ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }} .
       # 脆弱性スキャン（Trivy）
+          # Trivyのインストール
+
+          # テンプレートダウンロード
+
+          # Dockerイメージの脆弱性スキャン
           # trivy image --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
           # 脆弱性が見つかった場合、パイプラインを終了させる
           # trivy image --exit-code 1 --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
           # trivy image --format template --template "@contrib/html.tpl" -o trivy-report.html --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
-      - name: Scan Docker image with Trivy
-        run: |
-          # Trivyのインストール
-          sudo apt-get update && sudo apt-get install -y wget
-          wget https://github.com/aquasecurity/trivy/releases/download/v0.29.1/trivy_0.29.1_Linux-64bit.deb
-          sudo dpkg -i trivy_0.29.1_Linux-64bit.deb
 
-          # テンプレートダウンロード
-          mkdir trivy-resource
-          mkdir trivy-resource/template
-          wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
-          
-          # Dockerイメージの脆弱性スキャン
-          mkdir trivy-resource/result
-          trivy image --format template --template trivy-resource/template/html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
-        env:
-          # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
+                # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
           # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
           # ACTIONS_RUNTIME_TOKEN はGitHub Actions内でジョブが実行される間だけ有効な一時的なトークンで、GitHubのAPIリクエストの認証に使用できます。
           # ACTIONS_RUNTIME_TOKENを使用して認証することで、GitHubのパブリックAPIと異なり、Actions用のレートリミットが適用され、より多くのリクエストを許可されます。
           # GitHubは認証されたリクエストに対して、無認証リクエストよりも高いレートリミットを提供しているため、ACTIONS_RUNTIME_TOKENを使用することでAPIへのアクセス制限が緩和され、結果としてレートリミットに引っかかりにくくなります。
+      - name: Scan Docker image with Trivy
+        run: |
+          sudo apt-get update && sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.29.1/trivy_0.29.1_Linux-64bit.deb
+          sudo dpkg -i trivy_0.29.1_Linux-64bit.deb
+
+          mkdir trivy-resource
+          mkdir trivy-resource/template
+          wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
+          
+          mkdir trivy-resource/result
+          trivy image --format template --template trivy-resource/template/html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+        env:
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # debug
       - name: debug
