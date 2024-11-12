@@ -50,3 +50,7 @@ jobs:
           mvn deploy -DskipTests -X
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Dockerイメージをビルド
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }} .
