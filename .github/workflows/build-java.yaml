@@ -12,8 +12,8 @@ jobs:
     steps:
       # コードをチェックアウト
       - uses: actions/checkout@v3
-      # JDK 17 をセットアップ
-      - name: Set up JDK 21
+      # JDK をセットアップ
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: '21'
@@ -26,7 +26,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      # GitHub Packagesへの認証設定追加
+      # MavenにGitHub Packagesへの認証設定追加
       - name: Generate Maven settings.xml
         run: |
           mkdir -p ~/.m2
@@ -39,29 +39,39 @@ jobs:
                     </server>
                   </servers>
                 </settings>" > ~/.m2/settings.xml
-      # Maven でビルドし、jar ファイルを生成
+      # Mavenでビルドし、jarファイルを生成
       - name: Build with Maven
         run: |
           cd order
           mvn clean install
+      # GitHub Packagesへjarファイルを公開
       - name: Publish to GitHub Packages
         run: |
           cd order
           mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # Dockerイメージをビルド
+      # イメージビルド（Docker）
       - name: Build Docker image
         run: |
           cd order
           docker build -t ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }} .
-      # ステップ 4: GitHub Packagesにコンテナイメージを公開
+      # 脆弱性スキャン（Trivy）
+      - name: Scan Docker image with Trivy
+        run: |
+          # Trivyのインストール
+          sudo apt-get update && sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.29.1/trivy_0.29.1_Linux-64bit.deb
+          sudo dpkg -i trivy_0.29.1_Linux-64bit.deb
+        
+          # Dockerイメージの脆弱性スキャン
+          trivy image --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+      # GitHub Packagesにコンテナイメージを公開
       - name: Publish Docker image to GitHub Packages
         run: |
-          cd order
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
-      # ステップ 5: クリーンアップ（オプション）
+      # クリーンアップ（オプション）
       - name: Remove Docker images
         run: |
           docker rmi ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}     
