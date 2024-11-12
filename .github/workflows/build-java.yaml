@@ -18,6 +18,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+      # Mavanリポジトリのキャッシュ
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -25,6 +26,19 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+      # GitHub Packagesへの認証設定追加
+      - name: Generate Maven settings.xml
+        run: |
+          mkdir -p ~/.m2
+          echo "<settings>
+                  <servers>
+                    <server>
+                      <id>github</id>
+                      <username>${{ github.actor }}</username>
+                      <password>${{ secrets.GITHUB_TOKEN }}</password>
+                    </server>
+                  </servers>
+                </settings>" > ~/.m2/settings.xml
       # Maven でビルドし、jar ファイルを生成
       - name: Build with Maven
         run: |
@@ -33,6 +47,6 @@ jobs:
       - name: Publish to GitHub Packages
         run: |
           cd order
-          mvn deploy
+          mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
