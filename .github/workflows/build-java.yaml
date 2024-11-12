@@ -86,13 +86,14 @@ jobs:
 
           mkdir trivy-resource
           mkdir trivy-resource/template
-          wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
+          # wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
+          wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O html.tpl
           
           mkdir trivy-resource/result
-          trivy image --format template --template trivy-resource/template/html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          # trivy image --format template --template trivy-resource/template/html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          trivy image --format template --template html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
         env:
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TRIVY_DB_REPOSITORY: https://ghcr.io/v2/aquasecurity/trivy-db/manifests/2
       # debug
       - name: debug
         run: |
