@@ -55,3 +55,13 @@ jobs:
         run: |
           cd order
           docker build -t ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }} .
+      # ステップ 4: GitHub Packagesにコンテナイメージを公開
+      - name: Publish Docker image to GitHub Packages
+        run: |
+          cd order
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker push ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+      # ステップ 5: クリーンアップ（オプション）
+      - name: Remove Docker images
+        run: |
+          docker rmi ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}     
