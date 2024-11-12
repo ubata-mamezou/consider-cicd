@@ -46,12 +46,12 @@ jobs:
           mvn clean install
           mvn surefire-report:report-only
       - name: debug
-        run: ls order
+        run: ls order/target
       # テストレポートのアップロード
       - name: Upload Test Report
         uses: actions/upload-pages-artifact@v1
         with:
-          path: order/target/site/surefire-report.html
+          path: order/target/reports/surefire-report.html
       # GitHub Packagesへjarファイルを公開
       - name: Publish to GitHub Packages
         run: |
