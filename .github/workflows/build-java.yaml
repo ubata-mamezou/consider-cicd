@@ -53,7 +53,7 @@ jobs:
       - name: Upload Test Report
         uses: actions/upload-pages-artifact@v1
         with:
-          path: order/target/reports/surefire.html
+          path: order/target/reports
       # GitHub Packagesへjarファイルを公開
       - name: Publish to GitHub Packages
         run: |
