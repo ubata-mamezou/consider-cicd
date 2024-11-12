@@ -46,7 +46,7 @@ jobs:
           mvn clean install
           mvn surefire-report:report-only
       - name: debug
-        run: ls
+        run: ls order
       # テストレポートのアップロード
       - name: Upload Test Report
         uses: actions/upload-pages-artifact@v1
