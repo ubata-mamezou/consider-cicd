@@ -27,6 +27,16 @@
 		<tag/>
 		<url/>
 	</scm>
+	<distributionManagement>
+		<!-- 
+		GitHub Packagesへアーティファクトを公開するため、
+		GitHub PackagesリポジトリURLを設定 
+		-->
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/ubata-mamezou/consider-cicd</url>
+		</repository>
+	</distributionManagement>
 	<properties>
 		<java.version>21</java.version>
 	</properties>
