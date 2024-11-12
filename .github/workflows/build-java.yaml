@@ -93,8 +93,8 @@ jobs:
       - name: debug
         run: |
           ls
-          le trivy-resource
-          le trivy-resource/result
+          ls trivy-resource
+          ls trivy-resource/result
       # スキャンレポートをアップロード
       - name: Upload Trivy Report
         uses: actions/upload-pages-artifact@v1
