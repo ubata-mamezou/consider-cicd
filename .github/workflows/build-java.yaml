@@ -44,6 +44,12 @@ jobs:
         run: |
           cd order
           mvn clean install
+          mvn surefire-report:report-only
+      # テストレポートのアップロード
+      - name: Upload Test Report
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: order/target/site/surefire-report.html
       # GitHub Packagesへjarファイルを公開
       - name: Publish to GitHub Packages
         run: |
@@ -65,10 +71,21 @@ jobs:
           sudo dpkg -i trivy_0.29.1_Linux-64bit.deb
         
           # Dockerイメージの脆弱性スキャン
-          trivy image --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
-          #trivy image --exit-code 1 --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          # trivy image --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          # 脆弱性が見つかった場合、パイプラインを終了させる
+          trivy image --format template --template "@contrib/html.tpl" -o trivy-report.html --exit-code 1 --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
         env:
+          # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
+          # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
+          # ACTIONS_RUNTIME_TOKEN はGitHub Actions内でジョブが実行される間だけ有効な一時的なトークンで、GitHubのAPIリクエストの認証に使用できます。
+          # ACTIONS_RUNTIME_TOKENを使用して認証することで、GitHubのパブリックAPIと異なり、Actions用のレートリミットが適用され、より多くのリクエストを許可されます。
+          # GitHubは認証されたリクエストに対して、無認証リクエストよりも高いレートリミットを提供しているため、ACTIONS_RUNTIME_TOKENを使用することでAPIへのアクセス制限が緩和され、結果としてレートリミットに引っかかりにくくなります。
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # スキャンレポートをアップロード
+      - name: Upload Trivy Report
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: trivy-report.html
       # GitHub Packagesにコンテナイメージを公開
       - name: Publish Docker image to GitHub Packages
         run: |
@@ -78,3 +95,13 @@ jobs:
       - name: Remove Docker images
         run: |
           docker rmi ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}     
+  # Pagesへテスト結果を公開
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+    - name: Deploy to GitHub Pages
+      uses: actions/deploy-pages@v2
