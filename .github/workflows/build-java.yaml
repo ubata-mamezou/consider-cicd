@@ -43,7 +43,7 @@ jobs:
       - name: Build with Maven
         run: |
           cd order
-          mvn clean package
+          mvn clean install
       - name: Publish to GitHub Packages
         run: |
           cd order
