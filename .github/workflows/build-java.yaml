@@ -76,6 +76,9 @@ jobs:
           # テンプレートダウンロード
           wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O html.tpl
           
+          # debug
+          ls
+
           # Dockerイメージの脆弱性スキャン
           # trivy image --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
           # 脆弱性が見つかった場合、パイプラインを終了させる
