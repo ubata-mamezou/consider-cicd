@@ -47,6 +47,6 @@ jobs:
       - name: Publish to GitHub Packages
         run: |
           cd order
-          mvn deploy -DskipTests
+          mvn deploy -DskipTests -X
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
