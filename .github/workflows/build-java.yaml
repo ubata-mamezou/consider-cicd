@@ -89,7 +89,9 @@ jobs:
           # 脆弱性が見つかった場合、パイプラインを終了させる
           # trivy image --exit-code 1 --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
           mkdir trivy-resource/result
-          trivy image --format template --template ./trivy-resource/template/html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          # trivy image --exit-code 1 --format template --template ./trivy-resource/template/html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          trivy image --exit-code 1 --format json -o trivy-resource/result/trivy-report.json ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+
         env:
           # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
           # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
@@ -99,11 +101,13 @@ jobs:
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # debug
       - name: Display Trivy Report
-        run: cat trivy-resource/result/trivy-report.html
-      - name: debug
-        run: |
-          ls trivy-resource/template
-          ls trivy-resource/result
+        run: cat trivy-resource/result/trivy-report.json
+      # - name: Display Trivy Report
+      #   run: cat trivy-resource/result/trivy-report.html
+      # - name: debug
+      #   run: |
+      #     ls trivy-resource/template
+      #     ls trivy-resource/result
       # スキャンレポートをアップロード
       - name: Upload Trivy Report
         uses: actions/upload-pages-artifact@v1
