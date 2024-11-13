@@ -1,5 +1,5 @@
 # OpenJDKを基盤にしたイメージを使用
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 
 # 作成したJARファイルをコンテナにコピー
 COPY target/order-0.0.1-SNAPSHOT.jar app.jar
