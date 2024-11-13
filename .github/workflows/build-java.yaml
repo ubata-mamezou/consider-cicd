@@ -12,8 +12,8 @@ jobs:
     steps:
       # コードをチェックアウト
       - uses: actions/checkout@v3
-      # JDK 17 をセットアップ
-      - name: Set up JDK 17
+      # JDK をセットアップ
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: '21'
@@ -26,7 +26,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      # GitHub Packagesへの認証設定追加
+      # MavenにGitHub Packagesへの認証設定追加
       - name: Generate Maven settings.xml
         run: |
           mkdir -p ~/.m2
@@ -39,14 +39,100 @@ jobs:
                     </server>
                   </servers>
                 </settings>" > ~/.m2/settings.xml
-      # Maven でビルドし、jar ファイルを生成
+      # Mavenでビルドし、jarファイルを生成
       - name: Build with Maven
         run: |
           cd order
           mvn clean install
+          mvn surefire-report:report-only
+      # テストレポートのアップロード
+      - name: Upload Test Report
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: order/target/reports
+      # GitHub Packagesへjarファイルを公開
       - name: Publish to GitHub Packages
         run: |
           cd order
-          mvn deploy -DskipTests -X
+          mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # イメージビルド（Docker）
+      - name: Build Docker image
+        run: |
+          cd order
+          docker build -t ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }} .
+      # Trivy DBのキャッシュ
+      - name: Cache Trivy DB
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/trivy  # TrivyのDBキャッシュの保存場所
+          key: ${{ runner.os }}-trivy-db
+          restore-keys: |
+            ${{ runner.os }}-trivy-db
+      # Trivyインストール
+      - name: Install Trivy
+        run: |
+          sudo apt-get update && sudo apt-get install -y wget
+          wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.57.0/trivy_0.57.0_Linux-64bit.tar.gz | tar zxvf -
+          sudo mv trivy /usr/local/bin/
+      # テンプレートダウンロード
+      - name: Trivy HTML template download
+        run: |
+          mkdir trivy-resource/template -p
+          wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
+      # 脆弱性スキャン（Trivy）
+      - name: Scan Docker image with Trivy
+        run: |
+          mkdir trivy-resource/result -p
+          # trivy image --format json -o ./trivy-resource/result/trivy-report.json ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+        env:
+          # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
+          # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
+          # ACTIONS_RUNTIME_TOKEN はGitHub Actions内でジョブが実行される間だけ有効な一時的なトークンで、GitHubのAPIリクエストの認証に使用できます。
+          # ACTIONS_RUNTIME_TOKENを使用して認証することで、GitHubのパブリックAPIと異なり、Actions用のレートリミットが適用され、より多くのリクエストを許可されます。
+          # GitHubは認証されたリクエストに対して、無認証リクエストよりも高いレートリミットを提供しているため、ACTIONS_RUNTIME_TOKENを使用することでAPIへのアクセス制限が緩和され、結果としてレートリミットに引っかかりにくくなります。
+          ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 脆弱性が見つかった場合、パイプラインを終了させる
+      - name: Check for vulnerabilities
+        run: |
+          if grep -q '"Vulnerabilities": \[' trivy-resource/result/trivy-report.json; then
+            echo "Vulnerabilities found."
+            exit 1
+          else
+            echo "No vulnerabilities found."
+          fi
+      # debug
+      # - name: Display Trivy Report
+      #   run: cat trivy-resource/result/trivy-report.json
+      # - name: Display Trivy Report
+      #   run: cat trivy-resource/result/trivy-report.html
+      # - name: debug
+      #   run: |
+      #     ls trivy-resource/template
+      #     ls trivy-resource/result
+      # スキャンレポートをアップロード
+      - name: Upload Trivy Report
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: trivy-resource/result
+      # GitHub Packagesにコンテナイメージを公開
+      - name: Publish Docker image to GitHub Packages
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker push ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+      # クリーンアップ（オプション）
+      - name: Remove Docker images
+        run: |
+          docker rmi ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}     
+  # Pagesへテスト結果を公開
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+    - name: Deploy to GitHub Pages
+      uses: actions/deploy-pages@v2
