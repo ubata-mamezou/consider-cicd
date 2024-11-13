@@ -83,18 +83,15 @@ jobs:
           # テンプレートダウンロード
           mkdir trivy-resource
           mkdir trivy-resource/template
-          # wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
-          wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O html.tpl
+          wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
+          # wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O html.tpl
           
           # Dockerイメージの脆弱性スキャン
-          # trivy image --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
           # 脆弱性が見つかった場合、パイプラインを終了させる
           # trivy image --exit-code 1 --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
           # trivy image --format template --template "@contrib/html.tpl" -o trivy-report.html --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
           mkdir trivy-resource/result
-          # FIXME: TOMANYREQUESTSエラーで止まるので、一旦、コメント
-          # trivy image --format template --template trivy-resource/template/html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
-          trivy image --format template --template html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          trivy image --format template --template trivy-resource/template/html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
         env:
           # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
           # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
