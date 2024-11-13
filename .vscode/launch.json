@@ -1,0 +1,20 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Application",
+      "request": "launch",
+      "mainClass": "com.mau.consider.cicd.Application"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-Application<consider.cicd>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.mau.consider.cicd.Application",
+      "projectName": "consider.cicd",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
