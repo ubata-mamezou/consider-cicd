@@ -62,13 +62,23 @@ jobs:
         run: |
           cd order
           docker build -t ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }} .
+      # Trivy DBのキャッシュ
+      # - name: Cache Trivy DB
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.cache/trivy  # TrivyのDBキャッシュの保存場所
+      #     key: ${{ runner.os }}-trivy-db
+      #     restore-keys: |
+      #       ${{ runner.os }}-trivy-db
       # 脆弱性スキャン（Trivy）
       - name: Scan Docker image with Trivy
         run: |
           # Trivyのインストール
           sudo apt-get update && sudo apt-get install -y wget
-          wget https://github.com/aquasecurity/trivy/releases/download/v0.29.1/trivy_0.29.1_Linux-64bit.deb
-          sudo dpkg -i trivy_0.29.1_Linux-64bit.deb
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.57.0/trivy_0.57.0_Linux-64bit.deb
+          sudo dpkg -i trivy_0.57.0_Linux-64bit.deb
+          # wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.41.0/trivy_0.41.0_Linux-64bit.tar.gz | tar zxvf -
+          # sudo mv trivy /usr/local/bin/
 
           # テンプレートダウンロード
           mkdir trivy-resource
@@ -84,7 +94,7 @@ jobs:
           mkdir trivy-resource/result
           # FIXME: TOMANYREQUESTSエラーで止まるので、一旦、コメント
           # trivy image --format template --template trivy-resource/template/html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
-          # trivy image --format template --template html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          trivy image --format template --template html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
         env:
           # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
           # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
@@ -101,10 +111,10 @@ jobs:
           ls trivy-resource/result
       # FIXME: TOMANYREQUESTSエラーで止まるので、一旦、コメント
       # スキャンレポートをアップロード
-      # - name: Upload Trivy Report
-      #   uses: actions/upload-pages-artifact@v1
-      #   with:
-      #     path: trivy-resource/result
+      - name: Upload Trivy Report
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: trivy-resource/result
       # GitHub Packagesにコンテナイメージを公開
       - name: Publish Docker image to GitHub Packages
         run: |
