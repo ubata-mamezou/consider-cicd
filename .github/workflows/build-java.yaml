@@ -63,22 +63,22 @@ jobs:
           cd order
           docker build -t ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }} .
       # Trivy DBのキャッシュ
-      # - name: Cache Trivy DB
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/.cache/trivy  # TrivyのDBキャッシュの保存場所
-      #     key: ${{ runner.os }}-trivy-db
-      #     restore-keys: |
-      #       ${{ runner.os }}-trivy-db
+      - name: Cache Trivy DB
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/trivy  # TrivyのDBキャッシュの保存場所
+          key: ${{ runner.os }}-trivy-db
+          restore-keys: |
+            ${{ runner.os }}-trivy-db
       # 脆弱性スキャン（Trivy）
       - name: Scan Docker image with Trivy
         run: |
           # Trivyのインストール
           sudo apt-get update && sudo apt-get install -y wget
-          wget https://github.com/aquasecurity/trivy/releases/download/v0.57.0/trivy_0.57.0_Linux-64bit.deb
-          sudo dpkg -i trivy_0.57.0_Linux-64bit.deb
-          # wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.41.0/trivy_0.41.0_Linux-64bit.tar.gz | tar zxvf -
-          # sudo mv trivy /usr/local/bin/
+          # wget https://github.com/aquasecurity/trivy/releases/download/v0.57.0/trivy_0.57.0_Linux-64bit.deb
+          # sudo dpkg -i trivy_0.57.0_Linux-64bit.deb
+          wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.57.0/trivy_0.57.0_Linux-64bit.tar.gz | tar zxvf -
+          sudo mv trivy /usr/local/bin/
 
           # テンプレートダウンロード
           mkdir trivy-resource
