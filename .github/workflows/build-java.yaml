@@ -104,8 +104,8 @@ jobs:
             echo "No vulnerabilities found."
           fi
       # debug
-      - name: Display Trivy Report
-        run: cat trivy-resource/result/trivy-report.json
+      # - name: Display Trivy Report
+      #   run: cat trivy-resource/result/trivy-report.json
       # - name: Display Trivy Report
       #   run: cat trivy-resource/result/trivy-report.html
       # - name: debug
