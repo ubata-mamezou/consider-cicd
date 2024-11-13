@@ -1,6 +1,6 @@
 # OpenJDKを基盤にしたイメージを使用
-# FROM openjdk:21-slim-bullseye
-FROM gcr.io/distroless/java:21
+FROM openjdk:21-slim-bullseye
+# FROM gcr.io/distroless/java:21
 
 # 作成したJARファイルをコンテナにコピー
 COPY target/order-0.0.1-SNAPSHOT.jar app.jar
