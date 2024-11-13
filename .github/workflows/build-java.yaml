@@ -79,8 +79,7 @@ jobs:
       # テンプレートダウンロード
       - name: Trivy HTML template download
         run: |
-          mkdir trivy-resource
-          mkdir trivy-resource/template
+          mkdir trivy-resource/template -p
           wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
       # 脆弱性スキャン（Trivy）
       # 脆弱性が見つかった場合、パイプラインを終了させる
@@ -88,8 +87,8 @@ jobs:
           # trivy image --exit-code 1 --format template --template ./trivy-resource/template/html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
       - name: Scan Docker image with Trivy
         run: |
-          mkdir trivy-resource/result
-          trivy image -format json -o ./trivy-resource/result/trivy-report.json ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+          mkdir trivy-resource/result -p
+          trivy image --format json -o ./trivy-resource/result/trivy-report.json ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
         env:
           # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
           # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
