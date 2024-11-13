@@ -70,27 +70,25 @@ jobs:
           key: ${{ runner.os }}-trivy-db
           restore-keys: |
             ${{ runner.os }}-trivy-db
-      # 脆弱性スキャン（Trivy）
+      # Trivyインストール
       - name: Scan Docker image with Trivy
         run: |
-          # Trivyのインストール
           sudo apt-get update && sudo apt-get install -y wget
-          # wget https://github.com/aquasecurity/trivy/releases/download/v0.57.0/trivy_0.57.0_Linux-64bit.deb
-          # sudo dpkg -i trivy_0.57.0_Linux-64bit.deb
           wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.57.0/trivy_0.57.0_Linux-64bit.tar.gz | tar zxvf -
           sudo mv trivy /usr/local/bin/
-
-          # テンプレートダウンロード
-          mkdir trivy-resource
+      # テンプレートダウンロード
+      - name: Scan Docker image with Trivy
+        run: |
           mkdir trivy-resource/template
           wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
-          
-          # Dockerイメージの脆弱性スキャン
-          # 脆弱性が見つかった場合、パイプラインを終了させる
+      # 脆弱性スキャン（Trivy）
+      # 脆弱性が見つかった場合、パイプラインを終了させる
           # trivy image --exit-code 1 --no-progress ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
-          mkdir trivy-resource/result
           # trivy image --exit-code 1 --format template --template ./trivy-resource/template/html.tpl -o trivy-resource/result/trivy-report.html ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
-          trivy image -format json -o trivy-resource/result/trivy-report.json ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
+      - name: Scan Docker image with Trivy
+        run: |
+          mkdir trivy-resource/result
+          trivy image -format json -o ./trivy-resource/result/trivy-report.json ghcr.io/${{ github.repository_owner }}/consider-cicd:${{ github.sha }}
 
         env:
           # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
