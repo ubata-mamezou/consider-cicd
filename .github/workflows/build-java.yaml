@@ -71,13 +71,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-trivy-db
       # Trivyインストール
-      - name: Scan Docker image with Trivy
+      - name: Install Trivy
         run: |
           sudo apt-get update && sudo apt-get install -y wget
           wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.57.0/trivy_0.57.0_Linux-64bit.tar.gz | tar zxvf -
           sudo mv trivy /usr/local/bin/
       # テンプレートダウンロード
-      - name: Scan Docker image with Trivy
+      - name: Trivy HTML template download
         run: |
           mkdir trivy-resource/template
           wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
