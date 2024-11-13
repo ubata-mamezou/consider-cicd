@@ -97,7 +97,7 @@ jobs:
       # 脆弱性が見つかった場合、パイプラインを終了させる
       - name: Check for vulnerabilities
         run: |
-          if grep -q '"Vulnerabilities": \[' trivy-resource/result/trivy-report.json; then
+          if grep -q '"Vulnerabilities": \[' trivy-resource/result/trivy-report.html; then
             echo "Vulnerabilities found."
             exit 1
           else
