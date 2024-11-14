@@ -94,6 +94,12 @@ jobs:
           # ACTIONS_RUNTIME_TOKENを使用して認証することで、GitHubのパブリックAPIと異なり、Actions用のレートリミットが適用され、より多くのリクエストを許可されます。
           # GitHubは認証されたリクエストに対して、無認証リクエストよりも高いレートリミットを提供しているため、ACTIONS_RUNTIME_TOKENを使用することでAPIへのアクセス制限が緩和され、結果としてレートリミットに引っかかりにくくなります。
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # スキャンレポートをアップロード
+      - name: Upload Trivy Report
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: trivy-resource/result
+      # FIXME: 脆弱性があってもパイプラインが進んでしまっている
       # 脆弱性が見つかった場合、パイプラインを終了させる
       - name: Check for vulnerabilities
         run: |
@@ -103,20 +109,6 @@ jobs:
           else
             echo "No vulnerabilities found."
           fi
-      # debug
-      # - name: Display Trivy Report
-      #   run: cat trivy-resource/result/trivy-report.json
-      # - name: Display Trivy Report
-      #   run: cat trivy-resource/result/trivy-report.html
-      # - name: debug
-      #   run: |
-      #     ls trivy-resource/template
-      #     ls trivy-resource/result
-      # スキャンレポートをアップロード
-      - name: Upload Trivy Report
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: trivy-resource/result
       # GitHub Packagesにコンテナイメージを公開
       - name: Publish Docker image to GitHub Packages
         run: |
