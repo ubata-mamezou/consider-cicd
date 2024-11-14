@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "appenv.sample",
+  "type": "java.lang.String",
+  "description": "環境情報の切り替え確認"
+}]}
