@@ -1,4 +1,4 @@
-package com.mau.consider.cicd.domain;
+package com.mau.consider.cicd.order.domain;
 
 import jakarta.persistence.Id;
 import lombok.EqualsAndHashCode;

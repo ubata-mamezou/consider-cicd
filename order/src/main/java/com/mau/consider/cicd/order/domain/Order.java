@@ -1,4 +1,4 @@
-package com.mau.consider.cicd.domain;
+package com.mau.consider.cicd.order.domain;
 
 import java.time.LocalDate;
 import java.util.List;

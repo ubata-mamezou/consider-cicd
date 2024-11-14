@@ -2,17 +2,11 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Application",
-      "request": "launch",
-      "mainClass": "com.mau.consider.cicd.Application"
-    },
-    {
-      "type": "java",
-      "name": "Spring Boot-Application<consider.cicd>",
+      "name": "Spring Boot-Application<order>",
       "request": "launch",
       "cwd": "${workspaceFolder}",
-      "mainClass": "com.mau.consider.cicd.Application",
-      "projectName": "consider.cicd",
+      "mainClass": "com.mau.consider.cicd.order.Application",
+      "projectName": "order",
       "args": "",
       "envFile": "${workspaceFolder}/.env"
     }
