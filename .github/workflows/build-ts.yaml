@@ -3,7 +3,8 @@ name: CI/CD TS Appication
 
 on:
   push:
-    branches: [main]
+    # 一旦、developブランチへのpushをトリガーにして実行
+    branches: [develop/**]
     paths: 
       - 'customer/**'
       - '.github/workflows/build-ts.yml' # ワークフロー自体の更新もトリガー
