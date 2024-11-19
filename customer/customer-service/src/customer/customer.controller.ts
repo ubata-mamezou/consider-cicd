@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { Customer } from './customer';
 import { ConfigService } from '@nestjs/config';
-import { AppConfig } from 'src/AppConfig';
+import { AppConfig } from '../AppConfig';
 
 /**
  * 顧客コントローラー
