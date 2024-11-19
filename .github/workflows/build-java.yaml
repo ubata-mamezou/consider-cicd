@@ -3,8 +3,11 @@ name: CI/CD java application
 
 on:
   push:
-    # 一旦、mainブランチへのpushをトリガーにして実行
-    branches: [main]
+    # 一旦、developブランチへのpushをトリガーにして実行
+    branches: [develop/**]
+    paths: 
+      - 'order/**'
+      - '.github/workflows/build-java.yml' # ワークフロー自体の更新もトリガー
 
 jobs:
   build:
@@ -51,7 +54,7 @@ jobs:
         with:
           path: order/target/reports
       # GitHub Packagesへjarファイルを公開
-      - name: Publish to GitHub Packages
+      - name: Publish artifact to GitHub Packages
         run: |
           cd order
           mvn deploy -DskipTests

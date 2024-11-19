@@ -1,0 +1,56 @@
+# ts, nestjs, node20
+name: CI/CD TS Appication
+
+on:
+  push:
+    # 一旦、developブランチへのpushをトリガーにして実行
+    branches: [develop/**]
+    paths: 
+      - 'customer/**'
+      - '.github/workflows/build-ts.yml' # ワークフロー自体の更新もトリガー
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # コードをチェックアウト
+      - uses: actions/checkout@v3
+      # Node.jsのセットアップ
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' # 使用するNode.jsのバージョン
+          cache: 'npm' # npmキャッシュを有効化
+      # 依存ライブラリのインストール
+      - name: Install dependencies
+        working-directory: ./customer/customer-service
+        run: npm install
+      # コードのLintチェック
+      - name: Run Lint
+        working-directory: ./customer/customer-service
+        run: npm run lint
+      # テスト実行
+      - name: Run Unit Tests
+        working-directory: ./customer/customer-service
+        run: npm test
+      # アーティファクト生成
+      - name: Build Customer App
+        working-directory: ./customer/customer-service
+        run: npm run build
+      # アーティファクト公開
+      - name: Upload build artifact
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: customer-app-build
+          path: ./customer/dist # ビルド成果物のパス        
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Publish to GitHub Packages
+      - name: Publish artifact to GitHub Packages
+        working-directory: ./customer/customer-service
+        run: |
+          npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
+          npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
+          npm publish
+          
