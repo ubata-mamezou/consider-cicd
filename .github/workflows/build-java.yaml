@@ -10,13 +10,13 @@ on:
     branches: 
       - 'feature/**'
     paths: 
-      - '$APP_NAME/**'
+      - 'order/**'
       - '.github/workflows/build-java.yml' # ワークフロー自体の更新もトリガー
   pull_request:
     branches: 
       - 'develop/**'
     paths: 
-      - '$APP_NAME/**'
+      - 'order/**'
       - '.github/workflows/build-java.yml' # ワークフロー自体の更新もトリガー
 
 jobs:
@@ -54,7 +54,7 @@ jobs:
                 </settings>" > ~/.m2/settings.xml
       # Mavenでビルドし、jarファイルを生成
       - name: Build with Maven
-        working-directory: ./$APP_NAME
+        working-directory: ./order
         run: |
           mvn clean install
           mvn surefire-report:report-only
@@ -62,16 +62,16 @@ jobs:
       - name: Upload Test Report
         uses: actions/upload-pages-artifact@v1
         with:
-          path: $APP_NAME/target/reports
+          path: order/target/reports
       # Publish to GitHub Packages
       - name: Publish artifact to GitHub Packages
-        working-directory: ./$APP_NAME
+        working-directory: ./order
         run: mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # イメージビルド（Docker）
       - name: Build Docker image
-        working-directory: ./$APP_NAME
+        working-directory: ./order
         run: docker build -t ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION .
       # Trivy DBのキャッシュ
       - name: Cache Trivy DB
