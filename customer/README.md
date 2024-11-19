@@ -4,8 +4,9 @@
 
 ```sh
 npm install @nestjs/cli
-npx nest new customer-service
+npx nest new customer-service --skip-git
 #  package manager: npm
+#  --skip-git: デフォルトの動きとしてgitリポジトリの初期化が実行されます。既存リポジトリに追加する場合は初期化は必要ないのでこのオプションをつけましょう。変更が検出されず少しハマりました。
 ```
 
 * create resource
