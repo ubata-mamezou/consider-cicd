@@ -112,7 +112,16 @@ public class Order {
                 setProductId(111L);
                 setQuantity(21);
               }
-            }));
+            },
+            new OrderDetail() {
+              {
+                setOrderId(1L);
+                setId(100L);
+                setProductId(200L);
+                setQuantity(110);
+              }
+            }
+            ));
       }
     };
     return order;
