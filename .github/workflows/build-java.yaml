@@ -6,13 +6,13 @@ on:
     branches: 
       - 'feature/**'
     paths: 
-      - 'customer/**'
+      - 'order/**'
       - '.github/workflows/build-java.yml' # ワークフロー自体の更新もトリガー
   pull_request:
     branches: 
       - 'develop/**'
     paths: 
-      - 'customer/**'
+      - 'order/**'
       - '.github/workflows/build-java.yml' # ワークフロー自体の更新もトリガー
 
 jobs:
