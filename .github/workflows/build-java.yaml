@@ -68,7 +68,7 @@ jobs:
       # イメージビルド（Docker）
       - name: Build Docker image
         working-directory: ./order
-        run: docker build -t ghcr.io/${{ github.repository_owner }}/order:${{ github.sha }} .
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/order:0.0.1 .
       # Trivy DBのキャッシュ
       - name: Cache Trivy DB
         uses: actions/cache@v3
@@ -92,8 +92,8 @@ jobs:
       - name: Scan Docker image with Trivy
         run: |
           mkdir trivy-resource/result -p
-          # trivy image --format json -o ./trivy-resource/result/trivy-report_order.json ghcr.io/${{ github.repository_owner }}/order:${{ github.sha }}
-          trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/trivy-report_order.html ghcr.io/${{ github.repository_owner }}/order:${{ github.sha }}
+          # trivy image --format json -o ./trivy-resource/result/trivy-report_order.json ghcr.io/${{ github.repository_owner }}/order:0.0.1
+          trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/trivy-report_order.html ghcr.io/${{ github.repository_owner }}/order:0.0.1
         env:
           # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
           # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
@@ -121,10 +121,10 @@ jobs:
       - name: Publish Docker image to GitHub Packages
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${{ github.repository_owner }}/order:${{ github.sha }}
+          docker push ghcr.io/${{ github.repository_owner }}/order:0.0.1
       # クリーンアップ（オプション）
       - name: Remove Docker images
-        run: docker rmi ghcr.io/${{ github.repository_owner }}/order:${{ github.sha }}     
+        run: docker rmi ghcr.io/${{ github.repository_owner }}/order:0.0.1     
   # Pagesへテスト結果を公開
   publish-test-result:
     runs-on: ubuntu-latest
