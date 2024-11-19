@@ -20,13 +20,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # コードをチェックアウト
-      - uses: actions/checkout@v3
+      - name: checkout resource
+        uses: actions/checkout@v3
       # Node.jsのセットアップ
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20' # 使用するNode.jsのバージョン
           cache: 'npm' # npmキャッシュを有効化
+          cache-dependency-path: ./customer/customer-service/package-lock.json
       # 依存ライブラリのインストール
       - name: Install dependencies
         working-directory: ./customer/customer-service
