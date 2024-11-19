@@ -5,6 +5,7 @@ on:
   push:
     # 一旦、mainブランチへのpushをトリガーにして実行
     branches: [main]
+    paths: 'order/**'
 
 jobs:
   build:
