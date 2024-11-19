@@ -69,7 +69,7 @@ jobs:
         run: docker build -t ghcr.io/${{ github.repository_owner }}/customer-service:${{ github.sha }} .
       # Dockerイメージのスキャン
       - name: Scan Docker image for vulnerabilities
-        uses: aquasecurity/trivy-action@v0.11.0
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: ghcr.io/${{ github.repository_owner }}/customer-service:latest
           format: 'json'
