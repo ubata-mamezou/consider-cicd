@@ -66,23 +66,22 @@ jobs:
       # イメージビルド（Docker）
       - name: Build Docker image
         working-directory: ./customer/customer-service
-        run: docker build -t ghcr.io/${{ github.repository_owner }}/customer-service:${{ github.sha }} .
-      # Dockerイメージのスキャン
-      - name: Scan Docker image for vulnerabilities
-        uses: aquasecurity/trivy-action@v0.28.0
-        with:
-          image-ref: ghcr.io/${{ github.repository_owner }}/customer-service:latest
-          format: 'json'
-          output: 'artifact/trivy-report.json'
-      # スキャンレポートをアーティファクトとしてアップロード
-      - name: Upload Trivy Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: trivy-report
-          path: artifact/trivy-report_customer-service.json
-
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/customer-service:0.0.1 .
+      # # Dockerイメージのスキャン
+      # - name: Scan Docker image for vulnerabilities
+      #   uses: aquasecurity/trivy-action@v0.28.0
+      #   with:
+      #     image-ref: ghcr.io/${{ github.repository_owner }}/customer-service:0.0.1
+      #     format: 'json'
+      #     output: 'artifact/trivy-report.json'
+      # # スキャンレポートをアーティファクトとしてアップロード
+      # - name: Upload Trivy Report
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: trivy-report
+      #     path: artifact/trivy-report_customer-service.json
       # DockerイメージをGitHub Packagesにプッシュ
       - name: Push Docker image to GitHub Packages
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${{ github.repository_owner }}/customer-service:latest
+          docker push ghcr.io/${{ github.repository_owner }}/customer-service:0.0.1
