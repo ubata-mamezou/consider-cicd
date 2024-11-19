@@ -3,10 +3,16 @@ name: CI/CD java application
 
 on:
   push:
-    # 一旦、developブランチへのpushをトリガーにして実行
-    branches: [develop/**]
+    branches: 
+      - 'feature/**'
     paths: 
-      - 'order/**'
+      - 'customer/**'
+      - '.github/workflows/build-java.yml' # ワークフロー自体の更新もトリガー
+  pull_request:
+    branches: 
+      - 'develop/**'
+    paths: 
+      - 'customer/**'
       - '.github/workflows/build-java.yml' # ワークフロー自体の更新もトリガー
 
 jobs:
