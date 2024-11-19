@@ -60,5 +60,7 @@ jobs:
         run: |
           npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
           npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
-          npm publish
+          npm publish || echo "Publish failed, skipping"
+        ## 同一バージョンを公開するとエラーになってパイプラインがfailしてしまうので、エラーが発生しても成功扱いにするように設定
+        continue-on-error: true
           
