@@ -1,6 +1,10 @@
 # ts, nestjs, node20
 name: CI/CD TS Appication
 
+env:
+  APP_NAME: customer-service
+  CONTAINER_VERSION: 0.0.1
+
 on:
   push:
     branches: 
@@ -28,22 +32,22 @@ jobs:
         with:
           node-version: '20' # 使用するNode.jsのバージョン
           cache: 'npm' # npmキャッシュを有効化
-          cache-dependency-path: ./customer/customer-service/package-lock.json
+          cache-dependency-path: ./customer/$APP_NAME/package-lock.json
       # 依存ライブラリのインストール
       - name: Install dependencies
-        working-directory: ./customer/customer-service
+        working-directory: ./customer/$APP_NAME
         run: npm install
       # コードのLintチェック
       - name: Run Lint
-        working-directory: ./customer/customer-service
+        working-directory: ./customer/$APP_NAME
         run: npm run lint
       # テスト実行
       - name: Run Unit Tests
-        working-directory: ./customer/customer-service
+        working-directory: ./customer/$APP_NAME
         run: npm test
       # アーティファクト生成
       - name: Build Customer App
-        working-directory: ./customer/customer-service
+        working-directory: ./customer/$APP_NAME
         run: npm run build
       # アーティファクト公開
       - name: Upload build artifact
@@ -51,12 +55,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: customer-app-build
-          path: ./customer/customer-service/dist # ビルド成果物のパス        
+          path: ./customer/$APP_NAME/dist # ビルド成果物のパス        
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Publish to GitHub Packages
       - name: Publish artifact to GitHub Packages
-        working-directory: ./customer/customer-service
+        working-directory: ./customer/$APP_NAME
         run: |
           npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
           npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
@@ -65,13 +69,13 @@ jobs:
         continue-on-error: true
       # イメージビルド（Docker）
       - name: Build Docker image
-        working-directory: ./customer/customer-service
-        run: docker build -t ghcr.io/${{ github.repository_owner }}/customer-service:0.0.1 .
+        working-directory: ./customer/$APP_NAME
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION .
       # # Dockerイメージのスキャン
       # - name: Scan Docker image for vulnerabilities
       #   uses: aquasecurity/trivy-action@v0.28.0
       #   with:
-      #     image-ref: ghcr.io/${{ github.repository_owner }}/customer-service:0.0.1
+      #     image-ref: ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION
       #     format: 'json'
       #     output: 'artifact/trivy-report.json'
       # # スキャンレポートをアーティファクトとしてアップロード
@@ -79,9 +83,9 @@ jobs:
       #   uses: actions/upload-artifact@v3
       #   with:
       #     name: trivy-report
-      #     path: artifact/trivy-report_customer-service.json
+      #     path: artifact/trivy-report_$APP_NAME.json
       # DockerイメージをGitHub Packagesにプッシュ
       - name: Push Docker image to GitHub Packages
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${{ github.repository_owner }}/customer-service:0.0.1
+          docker push ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION
