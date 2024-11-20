@@ -46,7 +46,7 @@ jobs:
       # テスト実行
       - name: Run Unit Tests
         working-directory: ./customer/customer-service
-        run: npm test:ci
+        run: npm run test:ci
       # テストレポートのアップロード
       - name: Upload Test Report
         uses: actions/upload-pages-artifact@v1
