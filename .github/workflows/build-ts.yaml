@@ -106,3 +106,18 @@ jobs:
     steps:
     - name: Deploy to GitHub Pages
       uses: actions/deploy-pages@v2
+    - name: debug
+      run: dir
+  # AWSへデプロイ
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - publish-test-result
+    steps:
+    - name: login to AWS ECR
+      run: aws ecr get-login-password --region ${{ secrets.AWS_REGION}} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION}}.amazonaws.com
+    - name: Build and Push Docker image to ECR
+      run: |
+        docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/consider-cicd:latest
+  
