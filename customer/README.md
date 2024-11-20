@@ -56,6 +56,55 @@ $Env:envValName="envVal"
 ```
 * これだと変数名が散在する、値を都度読むことになることから集約＋キャッシングをすべきである。
 
+## test report
+```sh
+npm install jest-html-reporters
+```
+scriptの追加
+npx jest --reporters=default --reporters=jest-html-reporters --coverage --collectCoverageFrom='./src/**'
+
+```json
+{
+  "scripts": {
+    // "test": "jest", 
+    "test": "jest --reporters:default", //毎回テストレポート作成されるのは重いので通常は作成されないようにオプション追加
+    "test:ci": "jest --coverage", //追加：CI用のテスト実行コマンド（カバレッジレポートおよびテストレポートの生成あり）
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    // "coverageDirectory": "../coverage",
+    "coverageDirectory": "../test-result/coverage", //CI上で扱いづらいので出力先を変更（test-resultフォルダ配下に生成するようにしてください)
+    "testEnvironment": "node",
+    //
+    "coverageReporters": ["text", "lcov"],
+    //追加：テストレポートのレポーター設定
+    "reporters": [
+      "default",
+      [
+        "jest-html-reporters",
+        {
+          "publicPath": "./test-result/test-report",
+          "filename": "test-report.html",
+          "expand": true
+        }
+      ]
+    ]
+  }
+}
+```
+
 
 ## Appendix：トラブルシューティング
 

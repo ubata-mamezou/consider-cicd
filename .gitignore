@@ -2,3 +2,4 @@ order/.mvn
 order/mvnw
 order/mvnw.cmd
 customer/node_modules
+customer/customer-service/test-result
