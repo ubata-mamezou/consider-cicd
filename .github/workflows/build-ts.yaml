@@ -36,7 +36,9 @@ jobs:
       # 依存ライブラリのインストール
       - name: Install dependencies
         working-directory: ./customer/customer-service
-        run: npm install
+        run: |
+          npm install
+          npm install --save-dev jest-html-reporters
       # コードのLintチェック
       - name: Run Lint
         working-directory: ./customer/customer-service
@@ -44,7 +46,12 @@ jobs:
       # テスト実行
       - name: Run Unit Tests
         working-directory: ./customer/customer-service
-        run: npm test
+        run: npm test:ci
+      # テストレポートのアップロード
+      - name: Upload Test Report
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: customer/customer-service/test-result
       # アーティファクト生成
       - name: Build Customer App
         working-directory: ./customer/customer-service
@@ -89,3 +96,13 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION
+  # Pagesへテスト結果を公開
+  publish-test-result:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+    - name: Deploy to GitHub Pages
+      uses: actions/deploy-pages@v2
