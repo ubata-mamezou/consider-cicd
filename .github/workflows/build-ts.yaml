@@ -4,6 +4,7 @@ name: CI/CD TS Appication
 env:
   APP_NAME: customer-service
   CONTAINER_VERSION: 0.0.1
+  AWS_REGION: ap-northeast-1
 
 on:
   push:
