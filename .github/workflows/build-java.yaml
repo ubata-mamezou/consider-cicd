@@ -63,6 +63,8 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: order/target/reports
+      - name: debug test-report
+        run: dir order/target/reports
       # Publish to GitHub Packages
       - name: Publish artifact to GitHub Packages
         working-directory: ./order
@@ -111,6 +113,8 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: trivy-resource/result
+      - name: debug trivy-report
+        run: dir trivy-resource/result
       # FIXME: 脆弱性があってもパイプラインが進んでしまっている
       # 脆弱性が見つかった場合、パイプラインを終了させる
       - name: Check for vulnerabilities
