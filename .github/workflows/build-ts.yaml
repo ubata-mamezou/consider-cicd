@@ -44,7 +44,7 @@ jobs:
       # コードのLintチェック
       - name: Run Lint
         working-directory: ./customer/customer-service
-        run: npm run lint | reviewdog -f=eslint -name="eslint" -reporter=github-pr-review
+        run: npm run lint
       # テスト実行
       - name: Run Unit Tests
         working-directory: ./customer/customer-service
