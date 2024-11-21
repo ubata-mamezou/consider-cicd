@@ -13,16 +13,12 @@ on:
     paths: 
       - 'customer/**'
       - '.github/workflows/build-ts.yml' # ワークフロー自体の更新もトリガー
-    paths-ignore:
-      - '.github/workflows/build-java.yml' # ワークフロー自体の更新もトリガー
   pull_request:
     branches: 
       - 'develop/**'
     paths: 
       - 'customer/**'
       - '.github/workflows/build-ts.yml' # ワークフロー自体の更新もトリガー
-    paths-ignore:
-      - '.github/workflows/build-java.yml' # ワークフロー自体の更新もトリガー
 
 jobs:
   build:
@@ -83,19 +79,54 @@ jobs:
       - name: Build Docker image
         working-directory: ./customer/customer-service
         run: docker build -t ghcr.io/${{ github.repository_owner }}/customer-service:$CONTAINER_VERSION .
-      # # Dockerイメージのスキャン
-      # - name: Scan Docker image for vulnerabilities
-      #   uses: aquasecurity/trivy-action@v0.28.0
-      #   with:
-      #     image-ref: ghcr.io/${{ github.repository_owner }}/customer-service:$CONTAINER_VERSION
-      #     format: 'json'
-      #     output: 'artifact/trivy-report.json'
-      # # スキャンレポートをアーティファクトとしてアップロード
-      # - name: Upload Trivy Report
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: trivy-report
-      #     path: artifact/trivy-report_customer-service.json
+      # Trivy DBのキャッシュ
+      - name: Cache Trivy DB
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/trivy  # TrivyのDBキャッシュの保存場所
+          key: ${{ runner.os }}-trivy-db
+          restore-keys: |
+            ${{ runner.os }}-trivy-db
+      # Trivyインストール
+      - name: Install Trivy
+        run: |
+          sudo apt-get update && sudo apt-get install -y wget
+          wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.57.0/trivy_0.57.0_Linux-64bit.tar.gz | tar zxvf -
+          sudo mv trivy /usr/local/bin/
+      # テンプレートダウンロード
+      - name: Trivy HTML template download
+        run: |
+          mkdir trivy-resource/template -p
+          wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
+      # 脆弱性スキャン（Trivy）
+      - name: Scan Docker image with Trivy
+        run: |
+          mkdir trivy-resource/result -p
+          # trivy image --format json -o ./trivy-resource/result/trivy-report_$APP_NAME.json ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION
+          trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/trivy-report_$APP_NAME.html ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION
+        env:
+          # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
+          # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
+          # ACTIONS_RUNTIME_TOKEN はGitHub Actions内でジョブが実行される間だけ有効な一時的なトークンで、GitHubのAPIリクエストの認証に使用できます。
+          # ACTIONS_RUNTIME_TOKENを使用して認証することで、GitHubのパブリックAPIと異なり、Actions用のレートリミットが適用され、より多くのリクエストを許可されます。
+          # GitHubは認証されたリクエストに対して、無認証リクエストよりも高いレートリミットを提供しているため、ACTIONS_RUNTIME_TOKENを使用することでAPIへのアクセス制限が緩和され、結果としてレートリミットに引っかかりにくくなります。
+          ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true #retelimitによるエラーが頻発するので暫定的にエラー無視
+      # スキャンレポートをアップロード
+      - name: Upload Trivy Report
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: trivy-resource/result
+      # FIXME: 脆弱性があってもパイプラインが進んでしまっている
+      # 脆弱性が見つかった場合、パイプラインを終了させる
+      - name: Check for vulnerabilities
+        run: |
+          if grep -q '"Vulnerabilities": \[' trivy-resource/result/trivy-report_$APP_NAME.html; then
+            echo "Vulnerabilities found."
+            exit 1
+          else
+            echo "No vulnerabilities found."
+          fi
       # DockerイメージをGitHub Packagesにプッシュ
       - name: Push Docker image to GitHub Packages
         run: |
@@ -139,5 +170,4 @@ jobs:
       run: |
         echo debug:$APP_NAME,$CONTAINER_VERSION,${{ env.AWS_REGION }}
         docker tag ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/consider-cicd:$CONTAINER_VERSION
-        docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/consider-cicd:$CONTAINER_VERSION
-
+        docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/consider-cicd:$APP_NAME-$CONTAINER_VERSION
