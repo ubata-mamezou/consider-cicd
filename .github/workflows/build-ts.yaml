@@ -12,16 +12,17 @@ on:
       - 'feature/**'
     paths: 
       - 'customer/**'
-      - '.github/workflows/build-ts.yml' # ワークフロー自体の更新もトリガー
+      - '.github/workflows/**' # ワークフロー自体の更新もトリガー
   pull_request:
     branches: 
       - 'develop/**'
     paths: 
       - 'customer/**'
-      - '.github/workflows/build-ts.yml' # ワークフロー自体の更新もトリガー
+      - '.github/workflows/**' # ワークフロー自体の更新もトリガー
 
 jobs:
   build:
+    if: "!contains(github.event.head_commit.message, 'build-java.yml')" #Javaのワークフロー変更では動かないように制御
     runs-on: ubuntu-latest
     steps:
       # コードをチェックアウト
@@ -168,6 +169,5 @@ jobs:
     # イメージプッシュ
     - name: Build and Push Docker image to ECR
       run: |
-        echo debug:$APP_NAME,$CONTAINER_VERSION,${{ env.AWS_REGION }}
-        docker tag ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/consider-cicd:$CONTAINER_VERSION
+        docker tag ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/consider-cicd:$APP_NAME-$CONTAINER_VERSION
         docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/consider-cicd:$APP_NAME-$CONTAINER_VERSION
