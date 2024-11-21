@@ -1,5 +1,6 @@
 # OpenJDKを基盤にしたイメージを使用
-FROM openjdk:21-slim-bullseye
+FROM mcr.microsoft.com/openjdk/jdk:21-ubuntu
+# FROM openjdk:21-slim-bullseye
 # FROM gcr.io/distroless/java:21
 
 # 作成したJARファイルをコンテナにコピー
