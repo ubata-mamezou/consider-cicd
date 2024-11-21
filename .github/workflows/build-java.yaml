@@ -127,10 +127,10 @@ jobs:
       - name: Publish Docker image to GitHub Packages
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION
+          docker push ghcr.io/${{ github.repository_owner }}/$APP_NAME-$CONTAINER_VERSION
       # クリーンアップ（オプション）
       - name: Remove Docker images
-        run: docker rmi ghcr.io/${{ github.repository_owner }}/$APP_NAME:$CONTAINER_VERSION
+        run: docker rmi ghcr.io/${{ github.repository_owner }}/$APP_NAME-$CONTAINER_VERSION
   # Pagesへテスト結果を公開
   publish-test-result:
     runs-on: ubuntu-latest
