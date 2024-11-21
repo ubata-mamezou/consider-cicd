@@ -13,12 +13,16 @@ on:
     paths: 
       - 'customer/**'
       - '.github/workflows/build-ts.yml' # ワークフロー自体の更新もトリガー
+    paths-ignore:
+      - '.github/workflows/build-java.yml' # ワークフロー自体の更新もトリガー
   pull_request:
     branches: 
       - 'develop/**'
     paths: 
       - 'customer/**'
       - '.github/workflows/build-ts.yml' # ワークフロー自体の更新もトリガー
+    paths-ignore:
+      - '.github/workflows/build-java.yml' # ワークフロー自体の更新もトリガー
 
 jobs:
   build:
