@@ -4,7 +4,7 @@ name: build-image
 on:
   workflow_call:
     inputs:
-      app_name:
+      app-name:
         required: true
         type: string
       app_version:
@@ -18,7 +18,7 @@ jobs:
       # イメージビルド（Docker）
       - name: Build Docker image
         working-directory: ./order
-        run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app_name }}:${{ inputs.app_version }} .
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app_version }} .
       # Trivy DBのキャッシュ
       - name: Cache Trivy DB
         uses: actions/cache@v3
@@ -42,8 +42,8 @@ jobs:
       - name: Scan Docker image with Trivy
         run: |
           mkdir trivy-resource/result -p
-          # trivy image --format json -o ./trivy-resource/result/trivy-report_$APP_NAME.json ghcr.io/${{ github.repository_owner }}/${{ inputs.app_name }}:${{ inputs.app_version }}
-          trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/trivy-report_$APP_NAME.html ghcr.io/${{ github.repository_owner }}/${{ inputs.app_name }}:${{ inputs.app_version }}
+          # trivy image --format json -o ./trivy-resource/result/trivy-report_$app-name.json ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app_version }}
+          trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/trivy-report_$app-name.html ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app_version }}
         env:
           # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
           # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
@@ -61,7 +61,7 @@ jobs:
       # 脆弱性が見つかった場合、パイプラインを終了させる
       - name: Check for vulnerabilities
         run: |
-          if grep -q '"Vulnerabilities": \[' trivy-resource/result/trivy-report_$APP_NAME.html; then
+          if grep -q '"Vulnerabilities": \[' trivy-resource/result/trivy-report_${{ inputs.app-name }}.html; then
             echo "Vulnerabilities found."
             exit 1
           else
@@ -71,7 +71,7 @@ jobs:
       - name: Publish Docker image to GitHub Packages
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${{ github.repository_owner }}/${{ inputs.app_name }}:${{ inputs.app_version }}
+          docker push ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app_version }}
       # クリーンアップ（オプション）
       - name: Remove Docker images
-        run: docker rmi ghcr.io/${{ github.repository_owner }}/${{ inputs.app_name }}:${{ inputs.app_version }}
+        run: docker rmi ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app_version }}
