@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/openjdk/jdk:21-ubuntu
 # FROM gcr.io/distroless/java:21
 
 # 作成したJARファイルをコンテナにコピー
-COPY target/order-0.0.1-SNAPSHOT.jar app.jar
+COPY target/order-0.0.1.jar app.jar
 
 # アプリケーションを実行するコマンド
 ENTRYPOINT ["java", "-jar", "/app.jar"]
