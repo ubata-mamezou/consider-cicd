@@ -76,7 +76,7 @@ jobs:
           mkdir -p pages/order/test-report
           cp -r order/target/reports pages/order/test-report
       - name: Upload Test Report
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           path: pages
       # - name: Check if package version exists

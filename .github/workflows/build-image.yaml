@@ -71,7 +71,7 @@ jobs:
           mkdir -p pages/order/image-scan-report
           cp -r trivy-resource/result pages/order/image-scan-report
       - name: Upload Test Report
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           path: pages
       # FIXME: 脆弱性があってもパイプラインが進んでしまっている
