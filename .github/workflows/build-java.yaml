@@ -57,9 +57,13 @@ jobs:
       # Mavenでビルドし、jarファイルを生成
       - name: Build with Maven
         working-directory: ./order
-        run: |
-          mvn clean install
-          mvn surefire-report:report-only
+        run: mvn clean install surefire-report:report-only
+      # upload for jar
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: ./order/target/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
       # テストレポートのアップロード
       - name: Upload Test Report
         uses: actions/upload-pages-artifact@v1
@@ -88,21 +92,19 @@ jobs:
         continue-on-error: true #同一バージョンのpushエラーが発生するため、エラー無視
       - name: Notify if version already exists
         if: failure()
-        run: |
-          echo publish duplicate version
-          ls
-      - name: build-image
-        uses: ./.github/workflows/build-image.yaml
-        with:
-          app-name: order
-          app-version: 0.0.1
+        run: echo publish duplicate version
+      # - name: build-image
+      #   uses: ./.github/workflows/build-image.yaml
+      #   with:
+      #     app-name: order
+      #     app-version: 0.0.1
   # イメージビルド、スキャン、公開
-  # build-image:
-  #   needs: build
-  #   uses: ./.github/workflows/build-image.yaml
-  #   with:
-  #     app-name: order
-  #     app-version: 0.0.1
+  build-image:
+    needs: build
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      app-name: order
+      app-version: 0.0.1
   # Pagesへテスト結果を公開
   publish-test-result:
     runs-on: ubuntu-latest
