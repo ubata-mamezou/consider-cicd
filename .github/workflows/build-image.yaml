@@ -62,6 +62,9 @@ jobs:
           # GitHubは認証されたリクエストに対して、無認証リクエストよりも高いレートリミットを提供しているため、ACTIONS_RUNTIME_TOKENを使用することでAPIへのアクセス制限が緩和され、結果としてレートリミットに引っかかりにくくなります。
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true #retelimitによるエラーが頻発するので暫定的にエラー無視
+      - name: blank html
+        if: failure()
+        run: echo "<h1>イメージスキャンが異常終了しているため、脆弱性結果はありません</h1>" > trivy-report_${{ inputs.app-name }}.html
       # スキャンレポートをアップロード
       - name: debug
         run: tree
