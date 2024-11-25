@@ -21,10 +21,16 @@ jobs:
       #     docker pull ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
       # - name: Check out code
       #   uses: actions/checkout@v3
-      - name: download arxtifact
+      - name: download artifact
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
+      #
+      - name: debug
+        working-directory: ${{ inputs.app-name }}
+        run: |
+          ls
+          ls target
       # イメージビルド（Docker）
       - name: Build Docker image
         working-directory: ${{ inputs.app-name }}
