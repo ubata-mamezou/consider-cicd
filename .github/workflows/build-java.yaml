@@ -79,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-report
-          path: pages/${{ env.APP_NAME }}/test-report
+          path: pages
       # Publish to GitHub Packages
       - name: Publish artifact to GitHub Packages
         working-directory: ${{ env.WORK_DIRECTORY }}
@@ -130,7 +130,7 @@ jobs:
     - name: upload
       uses: actions/upload-pages-artifact@v3
       # uses: actions/upload-artifact@v4
-      id: pages
+      # id: github-pages
       with:
         path: .
     - name: Deploy to GitHub Pages
