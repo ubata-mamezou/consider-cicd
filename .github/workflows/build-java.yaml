@@ -138,14 +138,7 @@ jobs:
 
     - name: debug
       run: |
-        echo debug-1
-        ls
-        echo debug-2
-        ls order
-        echo debug-3
-        ls order/test-report
-        echo debug-4
-        ls order/image-scan-report
+        tree
       continue-on-error: true
 
     - name: Deploy to GitHub Pages
