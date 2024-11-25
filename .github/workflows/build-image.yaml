@@ -66,10 +66,14 @@ jobs:
       #   uses: actions/upload-pages-artifact@v1
       #   with:
       #     path: trivy-resource/result
+      - name: debug
+        run: tree
       - name: move scan report
         run: |
           mkdir -p pages/order/image-scan-report
           cp -r trivy-resource/result pages/order/image-scan-report
+      - name: debug
+        run: tree
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
