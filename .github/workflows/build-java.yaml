@@ -65,12 +65,30 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: order/target/reports
+      # - name: Check if package version exists
+      #   id: check-package
+      #   run: |
+      #     PACKAGE_URL="https://api.github.com/orgs/<ORG_NAME>/packages/container/${{ env.APP_VERSION }}/versions"
+      #     PACKAGE_VERSION=${{ env.APP_VERSION }}
+      #     AUTH_HEADER="Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
+      #     PACKAGE_ID=$(curl -s -H "$AUTH_HEADER" $PACKAGE_URL | jq -r ".[] | select(.metadata.container.tags[] | contains(\"$APP_VERSION\")) | .id")
+
+      #     if [ -z "$PACKAGE_ID" ]; then
+      #       echo "Package version not found. Skipping delete."
+      #     else
+      #       echo "Package version exists. Deleting..."
+      #       curl -X DELETE -H "$AUTH_HEADER" "$PACKAGE_URL/$PACKAGE_ID"
+      #     fi
       # Publish to GitHub Packages
       - name: Publish artifact to GitHub Packages
         working-directory: ./order
         run: mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true #同一バージョンのpushエラーが発生するため、エラー無視
+      - name: Notify if version already exists
+        if: failure()
+        run: echo publish duplicate version
   # イメージビルド、スキャン、公開
   build-image:
     needs: build
