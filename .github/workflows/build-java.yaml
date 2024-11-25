@@ -89,13 +89,18 @@ jobs:
       - name: Notify if version already exists
         if: failure()
         run: echo publish duplicate version
+      - name: build-image
+        uses: ./.github/workflows/build-image.yaml
+        with:
+          app-name: order
+          app-version: 0.0.1
   # イメージビルド、スキャン、公開
-  build-image:
-    needs: build
-    uses: ./.github/workflows/build-image.yaml
-    with:
-      app-name: order
-      app-version: 0.0.1
+  # build-image:
+  #   needs: build
+  #   uses: ./.github/workflows/build-image.yaml
+  #   with:
+  #     app-name: order
+  #     app-version: 0.0.1
   # Pagesへテスト結果を公開
   publish-test-result:
     runs-on: ubuntu-latest
@@ -111,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build
-      - build-image
+      # - build-image
       - publish-test-result
     steps:
     - name: Pull Docker image from GitHub Packages
