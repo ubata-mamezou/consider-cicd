@@ -15,10 +15,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # - name: Pull Docker image from GitHub Packages
-      #   run: |
-      #     echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-      #     docker pull ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
       - name: download artifact
         uses: actions/download-artifact@v4
         with:
@@ -29,12 +25,6 @@ jobs:
         with:
           name: dockerfile
           path: ${{ inputs.app-name }}
-      #
-      - name: debug
-        working-directory: ${{ inputs.app-name }}
-        run: |
-          ls
-          ls target
       # イメージビルド（Docker）
       - name: Build Docker image
         working-directory: ${{ inputs.app-name }}
@@ -45,8 +35,7 @@ jobs:
         with:
           path: ~/.cache/trivy  # TrivyのDBキャッシュの保存場所
           key: ${{ runner.os }}-trivy-db
-          restore-keys: |
-            ${{ runner.os }}-trivy-db
+          restore-keys: ${{ runner.os }}-trivy-db
       # Trivyインストール
       - name: Install Trivy
         run: |
@@ -73,10 +62,18 @@ jobs:
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true #retelimitによるエラーが頻発するので暫定的にエラー無視
       # スキャンレポートをアップロード
-      - name: Upload Trivy Report
-        uses: actions/upload-pages-artifact@v1
+      # - name: Upload Trivy Report
+      #   uses: actions/upload-pages-artifact@v1
+      #   with:
+      #     path: trivy-resource/result
+      - name: move scan report
+        run: 
+          mkdir -p pages/order/image-scan-report
+          cp -r trivy-resource/result pages/order/image-scan-report
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v1
         with:
-          path: trivy-resource/result
+          path: pages
       # FIXME: 脆弱性があってもパイプラインが進んでしまっている
       # 脆弱性が見つかった場合、パイプラインを終了させる
       - name: Check for vulnerabilities

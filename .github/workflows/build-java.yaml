@@ -71,10 +71,14 @@ jobs:
           name: dockerfile
           path: ./order/Dockerfile
       # テストレポートのアップロード
+      - name: move test report
+        run: 
+          mkdir -p pages/order/test-report
+          cp -r order/target/reports pages/order/test-report
       - name: Upload Test Report
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-artifact@v1
         with:
-          path: order/target/reports
+          path: pages
       # - name: Check if package version exists
       #   id: check-package
       #   run: |
@@ -114,20 +118,20 @@ jobs:
   # Pagesへテスト結果を公開
   publish-test-result:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-image
     permissions:
       pages: write
       id-token: write
     steps:
     - name: Deploy to GitHub Pages
-      uses: actions/deploy-pages@v2
+      uses: actions/deploy-pages@v3
   # AWSへデプロイ
   deploy:
     runs-on: ubuntu-latest
     needs:
-      - build
+      # - build
       - build-image
-      - publish-test-result
+      # - publish-test-result
     steps:
     - name: Pull Docker image from GitHub Packages
       run: |
