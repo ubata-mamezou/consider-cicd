@@ -78,21 +78,8 @@ jobs:
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
+          name: test-report
           path: pages/${{ env.APP_NAME }}/test-report
-      # - name: Check if package version exists
-      #   id: check-package
-      #   run: |
-      #     PACKAGE_URL="https://api.github.com/orgs/<ORG_NAME>/packages/container/${{ env.APP_VERSION }}/versions"
-      #     PACKAGE_VERSION=${{ env.APP_VERSION }}
-      #     AUTH_HEADER="Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
-      #     PACKAGE_ID=$(curl -s -H "$AUTH_HEADER" $PACKAGE_URL | jq -r ".[] | select(.metadata.container.tags[] | contains(\"$APP_VERSION\")) | .id")
-
-      #     if [ -z "$PACKAGE_ID" ]; then
-      #       echo "Package version not found. Skipping delete."
-      #     else
-      #       echo "Package version exists. Deleting..."
-      #       curl -X DELETE -H "$AUTH_HEADER" "$PACKAGE_URL/$PACKAGE_ID"
-      #     fi
       # Publish to GitHub Packages
       - name: Publish artifact to GitHub Packages
         working-directory: ${{ env.WORK_DIRECTORY }}
@@ -122,9 +109,28 @@ jobs:
     permissions:
       pages: write
       id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
+    - name: download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: test-report
+        path: .
+    - name: download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: image-scan-report
+        path: .
+    - name: upload
+      # uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-artifact@v4
+      id: pages
+      with:
+        path: .
     - name: Deploy to GitHub Pages
-      uses: actions/deploy-pages@v4
+      uses: actions/deploy-pages@v3
   # AWSへデプロイ
   deploy:
     runs-on: ubuntu-latest
