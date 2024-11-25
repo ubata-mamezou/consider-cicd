@@ -52,7 +52,7 @@ jobs:
         run: |
           mkdir trivy-resource/result -p
           # trivy image --format json -o ./trivy-resource/result/trivy-report_$app-name.json ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
-          trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/trivy-report_$app-name.html ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
+          trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/trivy-report_${{ inputs.app-name }}.html ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
         env:
           # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
           # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
