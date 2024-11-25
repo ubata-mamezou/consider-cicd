@@ -19,13 +19,22 @@ jobs:
       #   run: |
       #     echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       #     docker pull ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
-      # - name: Check out code
-      #   uses: actions/checkout@v3
       - name: download artifact
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
           path: ${{ inputs.app-name }}/target
+      - name: download dockerfile
+        uses: actions/download-artifact@v4
+        with:
+          name: dockerfile
+          path: ${{ inputs.app-name }}
+      #
+      - name: debug
+        working-directory: ${{ inputs.app-name }}
+        run: |
+          ls
+          ls target
       # イメージビルド（Docker）
       - name: Build Docker image
         working-directory: ${{ inputs.app-name }}
