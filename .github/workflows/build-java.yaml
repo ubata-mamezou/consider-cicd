@@ -126,9 +126,9 @@ jobs:
         path: .
       continue-on-error: true
     - name: upload
-      uses: actions/upload-pages-artifact@v3
-      # uses: actions/upload-artifact@v4
-      # id: github-pages
+      # uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-artifact@v4
+      id: github-pages
       with:
         path: .
     - name: Deploy to GitHub Pages
