@@ -5,6 +5,7 @@ env:
   APP_NAME: order
   APP_VERSION: 0.0.1
   AWS_REGION: ap-northeast-1
+  WORK_DIRECTORY: ./order
 
 on:
   push:
@@ -39,8 +40,7 @@ jobs:
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          restore-keys: ${{ runner.os }}-maven-
       # MavenにGitHub Packagesへの認証設定追加
       - name: Generate Maven settings.xml
         run: |
@@ -56,29 +56,29 @@ jobs:
                 </settings>" > ~/.m2/settings.xml
       # Mavenでビルドし、jarファイルを生成
       - name: Build with Maven
-        working-directory: ./order
+        working-directory: ${{ env.WORK_DIRECTORY }}
         run: mvn clean install surefire-report:report-only
       # upload for jar
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: ./order/target/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
+          path: ${{ env.WORK_DIRECTORY }}/target/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
       # upload for Dockerfile
       - name: Upload dockerfile
         uses: actions/upload-artifact@v4
         with:
           name: dockerfile
-          path: ./order/Dockerfile
+          path: ${{ env.WORK_DIRECTORY }}/Dockerfile
       # テストレポートのアップロード
       - name: move test report
         run: |
-          mkdir -p pages/order/test-report
-          cp -r order/target/reports pages/order/test-report
+          mkdir -p pages/${{ env.APP_NAME }}/test-report
+          cp -r ${{ env.WORK_DIRECTORY }}/target/reports pages/${{ env.APP_NAME }}/test-report
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
-          path: pages
+          path: pages/${{ env.APP_NAME }}/test-report
       # - name: Check if package version exists
       #   id: check-package
       #   run: |
@@ -95,7 +95,7 @@ jobs:
       #     fi
       # Publish to GitHub Packages
       - name: Publish artifact to GitHub Packages
-        working-directory: ./order
+        working-directory: ${{ env.WORK_DIRECTORY }}
         run: mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
