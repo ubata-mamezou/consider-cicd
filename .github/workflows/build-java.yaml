@@ -74,7 +74,7 @@ jobs:
       - name: move test report
         run: |
           mkdir -p pages/${{ env.APP_NAME }}/test-report
-          cp -r ${{ env.WORK_DIRECTORY }}/target/reports/ pages/${{ env.APP_NAME }}/test-report
+          cp -r ${{ env.WORK_DIRECTORY }}/target/reports/* pages/${{ env.APP_NAME }}/test-report
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:

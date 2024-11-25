@@ -71,7 +71,7 @@ jobs:
       - name: move scan report
         run: |
           mkdir -p pages/order/image-scan-report
-          cp -r trivy-resource/result/ pages/order/image-scan-report
+          cp -r trivy-resource/result/* pages/order/image-scan-report
       - name: debug
         run: tree
       - name: Upload Test Report
