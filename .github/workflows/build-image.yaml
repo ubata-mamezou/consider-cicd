@@ -50,6 +50,7 @@ jobs:
           wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
       # 脆弱性スキャン（Trivy）
       - name: Scan Docker image with Trivy
+        id: execute-image-scan
         run: |
           mkdir trivy-resource/result -p
           # trivy image --format json -o ./trivy-resource/result/trivy-report_$app-name.json ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
@@ -62,8 +63,9 @@ jobs:
           # GitHubは認証されたリクエストに対して、無認証リクエストよりも高いレートリミットを提供しているため、ACTIONS_RUNTIME_TOKENを使用することでAPIへのアクセス制限が緩和され、結果としてレートリミットに引っかかりにくくなります。
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true #retelimitによるエラーが頻発するので暫定的にエラー無視
-      - name: blank html
-        if: failure()
+      - name: add blank html
+        # if: failure()
+        if: steps.execute-image-scan.outcome == 'failure'
         run: echo "<h1>イメージスキャンが異常終了しているため、脆弱性結果はありません</h1>" > trivy-report_${{ inputs.app-name }}.html
       # スキャンレポートをアップロード
       - name: debug
