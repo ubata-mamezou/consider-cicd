@@ -19,8 +19,8 @@ jobs:
       #   run: |
       #     echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       #     docker pull ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
-      - name: Check out code
-        uses: actions/checkout@v3
+      # - name: Check out code
+      #   uses: actions/checkout@v3
       # イメージビルド（Docker）
       - name: Build Docker image
         working-directory: ${{ inputs.app-name }}

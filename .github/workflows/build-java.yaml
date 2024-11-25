@@ -88,7 +88,9 @@ jobs:
         continue-on-error: true #同一バージョンのpushエラーが発生するため、エラー無視
       - name: Notify if version already exists
         if: failure()
-        run: echo publish duplicate version
+        run: |
+          echo publish duplicate version
+          ls
       - name: build-image
         uses: ./.github/workflows/build-image.yaml
         with:
