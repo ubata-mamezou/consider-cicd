@@ -1,0 +1,49 @@
+# AWSへのデプロイ
+# # 前提条件
+# * GitHub SecretsにECRへのプッシュが可能なIAM情報を登録済みであること
+#   * AWS_ACCESS_KEY_ID
+#   * AWS_SECRET_ACCESS_KEY
+# * イメージビルドが完了し、GitHub Packagesに公開されていること
+name: deploy aws
+
+on:
+  workflow_call:
+    inputs:
+      app-name:
+        required: true
+        type: string
+      app-version:
+        required: true
+        type: string
+      aws-region:
+        required: true
+        type: string
+      aws-ecr-repository-name:
+        required: true
+        type: string
+
+jobs:
+  deploy-aws:
+    runs-on: ubuntu-latest
+    steps:
+    # デプロイ対象のイメージを取得
+    - name: Pull Docker image from GitHub Packages
+      run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        docker pull ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
+    # AWS認証情報を設定
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ inputs.aws-region }}
+    # ECRへログイン
+    - name: login to AWS ECR
+      run: aws ecr get-login-password --region ${{ inputs.aws-region }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+    # イメージプッシュ
+    - name: Build and Push Docker image to ECR
+      run: |
+        docker tag ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
+        docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
+  

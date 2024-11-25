@@ -1,4 +1,4 @@
-# build, scan, publish image.
+# イメージビルド
 name: build-image
 
 on:
@@ -15,6 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # アーティファクトをダウンロード
       - name: download artifact
         uses: actions/download-artifact@v4
         with:
@@ -62,22 +63,18 @@ jobs:
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true #retelimitによるエラーが頻発するので暫定的にエラー無視
       # スキャンレポートをアップロード
-      # - name: Upload Trivy Report
-      #   uses: actions/upload-pages-artifact@v1
-      #   with:
-      #     path: trivy-resource/result
       - name: debug
         run: tree
       - name: move scan report
         run: |
-          mkdir -p pages/order/image-scan-report
-          cp -r trivy-resource/result/* pages/order/image-scan-report
+          mkdir -p pages/${{ inputs.app-name }}/image-scan-report
+          cp -r trivy-resource/result/* pages/${{ inputs.app-name }}/image-scan-report
       - name: debug
         run: tree
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
-          name: image-scan-report
+          name: image-scan-report_${{ inputs.app-name }}
           path: pages
       # FIXME: 脆弱性があってもパイプラインが進んでしまっている
       # 脆弱性が見つかった場合、パイプラインを終了させる
