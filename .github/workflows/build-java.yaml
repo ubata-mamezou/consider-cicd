@@ -113,24 +113,41 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+    - name: init
+      run: mkdir pages
     - name: download artifact
       uses: actions/download-artifact@v4
       with:
         name: test-report
-        path: .
+        path: pages
       continue-on-error: true
     - name: download artifact
       uses: actions/download-artifact@v4
       with:
         name: image-scan-report
-        path: .
+        path: pages
       continue-on-error: true
+    # - name: merge artifact
+    #   run: |
+    #     mkdir -p pages
+    #     cp -r . pages
     - name: upload
       uses: actions/upload-pages-artifact@v3
-      # uses: actions/upload-artifact@v4
-      # id: github-pages
       with:
-        path: .
+        path: pages
+
+    - name: debug
+      run: |
+        echo debug-1
+        ls
+        echo debug-2
+        ls order
+        echo debug-3
+        ls order/test-report
+        echo debug-4
+        ls order/image-scan-report
+      continue-on-error: true
+
     - name: Deploy to GitHub Pages
       uses: actions/deploy-pages@v4
       # with:
