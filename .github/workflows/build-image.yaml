@@ -26,18 +26,10 @@ jobs:
         with:
           name: build-artifact
           path: ${{ inputs.app-name }}/target
-      #
-      - name: debug
-        working-directory: ${{ inputs.app-name }}
-        run: |
-          ls
-          ls target
       # イメージビルド（Docker）
       - name: Build Docker image
         working-directory: ${{ inputs.app-name }}
-        run:
-          ls target 
-          docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
       # Trivy DBのキャッシュ
       - name: Cache Trivy DB
         uses: actions/cache@v3
