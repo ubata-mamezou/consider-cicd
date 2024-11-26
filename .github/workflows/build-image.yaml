@@ -66,7 +66,7 @@ jobs:
       - name: add blank html
         # if: failure()
         if: steps.execute-image-scan.outcome == 'failure'
-        run: echo "<h1>イメージスキャンが異常終了しているため、脆弱性結果はありません</h1>" > trivy-report_${{ inputs.app-name }}.html
+        run: echo "<h1>イメージスキャンが異常終了しているため、脆弱性結果はありません</h1>" > trivy-resource/result/trivy-report_${{ inputs.app-name }}.html
       # スキャンレポートをアップロード
       - name: debug
         run: tree
