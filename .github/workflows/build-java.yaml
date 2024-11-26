@@ -82,21 +82,23 @@ jobs:
           path: pages
       # Publish to GitHub Packages
       - name: Publish artifact to GitHub Packages
+        id: publish-artifact-to-packages
         working-directory: ${{ env.WORK_DIRECTORY }}
         run: mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true #同一バージョンのpushエラーが発生するため、エラー無視
-      - name: Notify if version already exists
-        if: failure()
-        run: echo publish duplicate version
-  # イメージビルド
+      - name: イメージプッシュコールバック
+        if: steps.publish-artifact-to-packages.outcome == 'failure'
+        run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
+    # イメージビルド
   build-image:
     needs: build
     uses: ./.github/workflows/build-image.yaml
     with:
       app-name: order
       app-version: 0.0.1
+      dist-directory: /target
   # Pagesへテスト結果を公開
   publish-test-result:
     runs-on: ubuntu-latest
@@ -135,7 +137,7 @@ jobs:
   deploy-aws:
     needs: build-image
     uses: ./.github/workflows/deploy-aws.yaml
-    secrets: inherit
+    secrets: inherit #別ファイルにしたワークフローはスコープの問題でsecretの参照に失敗してしまう。inheritをつけることで呼び出し先にSecretが引き継ぐことができる。
     with:
       app-name: order
       app-version: 0.0.1

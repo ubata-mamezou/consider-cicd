@@ -1,13 +1,22 @@
 # イメージビルド
+## 事前条件
+## ・build-artifactという名称でアーティファクトをアップロードしてください。
+## ・dockerfileという名称でDockerfileをアップロードしてください。
 name: build-image
 
 on:
   workflow_call:
     inputs:
+      # アプリケーション名（アーティファクトの特定、イメージ名に使用します）
       app-name:
         required: true
         type: string
+      # アプリケーションバージョン（イメージのバージョンに使用します）
       app-version:
+        required: true
+        type: string
+      # ツールによるアーティファクトの参照先を吸収するための変数（ex. maven: /target, npm: /dist）
+      dist-directory:
         required: true
         type: string
 
@@ -20,7 +29,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
-          path: ${{ inputs.app-name }}/target
+          path: ${{ inputs.app-name }}${{ inputs.dist-directory }}
       - name: download dockerfile
         uses: actions/download-artifact@v4
         with:
@@ -53,7 +62,6 @@ jobs:
         id: execute-image-scan
         run: |
           mkdir trivy-resource/result -p
-          # trivy image --format json -o ./trivy-resource/result/trivy-report_$app-name.json ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
           trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/trivy-report_${{ inputs.app-name }}.html ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
         env:
           # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
@@ -67,6 +75,7 @@ jobs:
         # if: failure()
         if: steps.execute-image-scan.outcome == 'failure'
         run: |
+          echo 時間帯によってTrivyDBのダウンロードに失敗するため、エラーを抑止しています。
           echo イメージスキャンが異常終了しているため、脆弱性結果はありません。
           echo "<h1>イメージスキャンが異常終了しているため、脆弱性結果はありません</h1>" > trivy-resource/result/trivy-report_${{ inputs.app-name }}.html
       # スキャンレポートをアップロード
