@@ -2,6 +2,7 @@
 ## 事前条件
 ## ・build-artifactという名称でアーティファクトをアップロードしてください。
 ## ・dockerfileという名称でDockerfileをアップロードしてください。
+## ・other-fileという名称でその他に必要なファイルをアップロードしてください。（任意）
 name: build-image
 
 on:
@@ -24,7 +25,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # アーティファクトをダウンロード
+      # ビルドリソースをダウンロード
       - name: download artifact
         uses: actions/download-artifact@v4
         with:
@@ -35,6 +36,12 @@ jobs:
         with:
           name: dockerfile
           path: ${{ inputs.app-name }}
+      - name: download other file
+        uses: actions/download-artifact@v4
+        with:
+          name: other-file
+          path: ${{ inputs.app-name }}
+        continue-on-error: true
       # イメージビルド（Docker）
       - name: Build Docker image
         working-directory: ${{ inputs.app-name }}
