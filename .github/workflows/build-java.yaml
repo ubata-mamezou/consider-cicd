@@ -141,7 +141,7 @@ jobs:
     with:
       app-name: order
       app-version: 0.0.1
-      aws-region: ${{ github.env.APP_NAME }}
+      aws-region: ${{ github.env.AWS_REGION }}
       aws-ecr-repository-name: consider-cicd
   # deploy:
   #   runs-on: ubuntu-latest
