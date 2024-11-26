@@ -116,13 +116,11 @@ jobs:
       with:
         name: test-report_${{ env.APP_NAME }}
         path: pages
-      continue-on-error: true
     - name: download artifact
       uses: actions/download-artifact@v4
       with:
         name: image-scan-report_${{ env.APP_NAME }}
         path: pages
-      continue-on-error: true
     # 公開(GitHub Pages)
     - name: upload
       uses: actions/upload-pages-artifact@v3
@@ -130,7 +128,6 @@ jobs:
         path: pages
     - name: debug
       run: tree
-      continue-on-error: true
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
