@@ -16,6 +16,9 @@ on:
       app-version:
         required: true
         type: string
+      work-directory:
+        required: true
+        type: string
       # ツールによるアーティファクトの参照先を吸収するための変数（ex. maven: /target, npm: /dist）
       dist-directory:
         required: false
@@ -24,6 +27,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.work-directory }}
     steps:
       # イメージビルド実行環境セットアップ
       ## コードをチェックアウト
@@ -49,7 +55,7 @@ jobs:
       #   continue-on-error: true
       # イメージビルド（Docker）
       - name: Build Docker image
-        working-directory: ${{ inputs.app-name }}
+        # working-directory: ${{ inputs.app-name }}
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
       # 脆弱性スキャン実行環境セットアップ
       ## キャッシュ（Trivy DB）

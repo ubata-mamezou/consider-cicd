@@ -26,6 +26,9 @@ jobs:
   build:
     # if: "!contains(github.event.head_commit.message, 'build-ts.yml')" #TSのワークフロー変更では動かないように制御
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORK_DIRECTORY }}
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -59,7 +62,7 @@ jobs:
                 </settings>" > ~/.m2/settings.xml
       # ビルド、テスト、パッケージ（Maven）
       - name: Build with Maven
-        working-directory: ${{ env.WORK_DIRECTORY }}
+        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: mvn clean install surefire-report:report-only
       # upload for jar
       - name: Upload artifact
@@ -86,7 +89,7 @@ jobs:
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         id: publish-artifact-to-packages
-        working-directory: ${{ env.WORK_DIRECTORY }}
+        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -26,6 +26,9 @@ jobs:
   build:
     # if: "!contains(github.event.head_commit.message, 'build-java.yml')" #Javaのワークフロー変更では動かないように制御
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORK_DIRECTORY }}
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -40,17 +43,17 @@ jobs:
           cache-dependency-path: ./customer/customer-service/package-lock.json
       ## 依存ライブラリのインストール
       - name: Install dependencies
-        working-directory: ${{ env.WORK_DIRECTORY }}
+        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: |
           npm install
           npm install --save-dev jest-html-reporters
       # 静的解析（Lint）
       - name: Run Lint
-        working-directory: ${{ env.WORK_DIRECTORY }}
+        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: npm run lint
       # テスト
       - name: Run Unit Tests
-        working-directory: ${{ env.WORK_DIRECTORY }}
+        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: npm run test:ci
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - name: Upload Test Report
@@ -59,7 +62,7 @@ jobs:
           path: ${{ env.WORK_DIRECTORY }}/test-result
       # アーティファクト生成
       - name: Build Customer App
-        working-directory: ${{ env.WORK_DIRECTORY }}
+        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: npm run build
       # アーティファクト公開
       - name: Upload build artifact
@@ -80,7 +83,7 @@ jobs:
       # Publish to GitHub Packages
       - name: Publish artifact to GitHub Packages
         id: publish-artifact-to-packages
-        working-directory: ${{ env.WORK_DIRECTORY }}
+        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: |
           npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
           npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
@@ -97,6 +100,7 @@ jobs:
     with:
       app-name: customer-service
       app-version: 0.0.1
+      work-directory: customer/customer-service
       dist-directory: /dist
   # テストレポートを公開
   publish-test-result:
