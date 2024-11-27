@@ -61,12 +61,12 @@ jobs:
       - name: Build with Maven
         working-directory: ${{ env.WORK_DIRECTORY }}
         run: mvn clean install surefire-report:report-only
-      # # upload for jar
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: build-artifact
-      #     path: ${{ env.WORK_DIRECTORY }}/target/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
+      # upload for jar
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: ${{ env.WORK_DIRECTORY }}/target/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
       # # upload for Dockerfile
       # - name: Upload dockerfile
       #   uses: actions/upload-artifact@v4
@@ -95,13 +95,12 @@ jobs:
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
       # イメージビルド
-      - name: debug
-        run: tree
       - name: build-image
-        uses: ./.github/actions/build-image
+        uses: ./.github/workflows/build-image.yaml
         with:
           app-name: ${{ env.APP_NAME }}
           app-version: ${{ env.APP_VERSION }}
+          dist-directory: ${{ env.DIST_DIRECTORY }}
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest
