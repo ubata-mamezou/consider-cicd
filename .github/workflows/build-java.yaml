@@ -101,7 +101,7 @@ jobs:
     with:
       app-name: order
       app-version: 0.0.1
-      dist-directory: ./target
+      dist-directory: /target
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest

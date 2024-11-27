@@ -97,7 +97,7 @@ jobs:
     with:
       app-name: customer-service
       app-version: 0.0.1
-      dist-directory: ./dist
+      dist-directory: /dist
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest
