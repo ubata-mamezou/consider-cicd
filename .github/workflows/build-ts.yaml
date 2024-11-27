@@ -91,6 +91,8 @@ jobs:
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
       # イメージビルド
+      - name: debug
+        run: tree
       - name: build-image
         uses: ./.github/workflows/build-image.yaml
         with:
