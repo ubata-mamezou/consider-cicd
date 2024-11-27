@@ -43,7 +43,6 @@ jobs:
           path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
       - run: tree #debug
       - name: Build Docker image
-        # working-directory: ${{ inputs.app-name }}
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
       # 脆弱性スキャン実行環境セットアップ
       ## キャッシュ（Trivy DB）
