@@ -62,7 +62,6 @@ jobs:
                 </settings>" > ~/.m2/settings.xml
       # ビルド、テスト、パッケージ（Maven）
       - name: Build with Maven
-        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: mvn clean install surefire-report:report-only
       # upload for jar
       - name: Upload artifact
@@ -75,13 +74,13 @@ jobs:
       #   uses: actions/upload-artifact@v4
       #   with:
       #     name: dockerfile
-      #     path: ${{ env.WORK_DIRECTORY }}/Dockerfile
+      #     path: Dockerfile
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - run: tree
       - name: move test report
         run: |
           mkdir -p pages/${{ env.APP_NAME }}/test-report
-          cp -r ${{ env.WORK_DIRECTORY }}/target/reports/* pages/${{ env.APP_NAME }}/test-report
+          cp -r target/reports/* pages/${{ env.APP_NAME }}/test-report
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
@@ -90,7 +89,6 @@ jobs:
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         id: publish-artifact-to-packages
-        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -42,18 +42,6 @@ jobs:
           name: build-artifact
           path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
       - run: tree #debug
-      # - name: download dockerfile
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: dockerfile
-      #     path: ${{ inputs.app-name }}
-      # - name: download other file
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: other-file
-      #     path: ${{ inputs.app-name }}
-      #   continue-on-error: true
-      # イメージビルド（Docker）
       - name: Build Docker image
         # working-directory: ${{ inputs.app-name }}
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .

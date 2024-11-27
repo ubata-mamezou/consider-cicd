@@ -43,27 +43,23 @@ jobs:
           cache-dependency-path: ./customer/customer-service/package-lock.json
       ## 依存ライブラリのインストール
       - name: Install dependencies
-        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: |
           npm install
           npm install --save-dev jest-html-reporters
       # 静的解析（Lint）
       - name: Run Lint
-        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: npm run lint
       # テスト
       - name: Run Unit Tests
-        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: npm run test:ci
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - run: tree
       - name: Upload Test Report
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ${{ env.WORK_DIRECTORY }}/test-result
+          path: test-result
       # アーティファクト生成
       - name: Build Customer App
-        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: npm run build
       # アーティファクト公開
       - name: Upload build artifact
@@ -71,20 +67,8 @@ jobs:
         with:
           name: build-artifact
           path: ${{ env.WORK_DIRECTORY }}${{ env.DIST_DIRECTORY }} # ビルド成果物のパス        
-      # - name: Upload dockerfile
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: dockerfile
-      #     path: ${{ env.WORK_DIRECTORY }}/Dockerfile
-      # - name: Upload package.json
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: other-file
-      #     path: ${{ env.WORK_DIRECTORY }}/package*.json
-      # Publish to GitHub Packages
       - name: Publish artifact to GitHub Packages
         id: publish-artifact-to-packages
-        # working-directory: ${{ env.WORK_DIRECTORY }}
         run: |
           npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
           npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
