@@ -104,6 +104,7 @@ jobs:
     with:
       app-name: order
       app-version: 0.0.1
+      work-directory: order
       dist-directory: /target
   # テストレポートを公開
   publish-test-result:

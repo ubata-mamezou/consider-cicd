@@ -69,7 +69,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: ${{ env.WORK_DIRECTORY }}/dist # ビルド成果物のパス        
+          path: ${{ env.WORK_DIRECTORY }}${{ env.DIST_DIRECTORY }} # ビルド成果物のパス        
       # - name: Upload dockerfile
       #   uses: actions/upload-artifact@v4
       #   with:
