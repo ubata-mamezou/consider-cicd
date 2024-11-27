@@ -35,6 +35,7 @@ jobs:
         with:
           name: build-artifact
           path: ${{ inputs.app-name }}${{ inputs.dist-directory }}
+      - run: tree #debug
       # - name: download dockerfile
       #   uses: actions/download-artifact@v4
       #   with:
