@@ -16,50 +16,51 @@ on:
       app-version:
         required: true
         type: string
-      # ツールによるアーティファクトの参照先を吸収するための変数（ex. maven: /target, npm: /dist）
-      dist-directory:
-        required: true
-        type: string
+      # # ツールによるアーティファクトの参照先を吸収するための変数（ex. maven: /target, npm: /dist）
+      # dist-directory:
+      #   required: false
+      #   type: string
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # ビルドリソースをダウンロード
-      - name: download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: ${{ inputs.app-name }}${{ inputs.dist-directory }}
-      - name: download dockerfile
-        uses: actions/download-artifact@v4
-        with:
-          name: dockerfile
-          path: ${{ inputs.app-name }}
-      - name: download other file
-        uses: actions/download-artifact@v4
-        with:
-          name: other-file
-          path: ${{ inputs.app-name }}
-        continue-on-error: true
+      # # ビルドリソースをダウンロード
+      # - name: download artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: build-artifact
+      #     path: ${{ inputs.app-name }}${{ inputs.dist-directory }}
+      # - name: download dockerfile
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: dockerfile
+      #     path: ${{ inputs.app-name }}
+      # - name: download other file
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: other-file
+      #     path: ${{ inputs.app-name }}
+      #   continue-on-error: true
       # イメージビルド（Docker）
       - name: Build Docker image
         working-directory: ${{ inputs.app-name }}
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
-      # Trivy DBのキャッシュ
+      # 脆弱性スキャン実行環境セットアップ
+      ## キャッシュ（Trivy DB）
       - name: Cache Trivy DB
         uses: actions/cache@v4
         with:
           path: ~/.cache/trivy  # TrivyのDBキャッシュの保存場所
           key: ${{ runner.os }}-trivy-db
           restore-keys: ${{ runner.os }}-trivy-db
-      # Trivyインストール
+      ## Trivyインストール
       - name: Install Trivy
         run: |
           sudo apt-get update && sudo apt-get install -y wget
           wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.57.0/trivy_0.57.0_Linux-64bit.tar.gz | tar zxvf -
           sudo mv trivy /usr/local/bin/
-      # テンプレートダウンロード
+      ## テンプレートダウンロード（Trivy）
       - name: Trivy HTML template download
         run: |
           mkdir trivy-resource/template -p
@@ -78,22 +79,18 @@ jobs:
           # GitHubは認証されたリクエストに対して、無認証リクエストよりも高いレートリミットを提供しているため、ACTIONS_RUNTIME_TOKENを使用することでAPIへのアクセス制限が緩和され、結果としてレートリミットに引っかかりにくくなります。
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true #retelimitによるエラーが頻発するので暫定的にエラー無視
-      - name: add blank html
-        # if: failure()
+      # 脆弱性スキャンコールバック
+      - name: callback
         if: steps.execute-image-scan.outcome == 'failure'
         run: |
           echo 時間帯によってTrivyDBのダウンロードに失敗するため、エラーを抑止しています。
           echo イメージスキャンが異常終了しているため、脆弱性結果はありません。
           echo "<h1>イメージスキャンが異常終了しているため、脆弱性結果はありません</h1>" > trivy-resource/result/trivy-report_${{ inputs.app-name }}.html
-      # スキャンレポートをアップロード
-      - name: debug
-        run: tree
+      # スキャンレポートのアップロード（レポート公開向けの一時保存）
       - name: move scan report
         run: |
           mkdir -p pages/${{ inputs.app-name }}/image-scan-report
           cp -r trivy-resource/result/* pages/${{ inputs.app-name }}/image-scan-report
-      - name: debug
-        run: tree
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
@@ -109,11 +106,11 @@ jobs:
           else
             echo "No vulnerabilities found."
           fi
-      # GitHub Packagesにコンテナイメージを公開
+      # コンテナイメージ公開（公開先：GitHub Packages）
       - name: Publish Docker image to GitHub Packages
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
-      # クリーンアップ（オプション）
+      # クリーンアップ
       - name: Remove Docker images
         run: docker rmi ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}

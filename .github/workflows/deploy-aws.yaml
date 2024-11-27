@@ -26,29 +26,31 @@ jobs:
   deploy-aws:
     runs-on: ubuntu-latest
     steps:
-    # デプロイ対象のイメージを取得
-    - name: Pull Docker image from GitHub Packages
-      run: |
-        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-        docker pull ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
-    # AWS認証情報を設定
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ inputs.aws-region }}
-    # ECRへログイン
-    - name: login to AWS ECR
-      run: aws ecr get-login-password --region ${{ inputs.aws-region }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
-    # イメージプッシュ
-    - name: Tag and Push Docker image to ECR
-      id: push-image-to-ecr
-      run: |
-        docker tag ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
-        docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
-      continue-on-error: true
-    - name: イメージプッシュコールバック
-      if: steps.push-image-to-ecr.outcome == 'failure'
-      run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
-  
+      # 実行環境セットアップ
+      ## デプロイ対象のイメージを取得
+      - name: Pull Docker image from GitHub Packages
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
+      ## AWS認証情報を設定
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.aws-region }}
+      # AWS ECRへログイン
+      - name: login to AWS ECR
+        run: aws ecr get-login-password --region ${{ inputs.aws-region }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+      # イメージプッシュ
+      - name: Tag and Push Docker image to ECR
+        id: push-image-to-ecr
+        run: |
+          docker tag ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
+          docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
+        continue-on-error: true
+      # イメージプッシュのコールバック
+      - name: callback
+        if: steps.push-image-to-ecr.outcome == 'failure'
+        run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
+    
