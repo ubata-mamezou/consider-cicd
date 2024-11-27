@@ -94,7 +94,7 @@ jobs:
       - name: debug
         run: tree
       - name: build-image
-        uses: ./.github/actions/build-image/actions.yaml
+        uses: ./.github/actions/build-image
         with:
           app-name: ${{ env.APP_NAME }}
           app-version: ${{ env.APP_VERSION }}
