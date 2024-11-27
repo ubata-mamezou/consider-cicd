@@ -94,11 +94,10 @@ jobs:
       - name: debug
         run: tree
       - name: build-image
-        uses: ./.github/workflows/build-image.yaml
+        uses: ./.github/actions/build-image.yaml
         with:
           app-name: ${{ env.APP_NAME }}
           app-version: ${{ env.APP_VERSION }}
-          dist-directory: ${{ env.DIST_DIRECTORY }}
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest
