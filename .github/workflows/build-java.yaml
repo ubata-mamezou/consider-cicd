@@ -96,6 +96,7 @@ jobs:
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
   # イメージビルド
   build-image:
+    needs: build
     uses: ./.github/workflows/build-image.yaml
     with:
       app-name: order
@@ -104,7 +105,7 @@ jobs:
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-image
     permissions:
       pages: write
       id-token: write
@@ -135,7 +136,7 @@ jobs:
       uses: actions/deploy-pages@v4
   # デプロイ（AWS用）
   deploy-aws:
-    needs: build
+    needs: build-image
     uses: ./.github/workflows/deploy-aws.yaml
     secrets: inherit #別ファイルにしたワークフローはスコープの問題でsecretの参照に失敗してしまう。inheritをつけることで呼び出し先にSecretが引き継ぐことができる。
     with:
