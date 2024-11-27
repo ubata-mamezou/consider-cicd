@@ -94,13 +94,13 @@ jobs:
       - name: コールバック
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
-      # イメージビルド
-      - name: build-image
-        uses: ./.github/workflows/build-image.yaml
-        with:
-          app-name: ${{ env.APP_NAME }}
-          app-version: ${{ env.APP_VERSION }}
-          dist-directory: ${{ env.DIST_DIRECTORY }}
+  # イメージビルド
+  build-image:
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      app-name: order
+      app-version: 0.0.1
+      dist-directory: ./target
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest
