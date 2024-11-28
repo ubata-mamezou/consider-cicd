@@ -3,10 +3,25 @@ GET http://localhost:3000/customers
 ## dev
 ### public ip
 GET https://43.206.237.239:8082/customers HTTP/1.1
+Content-Type: application/json
+### public ip
+GET https://43.206.237.239/customers HTTP/1.1
+Content-Type: application/json
 ### public DNS
 GET https://ec2-43-206-237-239.ap-northeast-1.compute.amazonaws.com:8082/customers HTTP/1.1
+Content-Type: application/json
+### public DNS
+GET https://ec2-43-206-237-239.ap-northeast-1.compute.amazonaws.com/customers HTTP/1.1
+Content-Type: application/json
+### public DNS
+GET http://ec2-43-206-237-239.ap-northeast-1.compute.amazonaws.com:8082/customers HTTP/1.1
+Content-Type: application/json
 ### private ip
 GET https://10.0.0.176:8082/customers HTTP/1.1
+Content-Type: application/json
 ### private DNS
 GET https://ip-10-0-0-176.ap-northeast-1.compute.internal:8082/customers HTTP/1.1
+Content-Type: application/json
 
+###
+GET https://7v8q2sv37g.execute-api.ap-northeast-1.amazonaws.com/dev/customers

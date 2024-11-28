@@ -12,6 +12,7 @@ on:
   push:
     branches: 
       - 'feature/**'
+      - 'topic/**'
     paths: 
       - 'order/**'
       - '.github/workflows/**' # ワークフロー自体の更新もトリガー
