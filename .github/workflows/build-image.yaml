@@ -93,7 +93,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: image-scan-report_${{ inputs.app-name }}
-          path: pages
+          path: ${{ inputs.work-directory }}/pages
       # FIXME: 脆弱性があってもパイプラインが進んでしまっている
       # 脆弱性が見つかった場合、パイプラインを終了させる
       - name: Check for vulnerabilities
