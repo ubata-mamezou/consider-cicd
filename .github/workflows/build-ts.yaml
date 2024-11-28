@@ -7,7 +7,7 @@ env:
   AWS_REGION: ap-northeast-1
   WORK_DIRECTORY: customer/customer-service
   DIST_DIRECTORY: /dist # ビルドリソースの生成されるフォルダー（ex. Maven：/target、Node:/dist）
-  TEST_REPORT_DIRECTORY: customer/customer-service/test-result
+  TEST_REPORT_DIRECTORY: test-result #WORK_DIRECTORYから見たパス
 
 on:
   push:
@@ -63,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-report_${{ env.APP_NAME }}
-          path: pages
+          path: ${{ env.WORK_DIRECTORY }}/pages
       - run: tree
       # アーティファクト生成
       - name: Build Customer App
@@ -109,12 +109,12 @@ jobs:
     - name: init
       run: mkdir pages
     # レポートダウンロード（事前にアップロードしていたレポートを取得）
-    - name: download artifact
+    - name: download test report
       uses: actions/download-artifact@v4
       with:
         name: test-report_${{ env.APP_NAME }}
         path: pages
-    - name: download artifact
+    - name: download image scan report
       uses: actions/download-artifact@v4
       with:
         name: image-scan-report_${{ env.APP_NAME }}

@@ -81,7 +81,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-report_${{ env.APP_NAME }}
-          path: pages
+          path: ${{ env.WORK_DIRECTORY }}/pages
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         id: publish-artifact-to-packages
@@ -115,12 +115,12 @@ jobs:
     - name: init
       run: mkdir pages
     # レポートダウンロード（事前にアップロードしていたレポートを取得）
-    - name: download artifact
+    - name: download test report
       uses: actions/download-artifact@v4
       with:
         name: test-report_${{ env.APP_NAME }}
         path: pages
-    - name: download artifact
+    - name: download image scan report
       uses: actions/download-artifact@v4
       with:
         name: image-scan-report_${{ env.APP_NAME }}
