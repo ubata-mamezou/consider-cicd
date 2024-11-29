@@ -1,5 +1,7 @@
-# AWSへのデプロイ
-# # 前提条件
+# # AWSへのデプロイ
+# * イメージ公開先：AWS ECR
+# ## 前提条件
+# * デプロイ先とするAWS ECRを構築済みであること
 # * GitHub SecretsにECRへのプッシュが可能なIAM情報を登録済みであること
 #   * AWS_ACCESS_KEY_ID
 #   * AWS_SECRET_ACCESS_KEY
@@ -10,15 +12,19 @@ on:
   workflow_call:
     inputs:
       app-name:
+        description: アプリケーション名
         required: true
         type: string
       app-version:
+        description: アプリケーションバージョン
         required: true
         type: string
       aws-region:
+        description: AWSリージョン
         required: true
         type: string
       aws-ecr-repository-name:
+        description: AWS ECR名
         required: true
         type: string
 
@@ -42,7 +48,7 @@ jobs:
       # AWS ECRへログイン
       - name: login to AWS ECR
         run: aws ecr get-login-password --region ${{ inputs.aws-region }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
-      # イメージプッシュ
+      # イメージプッシュ(公開先：AWS ECR)
       - name: Tag and Push Docker image to ECR
         id: push-image-to-ecr
         run: |

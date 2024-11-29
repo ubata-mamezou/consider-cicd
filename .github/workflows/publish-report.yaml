@@ -1,45 +1,44 @@
+# # レポート公開
+# * レポート公開先：GitHub Pages
+# ## 前提条件
+# * GitHub Pagesが利用可能になっていること
 name: Publish Reports
+
 on:
-  workflow_run:
-    workflows:
-      - "Frontend Build"
-      - "Backend (TS) Build"
-      - "Backend (Java) Build"
-    types:
-      - completed
+  workflow_call:
+      inputs:
+        app-name:
+          required: true
+          type: string
 
 jobs:
-  publish-reports:
+  publish-test-result:
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # checkout 
-      - name: Check out code
-        uses: actions/checkout@v3
-      # download report(frontend)
-      - name: Download frontend reports
-        uses: actions/download-artifact@v3
-        with:
-          name: frontend-report
-      # download report(backend ts)
-      - name: Download backend TS reports
-        uses: actions/download-artifact@v3
-        with:
-          name: backend-ts-report
-
-      - name: Download backend Java reports
-        uses: actions/download-artifact@v3
-        with:
-          name: backend-java-report
-
-      - name: Prepare reports for Pages
-        run: |
-          mkdir -p public/reports
-          mv frontend-report/* public/reports/frontend/
-          mv backend-ts-report/* public/reports/backend-ts/
-          mv backend-java-report/* public/reports/backend-java/
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+    - name: init
+      run: mkdir pages
+    # レポートダウンロード（事前にアップロードしていたレポートを取得）
+    - name: download test report
+      uses: actions/download-artifact@v4
+      with:
+        name: test-report_${{ inputs.app-name }}
+        path: pages
+    - name: download image scan report
+      uses: actions/download-artifact@v4
+      with:
+        name: image-scan-report_${{ inputs.app-name }}
+        path: pages
+    # レポート公開(公開先：GitHub Pages)
+    - name: upload
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: pages
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

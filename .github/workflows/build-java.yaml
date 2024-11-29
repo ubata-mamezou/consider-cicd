@@ -1,5 +1,8 @@
-# java21, maven
-name: CI/CD java application
+# # Javaアプリケーションのビルド
+# ## 前提とする言語など
+# * Java21
+# * Maven
+name: CI/CD Java Application
 
 env:
   APP_NAME: order # アプリケーション名
@@ -7,6 +10,7 @@ env:
   AWS_REGION: ap-northeast-1 # AWSリージョン
   WORK_DIRECTORY: ./order # 作業ディレクトリ
   DIST_DIRECTORY: /target # ビルドリソースの生成されるフォルダー（ex. Maven：/target、Node:/dist）
+  JAVA_VERSION: 21 # 使用するJavaのバージョン
 
 on:
   push:
@@ -21,11 +25,9 @@ on:
   #     - 'develop/**'
   #   paths: 
   #     - 'order/**'
-  #     - '.github/workflows/**' # ワークフロー自体の更新もトリガー
 
 jobs:
   build:
-    # if: "!contains(github.event.head_commit.message, 'build-ts.yml')" #TSのワークフロー変更では動かないように制御
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -39,9 +41,9 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
-      ## キャッシュ（Mavanリポジトリ）
+      ## キャッシュ（Mavenリポジトリ）
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:

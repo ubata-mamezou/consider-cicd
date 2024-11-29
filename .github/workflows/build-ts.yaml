@@ -1,5 +1,8 @@
-# ts, nestjs, node20
-name: CI/CD TS Appication
+# # TypeScriptアプリケーションのビルド
+# ## 前提とする言語など
+# * TypeScript
+# * Node.js
+name: CI/CD TS Application
 
 env:
   APP_NAME: customer-service
@@ -8,6 +11,7 @@ env:
   WORK_DIRECTORY: customer/customer-service
   DIST_DIRECTORY: /dist # ビルドリソースの生成されるフォルダー（ex. Maven：/target、Node:/dist）
   TEST_REPORT_DIRECTORY: test-result #WORK_DIRECTORYから見たパス
+  NODE_VERSION: 20 # 使用するNode.jsのバージョン
 
 on:
   push:
@@ -21,11 +25,9 @@ on:
   #     - 'develop/**'
   #   paths: 
   #     - 'customer/**'
-  #     - '.github/workflows/**' # ワークフロー自体の更新もトリガー
 
 jobs:
   build:
-    # if: "!contains(github.event.head_commit.message, 'build-java.yml')" #Javaのワークフロー変更では動かないように制御
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -39,7 +41,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20' # 使用するNode.jsのバージョン
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm' # npmキャッシュを有効化
           cache-dependency-path: ./customer/customer-service/package-lock.json
       ## 依存ライブラリのインストール
