@@ -27,6 +27,24 @@ on:
         description: AWS ECR名
         required: true
         type: string
+      ecs-cluster-name:
+        description: ECSクラスター名
+        required: true
+        type: string
+      ecs-service-name:
+        description: ECSサービス名
+        required: true
+        type: string
+      ecs-task-name:
+        description: ECSタスク名
+        required: true
+        type: string
+
+env:
+  GITHUB_PACKAGES_IMAGE_URL: ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
+  ECR_URL: ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+  ECR_IMAGE_TAG: ${{ inputs.app-name }}-${{ inputs.app-version }}
+  ECR_IMAGE_URL: ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
 
 jobs:
   deploy-aws:
@@ -35,9 +53,12 @@ jobs:
       # 実行環境セットアップ
       ## デプロイ対象のイメージを取得
       - name: Pull Docker image from GitHub Packages
+        # run: |
+        #   echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        #   docker pull ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker pull ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
+          docker pull ${{ env.GITHUB_PACKAGES_IMAGE_URL }}
       ## AWS認証情報を設定
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -45,18 +66,37 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ inputs.aws-region }}
-      # AWS ECRへログイン
+
+      # AWS ECRへイメージプッシュ
+      ## AWS ECRへログイン
       - name: login to AWS ECR
-        run: aws ecr get-login-password --region ${{ inputs.aws-region }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
-      # イメージプッシュ(公開先：AWS ECR)
+        # run: aws ecr get-login-password --region ${{ inputs.aws-region }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+        run: aws ecr get-login-password --region ${{ inputs.aws-region }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }}
+      ## イメージプッシュ(公開先：AWS ECR)
       - name: Tag and Push Docker image to ECR
         id: push-image-to-ecr
+        # run: |
+        #   docker tag ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
+        #   docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
         run: |
-          docker tag ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
-          docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
+          docker tag ${{ env.GITHUB_PACKAGES_IMAGE_URL }} ${{ env.ECR_IMAGE_URL }}
+          docker push ${{ env.ECR_IMAGE_URL }}
         continue-on-error: true
-      # イメージプッシュのコールバック
+      ## イメージプッシュのコールバック
       - name: callback
         if: steps.push-image-to-ecr.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
-    
+
+      # ECSサービスを更新
+      ## タスク定義の更新
+      - name: update task
+        run: |
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ inputs.ecs-task-name }} | jq '.taskDefinition')
+          NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg ${{ env.GITHUB_PACKAGES_IMAGE_URL }} "${{ env.ECR_IMAGE_URL }}" '.containerDefinitions[0].image=${{ env.GITHUB_PACKAGES_IMAGE_URL }}')
+          NEW_TASK_DEF=$(echo $NEW_TASK_DEF | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities)')
+          echo $NEW_TASK_DEF > new-task-def.json
+      # タスク定義を登録してサービスを更新
+      - name: deploy task
+        run: 
+          aws ecs register-task-definition --cli-input-json file://new-task-def.json
+          aws ecs update-service --cluster ${{ inputs.ecs-cluster-name }} --service ${{ inputs.ecs-service-name }}} --force-new-deployment
