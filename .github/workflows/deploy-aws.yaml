@@ -118,7 +118,7 @@ jobs:
 
       ## 新しいタスク定義を登録
       - name: update task
-        run: aws ecs register-task-definition --cli-input-json file://new-task-def.json
+        run: aws ecs register-task-definition --family ${{ inputs.ecs-task-name }} --cli-input-json file://new-task-def.json
 
       # NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg ${{ env.GITHUB_PACKAGES_IMAGE_URL }} "${{ env.ECR_IMAGE_URL }}" '.containerDefinitions[0].image=${{ env.GITHUB_PACKAGES_IMAGE_URL }}')
       # NEW_TASK_DEF=$(echo $NEW_TASK_DEF | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities)')
@@ -128,4 +128,4 @@ jobs:
       - name: deploy service
         run: 
       #     aws ecs register-task-definition --cli-input-json file://new-task-def.json
-          aws ecs update-service --cluster ${{ inputs.ecs-cluster-name }} --service ${{ inputs.ecs-service-name }} --force-new-deployment
+          aws ecs update-service --cluster ${{ inputs.ecs-cluster-name }} --service ${{ inputs.ecs-service-name }} --family ${{ inputs.ecs-task-name }} --force-new-deployment
