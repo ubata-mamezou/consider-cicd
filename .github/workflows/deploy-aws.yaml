@@ -39,6 +39,11 @@ on:
         description: ECSタスク名
         required: true
         type: string
+    secrets:
+      AWS_ACCOUNT_ID:
+        description: AWS
+        required: true
+      
 
 env:
   GITHUB_PACKAGES_IMAGE_URL: ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
@@ -91,12 +96,32 @@ jobs:
       ## タスク定義の更新
       - name: update task
         run: |
-          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ inputs.ecs-task-name }} | jq '.taskDefinition')
-          NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg ${{ env.GITHUB_PACKAGES_IMAGE_URL }} "${{ env.ECR_IMAGE_URL }}" '.containerDefinitions[0].image=${{ env.GITHUB_PACKAGES_IMAGE_URL }}')
-          NEW_TASK_DEF=$(echo $NEW_TASK_DEF | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities)')
-          echo $NEW_TASK_DEF > new-task-def.json
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ secrets.AWS_TASK_DEFINITION_ARN }} --query '.taskDefinition' --output json)
+
+          NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg image_uri "${{ env.ECR_URL }}" \
+            --argjson env_vars '[
+              {"name": "PORT", "value": "8082"}, 
+              {"name": "TEST_ENV", "value": "dev"}
+              ]' \
+            '
+            .containerDefinitions[0].image = $image_uri |
+            .containerDefinitions[0].environment = $env_vars |
+            .family = "${{ inputs.ecs-task-name }}" |
+            del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities)
+            ')
+
+          echo "$NEW_TASK_DEF" > new-task-def.json
+          cat new-task-def.json
+
+      # # 新しいタスク定義を登録
+      # aws ecs register-task-definition --cli-input-json file://new-task-def.json
+
+      # NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg ${{ env.GITHUB_PACKAGES_IMAGE_URL }} "${{ env.ECR_IMAGE_URL }}" '.containerDefinitions[0].image=${{ env.GITHUB_PACKAGES_IMAGE_URL }}')
+      # NEW_TASK_DEF=$(echo $NEW_TASK_DEF | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities)')
+      # echo $NEW_TASK_DEF > new-task-def.json
+
       # タスク定義を登録してサービスを更新
-      - name: deploy task
-        run: 
-          aws ecs register-task-definition --cli-input-json file://new-task-def.json
-          aws ecs update-service --cluster ${{ inputs.ecs-cluster-name }} --service ${{ inputs.ecs-service-name }}} --force-new-deployment
+      # - name: deploy task
+      #   run: 
+      #     aws ecs register-task-definition --cli-input-json file://new-task-def.json
+      #     aws ecs update-service --cluster ${{ inputs.ecs-cluster-name }} --service ${{ inputs.ecs-service-name }}} --force-new-deployment
