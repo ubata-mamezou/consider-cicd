@@ -39,11 +39,6 @@ on:
         description: ECSタスク名
         required: true
         type: string
-    secrets:
-      AWS_ACCOUNT_ID:
-        description: AWS
-        required: true
-      
 
 env:
   GITHUB_PACKAGES_IMAGE_URL: ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
@@ -96,7 +91,14 @@ jobs:
       ## タスク定義の更新
       - name: update task
         run: |
-          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ secrets.AWS_TASK_DEFINITION_ARN }} --query 'taskDefinition' --output json)
+          TASK_DEFINITION=$(\
+            aws ecs describe-task-definition \
+              --task-definition ${{ inputs.ecs-task-name }} \
+              --query 'taskDefinition' \
+              --output json)
+
+          echo "-----debug: task definition"
+          echo $TASK_DEFINITION
 
           NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg image_uri "${{ env.ECR_URL }}" \
             --argjson env_vars '[
