@@ -20,7 +20,7 @@ on:
       - 'feature/**'
     paths: 
       - 'customer/**'
-      # - '.github/workflows/**' # ワークフロー自体の更新もトリガー
+      - '.github/workflows/**' # ワークフロー自体の更新もトリガー
   # pull_request:
   #   branches: 
   #     - 'develop/**'
