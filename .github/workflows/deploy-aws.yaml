@@ -96,7 +96,7 @@ jobs:
       ## タスク定義の更新
       - name: update task
         run: |
-          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ secrets.AWS_TASK_DEFINITION_ARN }} --query '.taskDefinition' --output json)
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ secrets.AWS_TASK_DEFINITION_ARN }} --query 'taskDefinition' --output json)
 
           NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg image_uri "${{ env.ECR_URL }}" \
             --argjson env_vars '[
