@@ -19,7 +19,7 @@ on:
       - 'feature/**'
     paths: 
       - 'customer/**'
-      - '.github/workflows/**' # ワークフロー自体の更新もトリガー
+      # - '.github/workflows/**' # ワークフロー自体の更新もトリガー
   # pull_request:
   #   branches: 
   #     - 'develop/**'
@@ -129,10 +129,10 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
-  # # イメージプッシュ(公開先：AWS ECR)
-  push-image_aws-ecr:
+  # デプロイ(デプロイ先：AWS)
+  deploy:
     needs: build-image
-    uses: ./.github/workflows/push-image_aws-ecr.yaml
+    uses: ./.github/workflows/deploy-aws.yaml
     secrets: inherit
     with:
       app-name: customer-service

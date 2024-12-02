@@ -19,7 +19,7 @@ on:
       - 'topic/**'
     paths: 
       - 'order/**'
-      - '.github/workflows/**' # ワークフロー自体の更新もトリガー
+      # - '.github/workflows/**' # ワークフロー自体の更新もトリガー
 
 jobs:
   build:
@@ -131,10 +131,10 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
-  # # イメージプッシュ(公開先：AWS ECR)
-  # push-image_aws-ecr:
+  # # デプロイ(デプロイ先：AWS)
+  # deploy:
   #   needs: build-image
-  #   uses: ./.github/workflows/push-image_aws-ecr.yaml
+  #   uses: ./.github/workflows/deploy-aws.yaml
   #   # Tips：自身で設定したsecretを別ファイルから参照するには？
   #   # 別ファイルにしたワークフローはスコープの問題でsecretの参照に失敗します。
   #   # inheritをつけることで呼び出し先にSecretが引き継がれるので、呼び出し先でも参照することができます。
