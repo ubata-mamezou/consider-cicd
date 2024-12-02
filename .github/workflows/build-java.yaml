@@ -13,6 +13,7 @@ env:
   JAVA_VERSION: 21 # 使用するJavaのバージョン
 
 on:
+  workflow_dispatch: #手動実行
   push:
     branches: 
       - 'feature/**'
