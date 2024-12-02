@@ -130,15 +130,15 @@ jobs:
       id: deployment
       uses: actions/deploy-pages@v4
   # # イメージプッシュ(公開先：AWS ECR)
-  # push-image_aws-ecr:
-  #   needs: build-image
-  #   uses: ./.github/workflows/push-image_aws-ecr.yaml
-  #   secrets: inherit
-  #   with:
-  #     app-name: customer-service
-  #     app-version: 0.0.1
-  #     aws-region: ap-northeast-1
-  #     aws-ecr-repository-name: consider-cicd
-  #     ecs-cluster-name: consider-cicd-ecs
-  #     ecs-service-name: consider-cicd-ecs-service_customer-service
-  #     ecs-task-name: consider-cicd-ecs-task-customer-service
+  push-image_aws-ecr:
+    needs: build-image
+    uses: ./.github/workflows/push-image_aws-ecr.yaml
+    secrets: inherit
+    with:
+      app-name: customer-service
+      app-version: 0.0.1
+      aws-region: ap-northeast-1
+      aws-ecr-repository-name: consider-cicd
+      ecs-cluster-name: consider-cicd-ecs
+      ecs-service-name: consider-cicd-ecs-service_customer-service
+      ecs-task-name: consider-cicd-ecs-task-customer-service
