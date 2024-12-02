@@ -128,4 +128,4 @@ jobs:
       - name: deploy service
         run: 
       #     aws ecs register-task-definition --cli-input-json file://new-task-def.json
-          aws ecs update-service --cluster ${{ inputs.ecs-cluster-name }} --service ${{ inputs.ecs-service-name }}} --force-new-deployment
+          aws ecs update-service --cluster ${{ inputs.ecs-cluster-name }} --service ${{ inputs.ecs-service-name }} --force-new-deployment
