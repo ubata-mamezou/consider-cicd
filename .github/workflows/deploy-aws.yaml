@@ -132,7 +132,10 @@ jobs:
 
       ## 新しいタスク定義を登録
       - name: update task
-        run: aws ecs register-task-definition --family ${{ inputs.ecs-task-name }} --cli-input-json file://new-task-def.json
+        run: |
+          aws ecs register-task-definition \
+            --family ${{ inputs.ecs-task-name }} \
+            --cli-input-json file://new-task-def.json
 
       ## サービスを更新(強制的にデプロイ)
       - name: deploy service
