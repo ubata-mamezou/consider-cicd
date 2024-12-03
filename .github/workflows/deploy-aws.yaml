@@ -136,8 +136,9 @@ jobs:
 
       ## サービスを更新(強制的にデプロイ)
       - name: deploy service
-        run: aws ecs update-service \
-          --cluster ${{ inputs.ecs-cluster-name }} \
-          --service ${{ inputs.ecs-service-name }} \
-          --task-definition ${{ inputs.ecs-task-name }} \
-          --force-new-deployment
+        run: |
+          aws ecs update-service \
+            --cluster ${{ inputs.ecs-cluster-name }} \
+            --service ${{ inputs.ecs-service-name }} \
+            --task-definition ${{ inputs.ecs-task-name }} \
+            --force-new-deployment
