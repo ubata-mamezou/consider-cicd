@@ -75,7 +75,7 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker pull ${{ env.GITHUB_PACKAGES_IMAGE_URL }}
-      ## AWS認証情報を設定
+      ## AWS Credential情報を設定
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -100,18 +100,18 @@ jobs:
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
 
       # サービスを更新
-      ## タスク定義の作成（タスク定義の取得＋編集）
+      ## タスク定義の作成(AWSからタスク定義を取得し、それをもとに新しいタスク定義を作成)
       ## * 環境変数の設定はタスク定義の内容に合わせて変更してください(該当行：{"name": "PORT", "value": "8082"}, {"name": "TEST_ENV", "value": "dev"})
       ## * 機密情報を扱う場合はGitHub Secretsに値を設定し、その値を環境変数に設定してください
-      - name: create task
+      - name: create new task
         run: |
           TASK_DEFINITION=$(\
             aws ecs describe-task-definition \
               --task-definition ${{ inputs.ecs-task-name }} \
               --query 'taskDefinition' \
               --output json)
-          rem echo "-----debug: current task definition"
-          rem echo $TASK_DEFINITION
+          # echo "-----debug: current task definition"
+          # echo $TASK_DEFINITION
 
           NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq \
             --arg image_uri "${{ env.ECR_IMAGE_URL }}" \
@@ -127,8 +127,8 @@ jobs:
             ')
 
           echo "$NEW_TASK_DEF" > new-task-def.json
-          rem echo "-----debug: new task definition"
-          rem cat new-task-def.json
+          # echo "-----debug: new task definition"
+          # cat new-task-def.json
 
       ## 新しいタスク定義を登録
       - name: update task
@@ -136,7 +136,7 @@ jobs:
           --family ${{ inputs.ecs-task-name }} \
           --cli-input-json file://new-task-def.json
 
-      ## タスク定義を登録してサービスを更新(強制的にデプロイ)
+      ## サービスを更新(強制的にデプロイ)
       - name: deploy service
         run: aws ecs update-service \
           --cluster ${{ inputs.ecs-cluster-name }} \
