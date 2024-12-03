@@ -21,11 +21,6 @@ on:
     paths: 
       - 'customer/**'
       - '.github/workflows/**' # ワークフロー自体の更新もトリガー
-  # pull_request:
-  #   branches: 
-  #     - 'develop/**'
-  #   paths: 
-  #     - 'customer/**'
 
 jobs:
   build:
@@ -71,13 +66,13 @@ jobs:
       # アーティファクト生成
       - name: Build Customer App
         run: npm run build
-      # アーティファクト公開
+      # アーティファクトのアップロード（イメージビルド向けの一時保存）
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
           path: ${{ env.WORK_DIRECTORY }}${{ env.DIST_DIRECTORY }} # ビルド成果物のパス        
-      # Publish to GitHub Packages
+      # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         id: publish-artifact-to-packages
         run: |
