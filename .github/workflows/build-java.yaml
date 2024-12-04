@@ -68,6 +68,13 @@ jobs:
       #   with:
       #     name: build-artifact
       #     path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
+      - run: tree
+      # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
+      - name: Cache build artifacts
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
+          key: artifact_${{ env.APP_NAME }}
       # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
       - name: Cache build artifacts
         uses: actions/cache@v3
