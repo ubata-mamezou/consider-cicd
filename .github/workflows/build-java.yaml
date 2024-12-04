@@ -75,7 +75,8 @@ jobs:
         with:
           path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
           # key: build-resource_${{ env.APP_NAME }}
-          key: artifact-dist-${{ env.APP_NAME }}-${{ github.sha }}
+          key: artifact-dist-${{ env.APP_NAME }}
+          restore-keys: artifact-dist-${{ env.APP_NAME }}-${{ github.sha }}
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
         run: |
