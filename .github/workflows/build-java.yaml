@@ -73,7 +73,7 @@ jobs:
         uses: actions/cache@v3
         with:
           #Tips: defaults > run > working-directoryの設定はActionへの引数には適用されません
-          path: ${{ env.WORK_DIRECTORY }}/target/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
+          path: ${{ env.WORK_DIRECTORY }}/target
           key: artifact_${{ env.APP_NAME }}
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - run: tree
