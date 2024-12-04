@@ -92,7 +92,7 @@ jobs:
       #     work-directory: ${{ env.WORK_DIRECTORY }}
       #     dist-directory: ${{ env.DIST_DIRECTORY }}
       - name: call file
-        uses: ./.github/workflows/build-image-2.yaml
+        uses: ././.github/workflows/build-image
         with:
           app-name: ${{ env.APP_NAME }}
           app-version: ${{ env.APP_VERSION }}
