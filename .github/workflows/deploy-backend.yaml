@@ -14,15 +14,13 @@ env:
 jobs:
   # デプロイ(デプロイ先：AWS)
   deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ./.github/workflows/deploy-aws.yaml
-        with:
-          app-name: ${{ env.APP_NAME }}
-          app-version: ${{ env.APP_VERSION }}
-          aws-region: ${{ env.AWS_REGION }}
-          aws-ecr-repository-name: consider-cicd
-          ecs-cluster-name: consider-cicd-ecs
-          ecs-service-name: consider-cicd-ecs-service_order-service
-          ecs-task-name: consider-cicd-ecs-task-order
-
+    uses: ./.github/workflows/deploy-aws.yaml
+    secrets: inherit 
+    with:
+      app-name: order
+      app-version: 0.0.1
+      aws-region: ap-northeast-1
+      aws-ecr-repository-name: consider-cicd
+      ecs-cluster-name: consider-cicd-ecs
+      ecs-service-name: consider-cicd-ecs-service_order-service
+      ecs-task-name: consider-cicd-ecs-task-order
