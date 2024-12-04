@@ -37,6 +37,7 @@ jobs:
       ## コードをチェックアウト
       - name: checkout source
         uses: actions/checkout@v4
+
       - name: debug
         run: |
           tree
@@ -48,12 +49,19 @@ jobs:
       #   with:
       #     name: build-artifact
       #     path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
-      ## 対象のアーティファクトを取得(取得元：GitHub Packages)
-      - name: Pull Artifact from GitHub Packages
-        run: |
-          npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
-          npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
-          npm install @${{ env.GITHUB_PACKAGES_ARTIFACT_URL }}
+      # ## 対象のアーティファクトを取得(取得元：GitHub Packages)
+      # - name: Pull Artifact from GitHub Packages
+      #   run: |
+      #     npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
+      #     npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
+      #     npm install @${{ env.GITHUB_PACKAGES_ARTIFACT_URL }}
+
+      - name: Cache build artifacts
+        uses: actions/cache@v3
+        with:
+          path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
+          key: ${{ runner.os }}-dist-${{ github.sha }}          
+
       - name: debug
         run: |
           tree

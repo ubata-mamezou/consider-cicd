@@ -88,7 +88,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true #同一バージョンのpushエラーが発生するため、エラー無視
-      - name: コールバック
+      # アーティファクト公開コールバック
+      - name: callback
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
   # イメージビルド
