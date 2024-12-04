@@ -107,6 +107,7 @@ jobs:
       app-version: 0.0.1
       work-directory: order
       dist-directory: /target
+      cache-artifact-key: artifact_order
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest

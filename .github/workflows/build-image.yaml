@@ -8,19 +8,20 @@ name: build-image
 on:
   workflow_call:
     inputs:
-      # アプリケーション名（アーティファクトの特定、イメージ名に使用します）
       app-name:
+        description: アプリケーション名（アーティファクトの特定、イメージ名に使用します）
         required: true
         type: string
-      # アプリケーションバージョン（イメージのバージョンに使用します）
       app-version:
+        description: アプリケーションバージョン（イメージのバージョンに使用します）
         required: true
         type: string
       work-directory:
+        description: 作業ディレクトリ（ルート：.、サブディレクトリにあるアプリを対象とする場合：フォルダ名）
         required: true
         type: string
-      # ツールによるアーティファクトの参照先を吸収するための変数（ex. maven: /target, npm: /dist）
       dist-directory:
+        description: ツールによるアーティファクトの参照先を吸収するための変数（ex. maven：/target, npm：/dist）
         required: false
         type: string
       cache-artifact-key:

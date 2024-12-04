@@ -69,7 +69,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.WORK_DIRECTORY }}${{ env.DIST_DIRECTORY }}
-          key: artifact-${{ env.APP_NAME }}
+          key: artifact_${{ env.APP_NAME }}
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         id: publish-artifact-to-packages
@@ -92,6 +92,7 @@ jobs:
       app-version: 0.0.1
       work-directory: customer/customer-service
       dist-directory: /dist
+      cache-artifact-key: artifact_customer-service
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest
