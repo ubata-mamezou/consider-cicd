@@ -23,6 +23,10 @@ on:
       dist-directory:
         required: false
         type: string
+      cache-artifact-key:
+        description: キャッシュしたアーティファクトのキー名
+        required: true
+        type: string
 env:
   GITHUB_PACKAGES_ARTIFACT_URL: ${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
 
@@ -37,12 +41,6 @@ jobs:
       ## コードをチェックアウト
       - name: checkout source
         uses: actions/checkout@v4
-
-      - name: debug
-        run: |
-          tree
-          cd ..
-          tree
       ## ビルドリソースをダウンロード
       # - name: download artifact
       #   uses: actions/download-artifact@v4
@@ -55,18 +53,12 @@ jobs:
       #     npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
       #     npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
       #     npm install @${{ env.GITHUB_PACKAGES_ARTIFACT_URL }}
-
-      - name: Cache build artifacts
+      ## 対象のアーティファクトを復元(取得元：GitHub Packages)
+      - name: Restore build artifacts
         uses: actions/cache@v3
         with:
           path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
-          key: ${{ runner.os }}-dist-${{ github.sha }}          
-
-      - name: debug
-        run: |
-          tree
-          cd ..
-          tree
+          key: ${{ inputs.cache-artifact-key }}          
       - name: Build Docker image
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
       # 脆弱性スキャン実行環境セットアップ

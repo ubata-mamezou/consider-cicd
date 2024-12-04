@@ -62,13 +62,19 @@ jobs:
       # ビルド、テスト、パッケージ（Maven）
       - name: Build with Maven
         run: mvn clean install surefire-report:report-only
-      # アーティファクトのアップロード（イメージビルド向けの一時保存）
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      # # アーティファクトのアップロード（イメージビルド向けの一時保存）
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: build-artifact
+      #     path: ${{ env.WORK_DIRECTORY }}/target/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
+      # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
+      - name: Cache build artifacts
+        uses: actions/cache@v3
         with:
-          name: build-artifact
           #Tips: defaults > run > working-directoryの設定はActionへの引数には適用されません
           path: ${{ env.WORK_DIRECTORY }}/target/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
+          key: artifact-${{ env.APP_NAME }}
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - run: tree
       - name: move test report
@@ -133,19 +139,19 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
-  # # デプロイ(デプロイ先：AWS)
-  # deploy:
-  #   needs: build-image
-  #   uses: ./.github/workflows/deploy-aws.yaml
-  #   # Tips：自身で設定したsecretを別ファイルから参照するには？
-  #   # 別ファイルにしたワークフローはスコープの問題でsecretの参照に失敗します。
-  #   # inheritをつけることで呼び出し先にSecretが引き継がれるので、呼び出し先でも参照することができます。
-  #   secrets: inherit 
-  #   with:
-  #     app-name: order
-  #     app-version: 0.0.1
-  #     aws-region: ap-northeast-1
-  #     aws-ecr-repository-name: consider-cicd
-  #     ecs-cluster-name: consider-cicd-ecs
-  #     ecs-service-name: consider-cicd-ecs-service_order
-  #     ecs-task-name: consider-cicd-ecs-task-order
+  # デプロイ(デプロイ先：AWS)
+  deploy:
+    needs: build-image
+    uses: ./.github/workflows/deploy-aws.yaml
+    # Tips：自身で設定したsecretを別ファイルから参照するには？
+    # 別ファイルにしたワークフローはスコープの問題でsecretの参照に失敗します。
+    # inheritをつけることで呼び出し先にSecretが引き継がれるので、呼び出し先でも参照することができます。
+    secrets: inherit 
+    with:
+      app-name: order
+      app-version: 0.0.1
+      aws-region: ap-northeast-1
+      aws-ecr-repository-name: consider-cicd
+      ecs-cluster-name: consider-cicd-ecs
+      ecs-service-name: consider-cicd-ecs-service_order
+      ecs-task-name: consider-cicd-ecs-task-order
