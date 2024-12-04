@@ -74,7 +74,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
-          key: artifact-dist-${{ env.APP_NAME }}-${{ github.sha }}
+          key: artifact-dist-${{ env.APP_NAME }}
       - name: debug
         run: |
           echo ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
@@ -110,7 +110,7 @@ jobs:
       app-version: 0.0.1
       work-directory: order
       dist-directory: /target
-      cache-artifact-key: artifact-dist-order-${{ github.sha }}
+      cache-artifact-key: artifact-dist-order
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest
