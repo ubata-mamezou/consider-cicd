@@ -91,8 +91,15 @@ jobs:
       #     app-version: ${{ env.APP_VERSION }}
       #     work-directory: ${{ env.WORK_DIRECTORY }}
       #     dist-directory: ${{ env.DIST_DIRECTORY }}
-      - name: call file
-        uses: ././.github/workflows/build-image
+      # - name: call file
+      #   uses: ././.github/workflows/build-image
+      #   with:
+      #     app-name: ${{ env.APP_NAME }}
+      #     app-version: ${{ env.APP_VERSION }}
+      #     work-directory: ${{ env.WORK_DIRECTORY }}
+      #     dist-directory: ${{ env.DIST_DIRECTORY }}
+      - name: build-image
+        uses: ./.github/workflows/build-image.yaml
         with:
           app-name: ${{ env.APP_NAME }}
           app-version: ${{ env.APP_VERSION }}
