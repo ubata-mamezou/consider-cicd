@@ -41,7 +41,8 @@ jobs:
       ## デプロイ対象のイメージを取得(取得元：GitHub Packages)
       - name: Pull Docker image from GitHub Packages
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
+          npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
           npm install ${{ env.GITHUB_PACKAGES_ARTIFACT_URL }}
       # - name: download artifact
       #   uses: actions/download-artifact@v4
