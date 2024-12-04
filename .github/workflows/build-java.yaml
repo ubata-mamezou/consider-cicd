@@ -75,11 +75,11 @@ jobs:
         with:
           path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
           key: artifact-dist-${{ env.APP_NAME }}
-      - name: debug
-        run: |
-          echo ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
-          cd ..
-          tree ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
+      # - name: debug
+      #   run: |
+      #     echo ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
+      #     cd ..
+      #     tree ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
         run: |
