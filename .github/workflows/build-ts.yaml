@@ -9,7 +9,7 @@ env:
   APP_VERSION: 0.0.1
   AWS_REGION: ap-northeast-1
   WORK_DIRECTORY: customer/customer-service
-  DIST_DIRECTORY: /dist # ビルドリソースの生成されるフォルダー（ex. Maven：/target、Node:/dist）
+  DIST_DIRECTORY: dist # ビルドリソースの生成されるフォルダー（ex. Node:dist）
   TEST_REPORT_DIRECTORY: test-result #WORK_DIRECTORYから見たパス
   NODE_VERSION: 20 # 使用するNode.jsのバージョン
 
@@ -20,7 +20,7 @@ on:
       - 'feature/**'
     paths: 
       - 'customer/**'
-      - '.github/workflows/**' # ワークフロー自体の更新もトリガー
+      # - '.github/workflows/**' # ワークフロー自体の更新もトリガー
 
 jobs:
   build:
@@ -68,7 +68,7 @@ jobs:
       - name: Cache build artifacts
         uses: actions/cache@v3
         with:
-          path: ${{ env.WORK_DIRECTORY }}${{ env.DIST_DIRECTORY }}
+          path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
           key: artifact_${{ env.APP_NAME }}
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
