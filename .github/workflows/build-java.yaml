@@ -14,12 +14,12 @@ env:
 
 on:
   workflow_dispatch: #手動実行
-  # push:
-  #   branches: 
-  #     - 'feature/**'
-  #     - 'topic/**'
-  #   paths: 
-  #     - 'order/**'
+  push:
+    branches: 
+      - 'feature/**'
+      - 'topic/**'
+    paths: 
+      - 'order/**'
   #     - '.github/workflows/**' # ワークフロー自体の更新もトリガー
 
 jobs:
