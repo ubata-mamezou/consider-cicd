@@ -43,7 +43,7 @@ jobs:
         run: |
           npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
           npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
-          npm install ${{ env.GITHUB_PACKAGES_ARTIFACT_URL }}
+          npm install @${{ env.GITHUB_PACKAGES_ARTIFACT_URL }}
       # - name: download artifact
       #   uses: actions/download-artifact@v4
       #   with:
