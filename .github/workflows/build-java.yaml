@@ -8,7 +8,7 @@ env:
   APP_NAME: order # アプリケーション名
   APP_VERSION: 0.0.1 # アプリケーションバージョン
   AWS_REGION: ap-northeast-1 # AWSリージョン
-  WORK_DIRECTORY: ./order # 作業ディレクトリ
+  WORK_DIRECTORY: order # 作業ディレクトリ
   DIST_DIRECTORY: target # ビルドリソースの生成されるフォルダー（ex. Node:dist）
   JAVA_VERSION: 21 # 使用するJavaのバージョン
 
@@ -20,7 +20,7 @@ on:
       - 'topic/**'
     paths: 
       - 'order/**'
-  #     - '.github/workflows/**' # ワークフロー自体の更新もトリガー
+      - '.github/workflows/**' # ワークフロー自体の更新もトリガー
 
 jobs:
   build:
@@ -75,6 +75,11 @@ jobs:
         with:
           path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
           key: artifact-dist-${{ env.APP_NAME }}-${{ github.sha }}
+      - name: debug
+        run: |
+          echo ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
+          cd ..
+          tree ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
         run: |
