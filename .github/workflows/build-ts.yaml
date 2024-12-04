@@ -66,10 +66,11 @@ jobs:
         run: npm run build
       # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
       - name: Cache build artifacts
-        uses: actions/cache/save@v4
+        uses: actions/cache@v4
         with:
           path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
           key: artifact-dist-${{ env.APP_NAME }}
+          fail-on-cache-miss: true
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         id: publish-artifact-to-packages
@@ -126,15 +127,15 @@ jobs:
       id: deployment
       uses: actions/deploy-pages@v4
   # デプロイ(デプロイ先：AWS)
-  deploy:
-    needs: build-image
-    uses: ./.github/workflows/deploy-aws.yaml
-    secrets: inherit
-    with:
-      app-name: customer-service
-      app-version: 0.0.1
-      aws-region: ap-northeast-1
-      aws-ecr-repository-name: consider-cicd
-      ecs-cluster-name: consider-cicd-ecs
-      ecs-service-name: consider-cicd-ecs-service_customer-service
-      ecs-task-name: consider-cicd-ecs-task-customer-service
+  # deploy:
+  #   needs: build-image
+  #   uses: ./.github/workflows/deploy-aws.yaml
+  #   secrets: inherit
+  #   with:
+  #     app-name: customer-service
+  #     app-version: 0.0.1
+  #     aws-region: ap-northeast-1
+  #     aws-ecr-repository-name: consider-cicd
+  #     ecs-cluster-name: consider-cicd-ecs
+  #     ecs-service-name: consider-cicd-ecs-service_customer-service
+  #     ecs-task-name: consider-cicd-ecs-task-customer-service
