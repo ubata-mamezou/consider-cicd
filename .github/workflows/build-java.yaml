@@ -20,7 +20,7 @@ on:
       - 'topic/**'
     paths: 
       - 'order/**'
-      # - '.github/workflows/**' # ワークフロー自体の更新もトリガー
+      - '.github/workflows/**' # ワークフロー自体の更新もトリガー
 
 jobs:
   build:
