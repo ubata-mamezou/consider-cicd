@@ -74,14 +74,13 @@ jobs:
         with:
           #Tips: defaults > run > working-directoryの設定はActionへの引数には適用されません
           path: ${{ env.WORK_DIRECTORY }}/target/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
-          key: artifact-${{ env.APP_NAME }}
+          key: artifact_${{ env.APP_NAME }}
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - run: tree
       - name: move test report
         run: |
           mkdir -p pages/${{ env.APP_NAME }}/test-report
           cp -r target/reports/* pages/${{ env.APP_NAME }}/test-report
-      - run: tree
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
