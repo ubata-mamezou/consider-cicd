@@ -71,12 +71,10 @@ jobs:
       #     path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
       # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
       - name: Cache build artifacts
-        uses: actions/cache@v4
+        uses: actions/cache/save@v4
         with:
           path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
-          # key: build-resource_${{ env.APP_NAME }}
-          key: artifact-dist-${{ env.APP_NAME }}-${{ github.sha }}
-          restore-keys: artifact-dist-${{ env.APP_NAME }}-
+          key: artifact-dist-${{ env.APP_NAME }}
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
         run: |
@@ -107,8 +105,7 @@ jobs:
       app-version: 0.0.1
       work-directory: order
       dist-directory: /target
-      # cache-artifact-key: build-resource_order
-      cache-artifact-key: artifact-dist-order-
+      cache-artifact-key: artifact-dist-order
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest
