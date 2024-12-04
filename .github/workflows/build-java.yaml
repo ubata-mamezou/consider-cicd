@@ -74,7 +74,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
-          key: build-resource_${{ env.APP_NAME }}
+          # key: build-resource_${{ env.APP_NAME }}
+          key: artifact-dist-${{ github.sha }}
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
         run: |
@@ -105,7 +106,8 @@ jobs:
       app-version: 0.0.1
       work-directory: order
       dist-directory: /target
-      cache-artifact-key: build-resource_order
+      # cache-artifact-key: build-resource_order
+      cache-artifact-key: artifact-dist-order-${{ github.sha }}
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest
