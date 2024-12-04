@@ -27,7 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ env.WORK_DIRECTORY }}
+          #Tips: defaults > run > working-directoryの設定はActionへの引数には適用されません
+          working-directory: ${{ env.WORK_DIRECTORY }}
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -68,22 +69,13 @@ jobs:
       #   with:
       #     name: build-artifact
       #     path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.jar
-      - run: tree
       # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
       - name: Cache build artifacts
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
-          path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
-          key: artifact_${{ env.APP_NAME }}
-      # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
-      - name: Cache build artifacts
-        uses: actions/cache@v3
-        with:
-          #Tips: defaults > run > working-directoryの設定はActionへの引数には適用されません
           path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
           key: artifact_${{ env.APP_NAME }}
       # テストレポートのアップロード（レポート公開向けの一時保存）
-      - run: tree
       - name: move test report
         run: |
           mkdir -p pages/${{ env.APP_NAME }}/test-report

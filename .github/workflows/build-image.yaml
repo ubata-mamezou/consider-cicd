@@ -56,10 +56,11 @@ jobs:
       #     npm install @${{ env.GITHUB_PACKAGES_ARTIFACT_URL }}
       ## 対象のアーティファクトを復元(取得元：GitHub Packages)
       - name: Restore build artifacts
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
-          key: ${{ inputs.cache-artifact-key }}          
+          key: ${{ inputs.cache-artifact-key }}
+      # イメージビルド
       - name: Build Docker image
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
       # 脆弱性スキャン実行環境セットアップ
