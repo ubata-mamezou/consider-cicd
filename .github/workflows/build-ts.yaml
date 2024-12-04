@@ -98,22 +98,15 @@ jobs:
       #     app-version: ${{ env.APP_VERSION }}
       #     work-directory: ${{ env.WORK_DIRECTORY }}
       #     dist-directory: ${{ env.DIST_DIRECTORY }}
-      - name: build-image
-        uses: ./.github/workflows/build-image.yaml
-        with:
-          app-name: ${{ env.APP_NAME }}
-          app-version: ${{ env.APP_VERSION }}
-          work-directory: ${{ env.WORK_DIRECTORY }}
-          dist-directory: ${{ env.DIST_DIRECTORY }}
-  # # イメージビルド
-  # build-image:
-  #   needs: build
-  #   uses: ./.github/workflows/build-image.yaml
-  #   with:
-  #     app-name: customer-service
-  #     app-version: 0.0.1
-  #     work-directory: customer/customer-service
-  #     dist-directory: /dist
+  # イメージビルド
+  build-image:
+    needs: build
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      app-name: customer-service
+      app-version: 0.0.1
+      work-directory: customer/customer-service
+      dist-directory: /dist
   # # テストレポートを公開
   # publish-test-result:
   #   runs-on: ubuntu-latest

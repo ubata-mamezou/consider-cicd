@@ -23,6 +23,8 @@ on:
       dist-directory:
         required: false
         type: string
+env:
+  GITHUB_PACKAGES_IMAGE_URL: ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
 
 jobs:
   build:
@@ -36,11 +38,16 @@ jobs:
       - name: checkout source
         uses: actions/checkout@v4
       ## ビルドリソースをダウンロード
-      - name: download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
+      ## デプロイ対象のイメージを取得(取得元：GitHub Packages)
+      - name: Pull Docker image from GitHub Packages
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull ${{ env.GITHUB_PACKAGES_IMAGE_URL }}
+      # - name: download artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: build-artifact
+      #     path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
       - run: tree #debug
       - name: Build Docker image
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
