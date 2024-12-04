@@ -85,7 +85,7 @@ jobs:
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
       - name: call action
-        uses: ./actions/image-build
+        uses: ./.github/actions/image-build
         with:
           app-name: ${{ env.APP_NAME }}
           app-version: ${{ env.APP_VERSION }}
