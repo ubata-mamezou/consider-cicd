@@ -84,8 +84,15 @@ jobs:
       - name: アーティファクト公開コールバック
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
-      - name: call action
-        uses: ./.github/actions/image-build
+      # - name: call action
+      #   uses: ./.github/actions/image-build
+      #   with:
+      #     app-name: ${{ env.APP_NAME }}
+      #     app-version: ${{ env.APP_VERSION }}
+      #     work-directory: ${{ env.WORK_DIRECTORY }}
+      #     dist-directory: ${{ env.DIST_DIRECTORY }}
+      - name: call file
+        uses: ./.github/workflows/build-image-2.yaml
         with:
           app-name: ${{ env.APP_NAME }}
           app-version: ${{ env.APP_VERSION }}
