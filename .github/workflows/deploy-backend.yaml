@@ -1,0 +1,28 @@
+name: Deploy to AWS ECS
+
+on:
+  workflow_dispatch: 
+  push:
+    branches:
+      - 'develop/**'
+
+env:
+  APP_NAME: order
+  APP_VERSION: 0.0.1
+  AWS_REGION: ap-northeast-1
+
+jobs:
+  # デプロイ(デプロイ先：AWS)
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/deploy-aws.yaml
+        with:
+          app-name: ${{ env.APP_NAME }}
+          app-version: ${{ env.APP_VERSION }}
+          aws-region: ${{ env.AWS_REGION }}
+          aws-ecr-repository-name: consider-cicd
+          ecs-cluster-name: consider-cicd-ecs
+          ecs-service-name: consider-cicd-ecs-service_order-service
+          ecs-task-name: consider-cicd-ecs-task-order
+

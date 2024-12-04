@@ -19,7 +19,6 @@ export class CustomerController {
   get(id: number): Customer {
     console.log(
       `
-       env-file: config/.env.${process.env.NODE_ENV || '読めてない'} 
        env: ${this.configService.get<string>('ENV_NAME', '読めてない')}
        env(from manager): ${this.appConfig.envName}
       `,
