@@ -37,7 +37,10 @@ jobs:
       ## コードをチェックアウト
       - name: checkout source
         uses: actions/checkout@v4
-      ## ビルドリソースをダウンロード
+      - run: |
+          tree #debug
+          tree ../
+    ## ビルドリソースをダウンロード
       ## デプロイ対象のイメージを取得(取得元：GitHub Packages)
       - name: Pull Docker image from GitHub Packages
         run: |
