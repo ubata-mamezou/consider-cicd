@@ -24,7 +24,7 @@ on:
         required: false
         type: string
 env:
-  GITHUB_PACKAGES_IMAGE_URL: ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
+  GITHUB_PACKAGES_ARTIFACT_URL: ${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
 
 jobs:
   build:
@@ -42,13 +42,15 @@ jobs:
       - name: Pull Docker image from GitHub Packages
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker pull ${{ env.GITHUB_PACKAGES_IMAGE_URL }}
+          npm install ${{ env.GITHUB_PACKAGES_ARTIFACT_URL }}
       # - name: download artifact
       #   uses: actions/download-artifact@v4
       #   with:
       #     name: build-artifact
       #     path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
-      - run: tree #debug
+      - run: |
+          tree #debug
+          tree ../
       - name: Build Docker image
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
       # 脆弱性スキャン実行環境セットアップ
