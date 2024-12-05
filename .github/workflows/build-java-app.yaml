@@ -1,6 +1,6 @@
 # # Javaアプリケーションのビルド
 # ## 前提とする言語など
-# * Java21
+# * Java
 # * Maven
 name: CI/CD Java Application
 
