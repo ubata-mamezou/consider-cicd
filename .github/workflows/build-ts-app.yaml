@@ -83,13 +83,19 @@ jobs:
       # アーティファクト生成
       - name: Build Customer App
         run: npm run build
-      # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
-      - name: Cache build artifacts
-        uses: actions/cache@v4
+      # アーティファクトのアップロード（イメージビルド向けの一時保存）
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
+          name: ${{ inputs.build-artifacts-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
-          key: ${{ inputs.build-artifacts-cache-key }}
-          fail-on-cache-miss: true
+      # # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
+      # - name: Cache build artifacts
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
+      #     key: ${{ inputs.build-artifacts-cache-key }}
+      #     fail-on-cache-miss: true
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         if: inputs.is-publish

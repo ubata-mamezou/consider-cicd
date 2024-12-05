@@ -21,7 +21,7 @@ on:
         required: true
         type: string
       dist-directory:
-        description: ツールによるアーティファクトの参照先を吸収するための変数（ex. maven：/target, npm：/dist）
+        description: ツールによるアーティファクトの参照先を吸収するための変数（ex. maven：target, npm：dist）
         required: false
         type: string
       build-artifacts-cache-key:
@@ -46,12 +46,18 @@ jobs:
       ## コードをチェックアウト
       - name: checkout source
         uses: actions/checkout@v4
-      ## 対象のアーティファクトを復元(取得元：GitHub Packages)
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
+      ## 対象のアーティファクトをダウンロード
+      - name: download artifact
+        uses: actions/download-artifact@v4
         with:
-          path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
-          key: ${{ inputs.build-artifacts-cache-key }}
+          name: ${{ inputs.build-artifacts-cache-key }}
+          path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
+      # ## 対象のアーティファクトを復元(取得元：GitHub Packages)
+      # - name: Restore build artifacts
+      #   uses: actions/cache/restore@v4
+      #   with:
+      #     path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
+      #     key: ${{ inputs.build-artifacts-cache-key }}
       # イメージビルド
       - name: Build Docker image
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
