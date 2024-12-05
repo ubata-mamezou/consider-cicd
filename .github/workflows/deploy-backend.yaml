@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - 'develop/**'
+    paths: 
+      - 'order/**'
+      - '.github/workflows/**' # ワークフロー自体の更新もトリガー
 
 env:
   APP_NAME: order
@@ -24,3 +27,6 @@ jobs:
       ecs-cluster-name: consider-cicd-ecs
       ecs-service-name: consider-cicd-ecs-service_order-service
       ecs-task-name: consider-cicd-ecs-task-order
+      env-variables: |
+        {"name": "PORT", "value": "8082"}, 
+        {"name": "TEST_ENV", "value": "dev"}

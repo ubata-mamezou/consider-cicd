@@ -58,6 +58,15 @@ on:
         description: ECSタスク名
         required: true
         type: string
+      env-variables:
+        description: |
+          環境変数(JSON) 
+          ■指定例
+          {"name": "PORT", "value": "8082"}, 
+          {"name": "TEST_ENV", "value": "dev"}
+        required: false
+        type: string
+        default: ""
 
 env:
   GITHUB_PACKAGES_IMAGE_URL: ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
@@ -113,12 +122,21 @@ jobs:
           # echo "-----debug: current task definition"
           # echo $TASK_DEFINITION
 
+          # NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq \
+          #   --arg image_uri "${{ env.ECR_IMAGE_URL }}" \
+          #   --argjson env_vars '[
+          #     {"name": "PORT", "value": "8082"}, 
+          #     {"name": "TEST_ENV", "value": "dev"}
+          #     ]' \
+          #   '
+          #   .containerDefinitions[0].image = $image_uri |
+          #   .containerDefinitions[0].environment = $env_vars |
+          #   .family = "${{ inputs.ecs-task-name }}" |
+          #   del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)
+          #   ')
           NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq \
             --arg image_uri "${{ env.ECR_IMAGE_URL }}" \
-            --argjson env_vars '[
-              {"name": "PORT", "value": "8082"}, 
-              {"name": "TEST_ENV", "value": "dev"}
-              ]' \
+            --argjson env_vars '[${{ inputs.env-variables }}]' \
             '
             .containerDefinitions[0].image = $image_uri |
             .containerDefinitions[0].environment = $env_vars |
