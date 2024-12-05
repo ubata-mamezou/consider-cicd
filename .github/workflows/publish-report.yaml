@@ -1,0 +1,44 @@
+# # レポート公開
+# * レポート公開先：GitHub Pages
+# ## 前提条件
+# * GitHub Pagesが利用可能になっていること
+name: Publish Reports
+
+on:
+  workflow_call:
+      inputs:
+        app-name:
+          required: true
+          type: string
+
+jobs:
+  publish-test-result:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - name: init
+      run: mkdir pages
+    # レポートダウンロード（事前にアップロードしていたレポートを取得）
+    - name: download test report
+      uses: actions/download-artifact@v4
+      with:
+        name: test-report_${{ inputs.app-name }}
+        path: pages
+    - name: download image scan report
+      uses: actions/download-artifact@v4
+      with:
+        name: image-scan-report_${{ inputs.app-name }}
+        path: pages
+    # レポート公開(公開先：GitHub Pages)
+    - name: upload
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: pages
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
