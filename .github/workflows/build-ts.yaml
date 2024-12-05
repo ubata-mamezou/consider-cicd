@@ -25,7 +25,7 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/build-java-app.yaml
+    uses: ./.github/workflows/build-ts-app.yaml
     with:
       app-name: customer-service
       app-version: 0.0.1
