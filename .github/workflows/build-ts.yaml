@@ -18,6 +18,7 @@ on:
   push:
     branches: 
       - 'feature/**'
+      - 'topic/**'
     paths: 
       - 'customer/**'
       # - '.github/workflows/**' # ワークフロー自体の更新もトリガー
@@ -129,7 +130,7 @@ jobs:
   # デプロイ(デプロイ先：AWS)
   # deploy:
   #   needs: build-image
-  #   uses: ./.github/workflows/deploy-aws.yaml
+  #   uses: ./.github/workflows/dev/deploy-aws_dev.yaml
   #   secrets: inherit
   #   with:
   #     app-name: customer-service
@@ -139,3 +140,6 @@ jobs:
   #     ecs-cluster-name: consider-cicd-ecs
   #     ecs-service-name: consider-cicd-ecs-service_customer-service
   #     ecs-task-name: consider-cicd-ecs-task-customer-service
+  #     env-variables: |
+  #       {"name": "PORT", "value": "8082"}, 
+  #       {"name": "TEST_ENV", "value": "dev"}

@@ -28,6 +28,10 @@ on:
         description: キャッシュしたアーティファクトのキー名
         required: true
         type: string
+      is-publish:
+        description: イメージを公開する(true:公開、false:公開しない)
+        required: false
+        type: boolean
 env:
   GITHUB_PACKAGES_ARTIFACT_URL: ${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
 
@@ -42,18 +46,6 @@ jobs:
       ## コードをチェックアウト
       - name: checkout source
         uses: actions/checkout@v4
-      ## ビルドリソースをダウンロード
-      # - name: download artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: build-artifact
-      #     path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
-      # ## 対象のアーティファクトを取得(取得元：GitHub Packages)
-      # - name: Pull Artifact from GitHub Packages
-      #   run: |
-      #     npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
-      #     npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
-      #     npm install @${{ env.GITHUB_PACKAGES_ARTIFACT_URL }}
       ## 対象のアーティファクトを復元(取得元：GitHub Packages)
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
@@ -125,6 +117,7 @@ jobs:
           fi
       # コンテナイメージ公開（公開先：GitHub Packages）
       - name: Publish Docker image to GitHub Packages
+        if: inputs.is-publish == true
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
