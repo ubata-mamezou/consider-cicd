@@ -2,7 +2,7 @@
 # ## 前提とする言語など
 # * Java
 # * Maven
-name: CI/CD Java Application
+name: Build Java Application
 
 on:
   workflow_call:
@@ -11,10 +11,10 @@ on:
         description: アプリケーション名
         required: true
         type: string
-      app-version:
-        description: アプリケーションバージョン
-        required: true
-        type: string
+      # app-version:
+      #   description: アプリケーションバージョン
+      #   required: true
+      #   type: string
       work-directory:
         description: 作業ディレクトリ（アプリのルートフォルダ）
         required: true
