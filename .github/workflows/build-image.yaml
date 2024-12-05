@@ -24,7 +24,7 @@ on:
         description: ツールによるアーティファクトの参照先を吸収するための変数（ex. maven：/target, npm：/dist）
         required: false
         type: string
-      cache-artifact-key:
+      build-artifacts-cache-key:
         description: キャッシュしたアーティファクトのキー名
         required: true
         type: string
@@ -51,7 +51,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
-          key: ${{ inputs.cache-artifact-key }}
+          key: ${{ inputs.build-artifacts-cache-key }}
       # イメージビルド
       - name: Build Docker image
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .

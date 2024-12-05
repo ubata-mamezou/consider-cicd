@@ -1,0 +1,111 @@
+# # Javaアプリケーションのビルド
+# ## 前提とする言語など
+# * Java21
+# * Maven
+name: CI/CD Java Application
+
+on:
+  workflow_call:
+    inputs:
+      app-name:
+        description: アプリケーション名
+        required: true
+        type: string
+      app-version:
+        description: アプリケーションバージョン
+        required: true
+        type: string
+      work-directory:
+        description: 作業ディレクトリ（アプリのルートフォルダ）
+        required: true
+        type: string
+      dist-directory:
+        description: ビルドリソースの生成されるフォルダー
+        required: false
+        type: string
+        default: target
+      java-version:
+        description: Javaのバージョン
+        required: true
+        type: string
+      build-artifacts-cache-key:
+        description: 他ジョブで使用できるようにビルドしたアーティファクトをキャッシュする際に使用するキー名
+        required: true
+        type: string
+      is-publish:
+        description: Jar,イメージの公開有無(true:公開する、false:公開しない)
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+          #Tips: defaults > run > working-directoryの設定はActionへの引数には適用されません
+          working-directory: ${{ inputs.work-directory }}
+    steps:
+      # 実行環境セットアップ
+      ## コードをチェックアウト
+      - name: checkout source
+        uses: actions/checkout@v4
+      ## JDK をセットアップ
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: 'temurin'
+      ## キャッシュ（Mavenリポジトリ）
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+      ## GitHub Packagesへの認証設定追加（Maven）
+      - name: Generate Maven settings.xml
+        run: |
+          mkdir -p ~/.m2
+          echo "<settings>
+                  <servers>
+                    <server>
+                      <id>github</id>
+                      <username>${{ github.actor }}</username>
+                      <password>${{ secrets.GITHUB_TOKEN }}</password>
+                    </server>
+                  </servers>
+                </settings>" > ~/.m2/settings.xml
+      # ビルド、テスト、パッケージ（Maven）
+      - name: Build with Maven
+        run: mvn clean install surefire-report:report-only
+      # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        # uses: actions/cache/save@v4
+        with:
+          path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
+          key: ${{ inputs.build-artifacts-cache-key }}
+          fail-on-cache-miss: true
+      # テストレポートのアップロード（レポート公開向けの一時保存）
+      - name: move test report
+        run: |
+          mkdir -p pages/${{ inputs.app-name }}/test-report
+          cp -r ${{ inputs.dist-directory }}/reports/* pages/${{ inputs.app-name }}/test-report
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report_${{ inputs.app-name }}
+          path: ${{ inputs.work-directory }}/pages
+      # アーティファクト公開（公開先：GitHub Packages）
+      - name: Publish artifact to GitHub Packages
+        if: inputs.is-publish
+        id: publish-artifact-to-packages
+        run: mvn deploy -DskipTests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true #同一バージョンのpushエラーが発生するため、エラー無視
+      # アーティファクト公開コールバック
+      - name: callback
+        if: steps.publish-artifact-to-packages.outcome == 'failure'
+        run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。

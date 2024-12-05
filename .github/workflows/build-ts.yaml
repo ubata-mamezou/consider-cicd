@@ -94,7 +94,7 @@ jobs:
       app-version: 0.0.1
       work-directory: customer/customer-service
       dist-directory: /dist
-      cache-artifact-key: artifact-dist-customer-service
+      build-artifacts-cache-key: artifact-dist-customer-service
   # テストレポートを公開
   publish-test-result:
     runs-on: ubuntu-latest
