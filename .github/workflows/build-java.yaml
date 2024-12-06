@@ -9,7 +9,7 @@ env:
   APP_VERSION: 0.0.1 # アプリケーションバージョン
   AWS_REGION: ap-northeast-1 # AWSリージョン
   WORK_DIRECTORY: order # 作業ディレクトリ
-  DIST_DIRECTORY: target # ビルドリソースの生成されるフォルダー（ex. Node:dist）
+  DIST_DIRECTORY: target # ビルドリソースの生成されるフォルダー
   JAVA_VERSION: 21 # 使用するJavaのバージョン
 
 on:
@@ -51,35 +51,6 @@ jobs:
     uses: ./.github/workflows/publish-report.yaml
     with:
       app-name: order
-    # runs-on: ubuntu-latest
-    # permissions:
-    #   pages: write
-    #   id-token: write
-    # environment:
-    #   name: github-pages
-    #   url: ${{ steps.deployment.outputs.page_url }}
-    # steps:
-    # - name: init
-    #   run: mkdir pages
-    # # レポートダウンロード（事前にアップロードしていたレポートを取得）
-    # - name: download test report
-    #   uses: actions/download-artifact@v4
-    #   with:
-    #     name: test-report_${{ env.APP_NAME }}
-    #     path: pages
-    # - name: download image scan report
-    #   uses: actions/download-artifact@v4
-    #   with:
-    #     name: image-scan-report_${{ env.APP_NAME }}
-    #     path: pages
-    # # レポート公開(公開先：GitHub Pages)
-    # - name: upload
-    #   uses: actions/upload-pages-artifact@v3
-    #   with:
-    #     path: pages
-    # - name: Deploy to GitHub Pages
-    #   id: deployment
-    #   uses: actions/deploy-pages@v4
   # デプロイ(デプロイ先：AWS)
   deploy:
     needs: build-image

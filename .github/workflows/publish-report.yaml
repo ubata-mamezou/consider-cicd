@@ -34,8 +34,10 @@ jobs:
       with:
         name: image-scan-report_${{ inputs.app-name }}
         path: pages
+    - run: tree #debug
+
     # レポート公開(公開先：GitHub Pages)
-    - name: upload
+    - name: upload report
       uses: actions/upload-pages-artifact@v3
       with:
         path: pages

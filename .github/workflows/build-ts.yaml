@@ -34,66 +34,6 @@ jobs:
       node-version: 20
       build-artifacts-cache-key: artifact-dist-customer-service
       is-publish: true
-    # runs-on: ubuntu-latest
-    # defaults:
-    #   run:
-    #     working-directory: ${{ env.WORK_DIRECTORY }}
-    # steps:
-    #   # 実行環境セットアップ
-    #   ## コードをチェックアウト
-    #   - name: checkout source
-    #     uses: actions/checkout@v3
-    #   ## Node.jsのセットアップ
-    #   - name: Setup Node.js
-    #     uses: actions/setup-node@v3
-    #     with:
-    #       node-version: ${{ env.NODE_VERSION }}
-    #       cache: 'npm' # npmキャッシュを有効化
-    #       cache-dependency-path: ./customer/customer-service/package-lock.json
-    #   ## 依存ライブラリのインストール
-    #   - name: Install dependencies
-    #     run: |
-    #       npm install
-    #       npm install --save-dev jest-html-reporters
-    #   # 静的解析（Lint）
-    #   - name: Run Lint
-    #     run: npm run lint
-    #   # テスト
-    #   - name: Run Unit Tests
-    #     run: npm run test:ci
-    #   # テストレポートのアップロード（レポート公開向けの一時保存）
-    #   - name: move test report
-    #     run: |
-    #       mkdir -p pages/${{ env.APP_NAME }}/test-report
-    #       cp -r ${{ env.TEST_REPORT_DIRECTORY }}/* pages/${{ env.APP_NAME }}/test-report
-    #   - name: Upload Test Report
-    #     uses: actions/upload-artifact@v4
-    #     with:
-    #       name: test-report_${{ env.APP_NAME }}
-    #       path: ${{ env.WORK_DIRECTORY }}/pages
-    #   # アーティファクト生成
-    #   - name: Build Customer App
-    #     run: npm run build
-    #   # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
-    #   - name: Cache build artifacts
-    #     uses: actions/cache@v4
-    #     with:
-    #       path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
-    #       key: artifact-dist-${{ env.APP_NAME }}
-    #       fail-on-cache-miss: true
-    #   # アーティファクト公開（公開先：GitHub Packages）
-    #   - name: Publish artifact to GitHub Packages
-    #     id: publish-artifact-to-packages
-    #     run: |
-    #       npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
-    #       npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
-    #       npm publish || echo "Publish failed, skipping"
-    #     ## 同一バージョンを公開するとエラーになってパイプラインがfailしてしまうので、エラーが発生しても成功扱いにするように設定
-    #     continue-on-error: true
-    #   # アーティファクト公開コールバック
-    #   - name: callback
-    #     if: steps.publish-artifact-to-packages.outcome == 'failure'
-    #     run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
   # イメージビルド
   build-image:
     needs: build
