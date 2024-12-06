@@ -8,5 +8,5 @@
 
 ## backend(Java)
 [![CI/CD java application](https://github.com/ubata-mamezou/consider-cicd/actions/workflows/build-java.yaml/badge.svg)](https://github.com/ubata-mamezou/consider-cicd/actions/workflows/build-java.yaml)
-* [test-report](https://ubata-mamezou.github.io/consider-cicd/order/test-report/surefire.html)
-* [container security scan report](https://ubata-mamezou.github.io/consider-cicd/order/image-scan-report/trivy-report_order.html)
+* [test-report](https://ubata-mamezou.github.io/consider-cicd/order/reports/test-report)
+* [container security scan report](https://ubata-mamezou.github.io/consider-cicd/order/reports/image-scan/)
