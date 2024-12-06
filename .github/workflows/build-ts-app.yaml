@@ -4,9 +4,6 @@
 # * Node.js
 name: Build TypeScript Application
 
-env:
-  TEST_REPORT_DIRECTORY: test-result #WORK_DIRECTORYから見たパス
-
 on:
   workflow_call:
     inputs:
@@ -72,9 +69,11 @@ jobs:
         run: npm run test:ci
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
+        env:
+          test-report-directory: ${{ inputs.app-name }}/reports/test-report
         run: |
-          mkdir -p pages/${{ inputs.app-name }}/test-report
-          cp -r ${{ env.TEST_REPORT_DIRECTORY }}/* pages/${{ inputs.app-name }}/test-report
+          mkdir -p pages/${{ env.test-report-directory }}
+          mv -r test-result/* pages/${{ env.test-report-directory }}
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:

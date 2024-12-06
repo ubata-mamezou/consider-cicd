@@ -95,9 +95,11 @@ jobs:
       #     fail-on-cache-miss: true
       # テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
+        env:
+          test-report-directory: ${{ inputs.app-name }}/reports/test-report
         run: |
-          mkdir -p pages/${{ inputs.app-name }}/test-report
-          cp -r ${{ inputs.dist-directory }}/reports/* pages/${{ inputs.app-name }}/test-report
+          mkdir -p pages/${{ env.test-report-directory }}
+          mv -r ${{ inputs.dist-directory }}/reports/* pages/${{ env.test-report-directory }}
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
