@@ -99,7 +99,7 @@ jobs:
           test-report-directory: ${{ inputs.app-name }}/reports/test-report
         run: |
           mkdir -p pages/${{ env.test-report-directory }}
-          mv -r ${{ inputs.dist-directory }}/reports/* pages/${{ env.test-report-directory }}
+          mv ${{ inputs.dist-directory }}/reports/* pages/${{ env.test-report-directory }}
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
