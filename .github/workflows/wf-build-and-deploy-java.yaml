@@ -1,0 +1,75 @@
+# # Javaアプリケーションのビルド
+# ## 前提とする言語など
+# * Java21
+# * Maven
+name: CI/CD Java Application
+
+env:
+  APP_NAME: order # アプリケーション名
+  APP_VERSION: 0.0.1 # アプリケーションバージョン
+  AWS_REGION: ap-northeast-1 # AWSリージョン
+  WORK_DIRECTORY: order # 作業ディレクトリ
+  DIST_DIRECTORY: target # ビルドリソースの生成されるフォルダー
+  JAVA_VERSION: 21 # 使用するJavaのバージョン
+
+
+on:
+  workflow_dispatch: #手動実行
+  push:
+    branches: 
+      - 'develop/**'
+    paths: 
+      - 'order/**'
+
+jobs:
+  # ビルド
+  build:
+    uses: ./.github/workflows/build-java-app.yaml
+    with:
+      app-name: order
+      app-version: 0.0.1
+      work-directory: order
+      dist-directory: target
+      java-version: 21
+      test-report-cache-key: test-report_order
+      build-artifacts-cache-key: artifact-dist-order
+      is-publish: true
+  # イメージビルド
+  build-image:
+    needs: build
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      app-name: order
+      app-version: 0.0.1
+      work-directory: order
+      dist-directory: /target
+      build-artifacts-cached-key: artifact-dist-order
+      scan-report-cache-key: image-scan-report_order
+      is-publish: true
+  # テストレポートを公開
+  publish-test-result:
+    needs: build-image
+    uses: ./.github/workflows/publish-report.yaml
+    with:
+      app-name: order
+      test-report-cached-key: test-report_order
+      build-artifacts-cached-key: artifact-dist-order
+  # デプロイ(デプロイ先：AWS)
+  deploy:
+    needs: build-image
+    uses: ./.github/workflows/deploy-aws_dev.yaml
+    # Tips：自身で設定したsecretを別ファイルから参照するには？
+    # 別ファイルにしたワークフローはスコープの問題でsecretの参照に失敗します。
+    # inheritをつけることで呼び出し先にSecretが引き継がれるので、呼び出し先でも参照することができます。
+    secrets: inherit 
+    with:
+      app-name: order
+      app-version: 0.0.1
+      aws-region: ap-northeast-1
+      aws-ecr-repository-name: consider-cicd
+      ecs-cluster-name: consider-cicd-ecs
+      ecs-service-name: consider-cicd-ecs-service_order-service
+      ecs-task-name: consider-cicd-ecs-task-order
+      env-variables: |
+        {"name": "PORT", "value": "8081"}, 
+        {"name": "TEST_ENV", "value": "dev"}

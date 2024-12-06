@@ -22,8 +22,12 @@ on:
         description: ツールによるアーティファクトの参照先を吸収するための変数（ex. maven：target, npm：dist）
         required: false
         type: string
-      build-artifacts-cache-key:
+      build-artifacts-cached-key:
         description: キャッシュしたアーティファクトのキー名
+        required: true
+        type: string
+      scan-report-cache-key:
+        description: 脆弱性スキャンレポートのキャッシュキー名
         required: true
         type: string
       is-publish:
@@ -48,7 +52,7 @@ jobs:
       - name: download artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.build-artifacts-cache-key }}
+          name: ${{ inputs.build-artifacts-cached-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
       # ## 対象のアーティファクトを復元(取得元：GitHub Packages)
       # - name: Restore build artifacts
@@ -107,7 +111,7 @@ jobs:
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
-          name: image-scan-report_${{ inputs.app-name }}
+          name: ${{ inputs.scan-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
       # FIXME: 脆弱性があってもパイプラインが進んでしまっている
       # 脆弱性が見つかった場合、パイプラインを終了させる

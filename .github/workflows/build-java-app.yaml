@@ -28,8 +28,12 @@ on:
         description: Javaのバージョン
         required: true
         type: string
+      test-report-cache-key:
+        description: テストレポートのキャッシュキー名
+        required: true
+        type: string
       build-artifacts-cache-key:
-        description: 他ジョブで使用できるようにビルドしたアーティファクトをキャッシュする際に使用するキー名
+        description: ビルドしたアーティファクトのキャッシュキー名
         required: true
         type: string
       is-publish:

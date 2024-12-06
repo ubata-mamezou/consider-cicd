@@ -8,9 +8,18 @@ on:
   workflow_call:
       inputs:
         app-name:
+          description: アプリケーション名
           required: true
           type: string
-
+        test-report-cached-key:
+          description: キャッシュしたテストレポートのキー名
+          required: true
+          type: string
+        scan-report-cached-key:
+          description: キャッシュした脆弱性スキャンレポートのキー名
+          required: true
+          type: string
+        
 jobs:
   publish-test-result:
     runs-on: ubuntu-latest
@@ -27,12 +36,12 @@ jobs:
     - name: download test report
       uses: actions/download-artifact@v4
       with:
-        name: test-report_${{ inputs.app-name }}
+        name: ${{ inputs.test-report-cached-key }}
         path: pages
     - name: download image scan report
       uses: actions/download-artifact@v4
       with:
-        name: image-scan-report_${{ inputs.app-name }}
+        name: ${{ inputs.scan-report-cached-key }}
         path: pages
     - run: tree #debug
 

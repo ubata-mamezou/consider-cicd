@@ -28,8 +28,12 @@ on:
         description: Nodeのバージョン
         required: true
         type: string
+      test-report-cache-key:
+        description: テストレポートのキャッシュキー名
+        required: true
+        type: string
       build-artifacts-cache-key:
-        description: 他ジョブで使用できるようにビルドしたアーティファクトをキャッシュする際に使用するキー名
+        description: ビルドしたアーティファクトのキャッシュキー名
         required: true
         type: string
       is-publish:
@@ -77,7 +81,7 @@ jobs:
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
-          name: test-report_${{ inputs.app-name }}
+          name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
       # アーティファクト生成
       - name: Build Customer App
