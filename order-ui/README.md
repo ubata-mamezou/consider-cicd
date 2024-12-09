@@ -60,3 +60,14 @@ module.export = {
   "exclude": ["node_modules", "dist"]
 }
 ```
+
+5.
+```sh
+npm install --save-dev @testing-library/react @testing-library/jest-dom
+```
+
+## Jest encountered an unexpected token対応
+
+```sh
+npm i -D babel-jest @babel/core @babel/preset-env @babel/plugin-transform-modules-commonjs
+```
