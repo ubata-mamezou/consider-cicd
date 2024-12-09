@@ -67,12 +67,22 @@ on:
         required: false
         type: string
         default: ""
-
+    secrets:
+      aws-account-id:
+        description: AWSアカウントID
+        required: true
+      aws-access-key-id:
+        description: AWSアクセスキーID
+        required: true
+      aws-secret-access-key:
+        description: AWSシークレットアクセスキー
+        required: true
+    
 env:
   GITHUB_PACKAGES_IMAGE_URL: ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
-  ECR_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+  ECR_URL: ${{ secrets.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
   ECR_IMAGE_TAG: ${{ inputs.app-name }}-${{ inputs.app-version }}
-  ECR_IMAGE_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
+  ECR_IMAGE_URL: ${{ secrets.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
 
 jobs:
   deploy-aws:
@@ -88,8 +98,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-key }}
           aws-region: ${{ inputs.aws-region }}
 
       # イメージプッシュ
