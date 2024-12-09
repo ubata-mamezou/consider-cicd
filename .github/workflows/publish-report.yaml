@@ -40,7 +40,7 @@ jobs:
         name: ${{ inputs.test-report-cached-key }}
         path: pages
     - name: download image scan report
-      if: inputs.scan-report-cached-key != ''
+      if: ${{ inputs.scan-report-cached-key != '' }}
       uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.scan-report-cached-key }}
