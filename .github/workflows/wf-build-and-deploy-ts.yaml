@@ -10,7 +10,6 @@ env:
   AWS_REGION: ap-northeast-1
   WORK_DIRECTORY: customer/customer-service
   DIST_DIRECTORY: dist # ビルドリソースの生成されるフォルダー（ex. Node:dist）
-  TEST_REPORT_DIRECTORY: test-result #WORK_DIRECTORYから見たパス
   NODE_VERSION: 20 # 使用するNode.jsのバージョン
 
 on:
