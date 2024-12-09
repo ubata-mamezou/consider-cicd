@@ -48,6 +48,7 @@ jobs:
   deploy:
     needs: build
     uses: ./.github/workflows/deploy-dev-aws-frontend.yaml
+    secrets: inherit
     with:
       aws-region: ${{ vars.AWS_REGION }}
       work-directory: order-ui
