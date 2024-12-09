@@ -63,6 +63,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+    ## 対象のアーティファクトをダウンロード
+    - name: download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: artifact-dist-order-ui
+        path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
     ## AWS Credential情報を設定
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
