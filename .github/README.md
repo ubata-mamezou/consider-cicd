@@ -90,3 +90,57 @@ sequenceDiagram
   wf-deploy-stage_xxx ->> deploy-stage-aws: デプロイ(ステージング環境)
 ```
 
+## アプリの設定
+
+* TSアプリケーションの設定
+  ```json
+  {
+    "scripts": {
+      "build": "nest build",
+      "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+      "test:ci": "jest --coverage",
+    },
+    "jest": {
+      "moduleFileExtensions": [
+        "js",
+        "json",
+        "ts"
+      ],
+      "rootDir": "src",
+      "testRegex": ".*\\.spec\\.ts$",
+      "transform": {
+        "^.+\\.(t|j)s$": "ts-jest"
+      },
+      "collectCoverageFrom": [
+        "**/*.(t|j)s"
+      ],
+      "coverageDirectory": "../test-result/coverage",
+      "testEnvironment": "node",
+      "coverageReporters": ["text", "lcov"],
+      "reporters": [
+        "default",
+        [
+          "jest-html-reporters",
+          {
+            "publicPath": "./test-result/test-report",
+            "filename": "index.html",
+            "expand": true
+          }
+        ]
+      ]
+    }
+  }  
+  ```
+  * scripts > lint
+    * 基本、アプリケーション作成時に作成されるので、確認のみ。
+    * 静的解析が実行されるようにしてください。
+  * scripts > test:ci
+    * 場合によって作成されることもありますが、基本ないので追加が必要。
+    * テスト実行、カバレッジレポート生成およびテスト結果生成が実行されるようにしてください。
+  * scripts > build
+    * 基本、アプリケーション作成時に作成されるので、確認のみ。
+    * UI(SSG)なら静的コンテンツ、backendならnpmモジュールのビルドが実行されるようにしてください。
+      * vite, nestなど採用しているミドルによってコマンドが変わるので、これらの差異をアプリで吸収することを目的としています。
+  * テスト結果の出力設定
+    * カバレッジレポートやテスト結果は、test_result配下に生成してください。
+      * テスト結果の取得先が散在するとその分亜流が増えるため、これを抑止することを目的としています。
