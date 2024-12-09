@@ -1,4 +1,4 @@
-import { plus } from "../../../../components/feature/samples/sampleFn";
+import { plus } from ".";
 
 describe('plus test', () => {
   test('positive + positive', () => {

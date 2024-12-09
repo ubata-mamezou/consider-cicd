@@ -8,9 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:ci": "jest --coverage --passWithNoTests NODE_OPTIONS='--experimental-require-module'"
+    "test:ci": "jest --coverage --passWithNoTests"
   },
   "dependencies": {
+    "jest-html-reporters": "^3.1.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -37,5 +38,38 @@
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts",
+      "tsx"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.test\\.tsx",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../test-result/coverage",
+    "testEnvironment": "node",
+    "coverageReporters": [
+      "text",
+      "lcov"
+    ],
+    "reporters": [
+      "default",
+      [
+        "jest-html-reporters",
+        {
+          "publicPath": "./test-result/test-report",
+          "filename": "index.html",
+          "expand": true
+        }
+      ]
+    ]
   }
 }
