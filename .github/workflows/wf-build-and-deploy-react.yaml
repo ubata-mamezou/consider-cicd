@@ -1,0 +1,62 @@
+# # Reactアプリケーションのビルド
+# ## 前提とする言語など
+# * React
+# * TypeScript
+# * Node.js
+# * Vite
+name: CI/CD React Application
+
+env:
+  APP_NAME: order-ui
+  APP_VERSION: 0.0.1
+  AWS_REGION: ap-northeast-1
+  WORK_DIRECTORY: order-ui
+  DIST_DIRECTORY: dist # ビルドリソースの生成されるフォルダー（ex. Node:dist）
+  TEST_REPORT_DIRECTORY: test-result #WORK_DIRECTORYから見たパス
+  NODE_VERSION: 20 # 使用するNode.jsのバージョン
+
+on:
+  workflow_dispatch: 
+  push:
+    branches: 
+      - 'develop/**'
+    paths: 
+      - 'order-ui/**'
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-react-app.yaml
+    with:
+      # app-name: order-ui
+      app-name: ${{ vars.APP_NAME_ORDER_UI }}
+      app-version: 0.0.1
+      work-directory: order-ui
+      dist-directory: dist
+      node-version: 20
+      test-report-cache-key: test-report_order-ui
+      build-artifacts-cache-key: artifact-dist-order-ui
+      is-publish: true
+  # テストレポートを公開
+  publish-test-result:
+    needs: build
+    uses: ./.github/workflows/publish-report.yaml
+    with:
+      app-name: order-ui
+      test-report-cached-key: test-report_order-ui
+      scan-report-cached-key: image-scan-report_order-ui
+  # デプロイ(デプロイ先：AWS)
+  # deploy:
+  #   needs: build
+  #   uses: ./.github/workflows/deploy-aws_dev.yaml
+  #   secrets: inherit
+  #   with:
+  #     app-name: order-ui
+  #     app-version: 0.0.1
+  #     aws-region: ${{ vars.AWS_REGION }}
+  #     aws-ecr-repository-name: consider-cicd
+  #     ecs-cluster-name: consider-cicd-ecs
+  #     ecs-service-name: consider-cicd-ecs-service_order-ui
+  #     ecs-task-name: consider-cicd-ecs-task-order-ui
+  #     env-variables: |
+  #       {"name": "PORT", "value": "8082"}, 
+  #       {"name": "TEST_ENV", "value": "dev"}
