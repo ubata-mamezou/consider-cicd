@@ -2,6 +2,7 @@
 # # 前提とする言語など
 # * TypeScript
 # * Node.js
+# * jest
 name: Build TypeScript Application
 
 on:
@@ -59,7 +60,7 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'npm' # npmキャッシュを有効化
-          cache-dependency-path: ./customer/customer-service/package-lock.json
+          cache-dependency-path: ${{ inputs.work-directory }}/package-lock.json
       ## 依存ライブラリのインストール
       - name: Install dependencies
         run: |
@@ -84,7 +85,7 @@ jobs:
           name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
       # アーティファクト生成
-      - name: Build Customer App
+      - name: Build TS App
         run: npm run build
       # アーティファクトのアップロード（イメージビルド向けの一時保存）
       - name: Upload build artifact
