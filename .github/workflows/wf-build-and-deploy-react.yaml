@@ -45,43 +45,36 @@ jobs:
       app-name: order-ui
       test-report-cached-key: test-report_order-ui
   # デプロイ(デプロイ先：AWS)
-  # deploy:
-  #   needs: build
-  #   uses: ./.github/workflows/deploy-aws_dev.yaml
-  #   secrets: inherit
-  #   with:
-  #     app-name: order-ui
-  #     app-version: 0.0.1
-  #     aws-region: ${{ vars.AWS_REGION }}
-  #     aws-ecr-repository-name: consider-cicd
-  #     ecs-cluster-name: consider-cicd-ecs
-  #     ecs-service-name: consider-cicd-ecs-service_order-ui
-  #     ecs-task-name: consider-cicd-ecs-task-order-ui
-  #     env-variables: |
-  #       {"name": "PORT", "value": "8082"}, 
-  #       {"name": "TEST_ENV", "value": "dev"}
   deploy:
     needs: build
-    runs-on: ubuntu-latest
-    steps:
-    ## 対象のアーティファクトをダウンロード
-    - name: download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: artifact-dist-order-ui
-        path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
-    - run: tree #debug
-    ## AWS Credential情報を設定
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-1
-    - name: Deploy to S3
-      run: aws s3 sync ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }} s3://${{ secrets.S3_BUCKET_NAME }} --delete
-    - name: Invalidate CloudFront cache
-      run: |
-        aws cloudfront create-invalidation \
-          --distribution-id ${{ secrets.DISTRIBUTION_ID }} \
-          --paths "/*"
+    uses: ./.github/workflows/deploy-dev-aws-frontend.yaml
+    with:
+      aws-region: ${{ vars.AWS_REGION }}
+      work-directory: order-ui
+      dist-directory: dist
+      build-artifacts-cached-key: artifact-dist-order-ui
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   ## 対象のアーティファクトをダウンロード
+  #   - name: download artifact
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: artifact-dist-order-ui
+  #       path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
+  #   - run: tree #debug
+  #   ## AWS Credential情報を設定
+  #   - name: Configure AWS credentials
+  #     uses: aws-actions/configure-aws-credentials@v4
+  #     with:
+  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #       aws-region: ap-northeast-1
+  #   - name: Deploy to S3
+  #     run: aws s3 sync ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }} s3://${{ secrets.S3_BUCKET_NAME }} --delete
+  #   - name: Invalidate CloudFront cache
+  #     run: |
+  #       aws cloudfront create-invalidation \
+  #         --distribution-id ${{ secrets.DISTRIBUTION_ID }} \
+  #         --paths "/*"
