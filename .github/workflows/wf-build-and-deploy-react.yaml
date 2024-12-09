@@ -70,6 +70,7 @@ jobs:
       with:
         name: artifact-dist-order-ui
         path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
+    - run: tree #debug
     ## AWS Credential情報を設定
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
