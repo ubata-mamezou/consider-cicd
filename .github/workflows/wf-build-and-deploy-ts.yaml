@@ -55,7 +55,7 @@ jobs:
   # デプロイ(デプロイ先：AWS)
   deploy:
     needs: build-image
-    uses: ./.github/workflows/deploy-aws_dev.yaml
+    uses: ./.github/workflows/deploy-dev-aws.yaml
     secrets: inherit
     with:
       app-name: customer-service
