@@ -1,0 +1,70 @@
+# # TypeScriptアプリケーションのビルド
+# ## 前提とする言語など
+# * TypeScript
+# * Node.js
+name: CI/CD TS Application
+
+env:
+  APP_NAME: customer-service
+  APP_VERSION: 0.0.1
+  AWS_REGION: ap-northeast-1
+  WORK_DIRECTORY: customer/customer-service
+  DIST_DIRECTORY: dist # ビルドリソースの生成されるフォルダー（ex. Node:dist）
+  NODE_VERSION: 20 # 使用するNode.jsのバージョン
+
+on:
+  workflow_dispatch: 
+  push:
+    branches: 
+      - 'develop/**'
+    paths: 
+      - 'customer/**'
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-ts-app.yaml
+    with:
+      app-name: customer-service
+      app-version: 0.0.1
+      work-directory: customer/customer-service
+      dist-directory: dist
+      node-version: 20
+      test-report-cache-key: test-report_customer-service
+      build-artifacts-cache-key: artifact-dist-customer-service
+      is-publish: true
+  # イメージビルド
+  build-image:
+    needs: build
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      app-name: customer-service
+      app-version: 0.0.1
+      work-directory: customer/customer-service
+      dist-directory: /dist
+      build-artifacts-cached-key: artifact-dist-customer-service
+      scan-report-cache-key: image-scan-report_customer-service
+      is-publish: true
+  # テストレポートを公開
+  publish-test-result:
+    needs: build-image
+    uses: ./.github/workflows/publish-report.yaml
+    with:
+      app-name: customer-service
+      test-report-cached-key: test-report_customer-service
+      scan-report-cached-key: image-scan-report_customer-service
+  # デプロイ(デプロイ先：AWS)
+  deploy:
+    needs: build-image
+    uses: ./.github/workflows/deploy-aws_dev.yaml
+    secrets: inherit
+    with:
+      app-name: customer-service
+      app-version: 0.0.1
+      aws-region: ap-northeast-1
+      aws-ecr-repository-name: consider-cicd
+      ecs-cluster-name: consider-cicd-ecs
+      ecs-service-name: consider-cicd-ecs-service_customer-service
+      ecs-task-name: consider-cicd-ecs-task-customer-service
+      env-variables: |
+        {"name": "PORT", "value": "8082"}, 
+        {"name": "TEST_ENV", "value": "dev"}
