@@ -3,7 +3,7 @@
 ## サンプルコード構成
 
 * :file_folder: .github
-  * pull_request_template.yaml：PRテンプレート(※1)
+  * pull_request_template.md：PRテンプレート(※1)
   * release.yaml：リリースノート自動生成(※1)
   * :file_folder: workflows: ワークフローを格納しているディレクトリ
     * build-image.yaml: イメージビルド(※2)
