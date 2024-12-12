@@ -105,18 +105,15 @@ jobs:
       - name: Read Config
         id: read
         run: |
-          # 共通
           echo "app-name=$(yq '.app-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "app-version=$(yq '.app-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "work-directory=$(yq '.work-directory' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "dist-directory=$(yq '.dist-directory' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
-          # プロファイル別
           echo "aws-ecr-repository-name=$(yq '.${{ inputs.profile }}.aws-ecr-repository-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-cluster-name=$(yq '.${{ inputs.profile }}.ecs-cluster-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-service-name=$(yq '.${{ inputs.profile }}.ecs-service-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-task-name=$(yq '.${{ inputs.profile }}.ecs-task-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "env-variables=$(yq -r '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
-          # Java用
           echo "java-version=$(yq '.java-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
         
       - name: show config(debug)
