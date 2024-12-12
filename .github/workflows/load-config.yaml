@@ -1,20 +1,52 @@
+# ワークフローの設定読み込み
+# # 事前条件
+# * 「workflow-config.yaml」というファイル名で設定ファイルを作成してください。
+# # ロード対象のキー項目
+# * outputsを参照してください。
+# * (ｘｘから生成)と説明しているものはロード対象外です。
 name: Load Workflow Config
 
 on: 
   workflow_call:
     inputs:
       config-file-directory:
-        description: 設定ファイルディレクトリ（アプリのルートフォルダから見た設定ファイルへのディレクトリ）
+        description: |
+          設定ファイルディレクトリ
+          (アプリのルートフォルダから見た設定ファイルへのディレクトリ)
         required: true
         type: string
     outputs:
       app-name: 
-        description: アプリ名
+        description: アプリケーション名
         value: ${{ jobs.config.outputs.app-name }}
       app-version: 
-        description: アプリバージョン
+        description: アプリケーションバージョン
         value: ${{ jobs.config.outputs.app-version }}
-    
+      work-directory: 
+        description: 作業ディレクトリ
+        value: ${{ jobs.config.outputs.work-directory }}
+      dist-directory: 
+        description: ビルドリソースの生成されるフォルダー
+        value: ${{ jobs.config.outputs.dist-directory }}
+      java-version: 
+        description: 使用するJavaのバージョン
+        value: ${{ jobs.config.outputs.java-version }}
+      test-report-cache-key: 
+        description: |
+          テストレポートのキャッシュキー名
+          (アプリケーション名から生成)
+        value: test-report_${{ jobs.config.outputs.app-name }}
+      build-artifacts-cache-key: 
+        description: |
+          ビルドしたアーティファクトのキャッシュキー名
+          (アプリケーション名から生成)
+        value: artifact-dist_${{ jobs.config.outputs.app-name }}
+      scan-report-cache-key: 
+        description: |
+          脆弱性スキャンレポートのキャッシュキー名
+          (アプリケーション名から生成)
+        value: image-scan-report_${{ jobs.config.outputs.app-name }}
+            
 env:
   config-file-path: ${{ inputs.config-file-directory }}/workflow-config.yaml
 
@@ -24,15 +56,26 @@ jobs:
     outputs:
       app-name: ${{ steps.read.outputs.app-name }}
       app-version: ${{ steps.read.outputs.app-version }}
+      work-directory: ${{ steps.read.outputs.work-directory }}
+      dist-directory: ${{ steps.read.outputs.dist-directory }}
+      java-version: ${{ steps.read.outputs.java-version }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Read Config
         id: read
         run: |
-          echo "app-name=$(yq '.app-name' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
-          echo "app-version=$(yq '.app-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
-      - run: |
+          echo "app-name=$(yq '.app-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "app-version=$(yq '.app-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "work-directory=$(yq '.work-directory' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "dist-directory=$(yq '.dist-directory' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "java-version=$(yq '.java-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+      - name: show config
+        run: |
           echo app-name=${{ steps.read.outputs.app-name }}
           echo app-version=${{ steps.read.outputs.app-version }}
+          echo work-directory=${{ steps.read.outputs.work-directory }}
+          echo dist-directory=${{ steps.read.outputs.dist-directory }}
+          echo java-version=${{ steps.read.outputs.java-version }}
+

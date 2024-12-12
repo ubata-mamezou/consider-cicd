@@ -4,14 +4,6 @@
 # * Maven
 name: CI Java Application
 
-env:
-  APP_NAME: order # アプリケーション名
-  APP_VERSION: 0.0.1 # アプリケーションバージョン
-  AWS_REGION: ap-northeast-1 # AWSリージョン
-  WORK_DIRECTORY: order # 作業ディレクトリ
-  DIST_DIRECTORY: target # ビルドリソースの生成されるフォルダー
-  JAVA_VERSION: 21 # 使用するJavaのバージョン
-
 on:
   workflow_dispatch:
   pull_request:
@@ -27,47 +19,44 @@ on:
 
 jobs:
   workflow-config:
-    runs-on: ubuntu-latest
-    outputs:
-      app-name: ${{ steps.config.outputs.app-name }}
-      app-version: ${{ steps.config.outputs.app-version }}
-      work-directory: ${{ steps.config.outputs.work-directory }}
-      dist-directory: ${{ steps.config.outputs.dist-directory }}
-      java-version: ${{ steps.config.outputs.java-version }}
-      test-report-cache-key: test-report_${{ steps.config.outputs.app-name }}
-      build-artifacts-cache-key: artifact-dist_${{ steps.config.outputs.app-name }}
-      scan-report-cache-key: image-scan-report_${{ steps.config.outputs.app-name }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: config
-        id: config
-        run: |
-          echo "app-name=$(yq '.app-name' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
-          echo "app-version=$(yq '.app-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
-          echo "work-directory=$(yq '.work-directory' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
-          echo "dist-directory=$(yq '.dist-directory' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
-          echo "java-version=$(yq '.java-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
-  workflow-config-2:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     app-name: ${{ steps.config.outputs.app-name }}
+  #     app-version: ${{ steps.config.outputs.app-version }}
+  #     work-directory: ${{ steps.config.outputs.work-directory }}
+  #     dist-directory: ${{ steps.config.outputs.dist-directory }}
+  #     java-version: ${{ steps.config.outputs.java-version }}
+  #     test-report-cache-key: test-report_${{ steps.config.outputs.app-name }}
+  #     build-artifacts-cache-key: artifact-dist_${{ steps.config.outputs.app-name }}
+  #     scan-report-cache-key: image-scan-report_${{ steps.config.outputs.app-name }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: config
+  #       id: config
+  #       run: |
+  #         echo "app-name=$(yq '.app-name' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
+  #         echo "app-version=$(yq '.app-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
+  #         echo "work-directory=$(yq '.work-directory' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
+  #         echo "dist-directory=$(yq '.dist-directory' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
+  #         echo "java-version=$(yq '.java-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
+  # workflow-config-2:
     uses: ./.github/workflows/load-config.yaml
     with:
       config-file-directory: order
-  config-debug:
-    needs: 
-      - workflow-config
-      - workflow-config-2
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo app-name: ${{ needs.workflow-config.outputs.app-name}} //別ファイルから読み込み
-          echo app-version: ${{ needs.workflow-config.outputs.app-version}} //echoコマンドで書き出し
-          echo work-directory: ${{ needs.workflow-config.outputs.work-directory}}
-          echo dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
-          echo java-version: ${{ needs.workflow-config.outputs.java-version}}
-          echo test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
-          echo build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
-          echo scan-report-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}} //outputsに固定値設定
-          echo app-name: ${{ needs.workflow-config-2.outputs.app-name}} //別ファイルから読み込みと再利用
-          echo app-version: ${{ needs.workflow-config-2.outputs.app-version}}
+  # config-debug:
+  #   needs: 
+  #     - workflow-config
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - run: |
+  #         echo app-name: ${{ needs.workflow-config.outputs.app-name}} //別ファイルから読み込み
+  #         echo app-version: ${{ needs.workflow-config.outputs.app-version}} //echoコマンドで書き出し
+  #         echo work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+  #         echo dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+  #         echo java-version: ${{ needs.workflow-config.outputs.java-version}}
+  #         echo test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+  #         echo build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+  #         echo scan-report-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}} //outputsに固定値設定
   # ビルド
   build:
     needs: workflow-config
