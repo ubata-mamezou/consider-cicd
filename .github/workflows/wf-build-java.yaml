@@ -24,13 +24,25 @@ on:
       - opened
       - synchronize
       - reopened
-      
+
 jobs:
+  workflow-config:
+    runs-on: ubuntu-latest
+    outputs:
+      app-name: ${{ steps.config.outputs.app-name }}
+      app-version: ${{ steps.config.outputs.app-version }}
+    steps:
+      - name: config
+        id: config
+        run: |
+          echo "::set-output name=app-name::order"
+          echo "::set-output name=app-version::0.0.1"    
   # ビルド
   build:
+    needs: workflow-config
     uses: ./.github/workflows/build-java-app.yaml
     with:
-      app-name: order
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
       app-version: 0.0.1
       work-directory: order
       dist-directory: target
@@ -40,10 +52,12 @@ jobs:
       is-publish: false
   # イメージビルド
   build-image:
-    needs: build
+    needs: 
+      - workflow-config
+      - build
     uses: ./.github/workflows/build-image.yaml
     with:
-      app-name: order
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
       app-version: 0.0.1
       work-directory: order
       dist-directory: /target
@@ -52,9 +66,11 @@ jobs:
       is-publish: false
   # テストレポートを公開
   publish-test-result:
-    needs: build-image
+    needs: 
+      - workflow-config
+      - build-image
     uses: ./.github/workflows/publish-report.yaml
     with:
-      app-name: order
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
       test-report-cached-key: test-report_order
       scan-report-cached-key: image-scan-report_order
