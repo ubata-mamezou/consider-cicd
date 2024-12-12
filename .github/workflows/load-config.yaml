@@ -26,3 +26,6 @@ jobs:
         run: |
           echo "app-name=$(yq '.app-name' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
           echo "app-version=$(yq '.app-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
+      - run: |
+          echo app-name=${{ steps.read.outputs.app-name }}
+          echo app-name=${{ steps.read.outputs.app-version }}
