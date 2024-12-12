@@ -118,17 +118,14 @@ jobs:
         
       - name: show config(debug)
         run: |
-          # 共通
           echo app-name=${{ steps.read.outputs.app-name }}
           echo app-version=${{ steps.read.outputs.app-version }}
           echo work-directory=${{ steps.read.outputs.work-directory }}
           echo dist-directory=${{ steps.read.outputs.dist-directory }}
-          # プロファイル別
           echo aws-ecr-repository-name=${{ steps.read.outputs.aws-ecr-repository-name }}
           echo ecs-cluster-name=${{ steps.read.outputs.ecs-cluster-name }}
           echo ecs-service-name=${{ steps.read.outputs.ecs-service-name }}
           echo ecs-task-name=${{ steps.read.outputs.ecs-task-name }}
           echo env-variables=${{ steps.read.outputs.env-variables }}
-          # Java用
           echo java-version=${{ steps.read.outputs.java-version }}
 
