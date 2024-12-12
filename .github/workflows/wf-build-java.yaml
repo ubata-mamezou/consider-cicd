@@ -14,13 +14,17 @@ env:
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches: 
       - 'feature/**'
       - 'topic/**'
     paths: 
       - 'order/**'
-
+    types:
+      - opened
+      - synchronize
+      - reopened
+      
 jobs:
   # ビルド
   build:
