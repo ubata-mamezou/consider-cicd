@@ -9,6 +9,14 @@ name: Load Workflow Config
 on: 
   workflow_call:
     inputs:
+      profile:
+        description: ロードする設定
+        required: true
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
       config-file-directory:
         description: |
           設定ファイルディレクトリ
@@ -16,6 +24,7 @@ on:
         required: true
         type: string
     outputs:
+      # 共通
       app-name: 
         description: アプリケーション名
         value: ${{ jobs.config.outputs.app-name }}
@@ -28,9 +37,6 @@ on:
       dist-directory: 
         description: ビルドリソースの生成されるフォルダー
         value: ${{ jobs.config.outputs.dist-directory }}
-      java-version: 
-        description: 使用するJavaのバージョン
-        value: ${{ jobs.config.outputs.java-version }}
       test-report-cache-key: 
         description: |
           テストレポートのキャッシュキー名
@@ -46,7 +52,31 @@ on:
           脆弱性スキャンレポートのキャッシュキー名
           (アプリケーション名から生成)
         value: image-scan-report_${{ jobs.config.outputs.app-name }}
-            
+      # プロファイル別
+      aws-ecr-repository-name: 
+        description: ECRレジストリ名
+        value: ${{ jobs.config.outputs.aws-ecr-repository-name }}
+      ecs-cluster-name: 
+        description: ECSクラスター名
+        value: ${{ jobs.config.outputs.ecs-cluster-name }}
+      ecs-service-name: 
+        description: ECSサービス名
+        value: ${{ jobs.config.outputs.ecs-service-name }}
+      ecs-task-name: 
+        description: ECSタスク定義名
+        value: ${{ jobs.config.outputs.ecs-task-name }}
+      env-variables: 
+        description: |
+          環境変数
+          指定例：
+            {"name": "PORT", "value": "8081"}, 
+            {"name": "TEST_ENV", "value": "dev"}
+        value: ${{ jobs.config.outputs.env-variables }}
+      # Java用
+      java-version: 
+        description: 使用するJavaのバージョン
+        value: ${{ jobs.config.outputs.java-version }}
+  
 env:
   config-file-path: ${{ inputs.config-file-directory }}/workflow-config.yaml
 
@@ -58,7 +88,15 @@ jobs:
       app-version: ${{ steps.read.outputs.app-version }}
       work-directory: ${{ steps.read.outputs.work-directory }}
       dist-directory: ${{ steps.read.outputs.dist-directory }}
+
+      aws-ecr-repository-name: ${{ steps.read.outputs.aws-ecr-repository-name }}
+      ecs-cluster-name: ${{ steps.read.outputs.ecs-cluster-name }}
+      ecs-service-name: ${{ steps.read.outputs.ecs-service-name }}
+      ecs-task-name: ${{ steps.read.outputs.ecs-task-name }}
+      env-variables: ${{ steps.read.outputs.env-variables }}
+
       java-version: ${{ steps.read.outputs.java-version }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -66,16 +104,33 @@ jobs:
       - name: Read Config
         id: read
         run: |
+          # 共通
           echo "app-name=$(yq '.app-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "app-version=$(yq '.app-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "work-directory=$(yq '.work-directory' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "dist-directory=$(yq '.dist-directory' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          # プロファイル別
+          echo "aws-ecr-repository-name=$(yq '.${{ inputs.profile }}.aws-ecr-repository-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "ecs-cluster-name=$(yq '.${{ inputs.profile }}.ecs-cluster-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "ecs-service-name=$(yq '.${{ inputs.profile }}.ecs-service-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "ecs-task-name=$(yq '.${{ inputs.profile }}.ecs-task-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "env-variables=$(yq '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          # Java用
           echo "java-version=$(yq '.java-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
-      - name: show config
+        
+      - name: show config(debug)
         run: |
+          # 共通
           echo app-name=${{ steps.read.outputs.app-name }}
           echo app-version=${{ steps.read.outputs.app-version }}
           echo work-directory=${{ steps.read.outputs.work-directory }}
           echo dist-directory=${{ steps.read.outputs.dist-directory }}
+          # プロファイル別
+          echo aws-ecr-repository-name=${{ steps.read.outputs.aws-ecr-repository-name }}
+          echo ecs-cluster-name=${{ steps.read.outputs.ecs-cluster-name }}
+          echo ecs-service-name=${{ steps.read.outputs.ecs-service-name }}
+          echo ecs-task-name=${{ steps.read.outputs.ecs-task-name }}
+          echo env-variables=${{ steps.read.outputs.env-variables }}
+          # Java用
           echo java-version=${{ steps.read.outputs.java-version }}
 

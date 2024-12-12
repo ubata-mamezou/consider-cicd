@@ -22,49 +22,61 @@ on:
       - 'order/**'
 
 jobs:
+  # ワークフローの設定ロード
+  workflow-config:
+    uses: ./.github/workflows/load-config.yaml
+    with:
+      config-file-directory: order
   # ビルド
   build:
+    needs: workflow-config
     uses: ./.github/workflows/build-java-app.yaml
     with:
-      app-name: order
-      app-version: 0.0.1
-      work-directory: order
-      dist-directory: target
-      java-version: 21
-      test-report-cache-key: test-report_order
-      build-artifacts-cache-key: artifact-dist-order
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+      java-version: ${{ needs.workflow-config.outputs.java-version}}
+      test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
       is-publish: true
   # イメージビルド
   build-image:
-    needs: build
+    needs: 
+      - workflow-config
+      - build
     uses: ./.github/workflows/build-image.yaml
     with:
-      app-name: order
-      app-version: 0.0.1
-      work-directory: order
-      dist-directory: /target
-      build-artifacts-cached-key: artifact-dist-order
-      scan-report-cache-key: image-scan-report_order
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+      build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+      scan-report-cache-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
       is-publish: true
   # テストレポートを公開
   publish-test-result:
-    needs: build-image
+    needs: 
+      - workflow-config
+      - build-image
     uses: ./.github/workflows/publish-report.yaml
     with:
-      app-name: order
-      test-report-cached-key: test-report_order
-      scan-report-cache-key: image-scan-report_order
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
   # デプロイ(デプロイ先：AWS)
   deploy:
-    needs: build-image
+    needs:
+      - workflow-config 
+      - build-image
     uses: ./.github/workflows/deploy-dev-aws.yaml
     # Tips：自身で設定したsecretを別ファイルから参照するには？
     # 別ファイルにしたワークフローはスコープの問題でsecretの参照に失敗します。
     # inheritをつけることで呼び出し先にSecretが引き継がれるので、呼び出し先でも参照することができます。
     secrets: inherit 
     with:
-      app-name: order
-      app-version: 0.0.1
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
       aws-region: ap-northeast-1
       aws-ecr-repository-name: consider-cicd
       ecs-cluster-name: consider-cicd-ecs
