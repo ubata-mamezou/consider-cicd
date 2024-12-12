@@ -47,7 +47,7 @@ jobs:
   # デプロイ(デプロイ先：AWS)
   # deploy:
   #   needs: build
-  #   uses: ./.github/workflows/deploy-aws_dev.yaml
+  #   uses: ./.github/workflows/deploy-dev-aws.yaml
   #   secrets: inherit
   #   with:
   #     app-name: order-ui
