@@ -11,21 +11,27 @@ dev:
   ecs-service-name: consider-cicd-ecs-service_order-service
   ecs-task-name: consider-cicd-ecs-task-order
   env-variables: |
-    {"name": "PORT", "value": "8081"}, 
-    {"name": "TEST_ENV", "value": "dev"}
+    [
+      {"name": "PORT", "value": "8081"}, 
+      {"name": "TEST_ENV", "value": "dev"}
+    ]
 stage:
   aws-ecr-repository-name: consider-cicd
   ecs-cluster-name: consider-cicd-ecs
   ecs-service-name: consider-cicd-ecs-service_order-service
   ecs-task-name: consider-cicd-ecs-task-order
   env-variables: |
-    {"name": "PORT", "value": "8081"}, 
-    {"name": "TEST_ENV", "value": "staging"}
+    [
+      {"name": "PORT", "value": "8081"}, 
+      {"name": "TEST_ENV", "value": "stage"}
+    ]
 prod:
   aws-ecr-repository-name: consider-cicd
   ecs-cluster-name: consider-cicd-ecs
   ecs-service-name: consider-cicd-ecs-service_order-service
   ecs-task-name: consider-cicd-ecs-task-order
   env-variables: |
-    {"name": "PORT", "value": "8081"}, 
-    {"name": "TEST_ENV", "value": "production"}
+    [
+      {"name": "PORT", "value": "8081"}, 
+      {"name": "TEST_ENV", "value": "production"}
+    ]
