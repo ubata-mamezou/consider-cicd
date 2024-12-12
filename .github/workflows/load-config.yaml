@@ -66,13 +66,6 @@ on:
       ecs-task-name: 
         description: ECSタスク定義名
         value: ${{ jobs.config.outputs.ecs-task-name }}
-      env-variables: 
-        description: |
-          環境変数
-          指定例：
-            {"name": "PORT", "value": "8081"}, 
-            {"name": "TEST_ENV", "value": "dev"}
-        value: ${{ jobs.config.outputs.env-variables }}
       # Java用
       java-version: 
         description: 使用するJavaのバージョン
@@ -94,7 +87,6 @@ jobs:
       ecs-cluster-name: ${{ steps.read.outputs.ecs-cluster-name }}
       ecs-service-name: ${{ steps.read.outputs.ecs-service-name }}
       ecs-task-name: ${{ steps.read.outputs.ecs-task-name }}
-      env-variables: ${{ steps.read.outputs.env-variables }}
 
       java-version: ${{ steps.read.outputs.java-version }}
 
@@ -113,7 +105,6 @@ jobs:
           echo "ecs-cluster-name=$(yq '.${{ inputs.profile }}.ecs-cluster-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-service-name=$(yq '.${{ inputs.profile }}.ecs-service-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-task-name=$(yq '.${{ inputs.profile }}.ecs-task-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
-          echo "env-variables=$(yq -r '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "java-version=$(yq '.java-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
         
       - name: show config(debug)
@@ -126,6 +117,5 @@ jobs:
           echo ecs-cluster-name=${{ steps.read.outputs.ecs-cluster-name }}
           echo ecs-service-name=${{ steps.read.outputs.ecs-service-name }}
           echo ecs-task-name=${{ steps.read.outputs.ecs-task-name }}
-          echo env-variables=${{ steps.read.outputs.env-variables }}
           echo java-version=${{ steps.read.outputs.java-version }}
 
