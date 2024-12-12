@@ -48,17 +48,26 @@ jobs:
           echo "dist-directory=$(yq '.dist-directory' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
           echo "java-version=$(yq '.java-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
   workflow-config-2:
-    permissions: 
-      contents: read
-    uses: ./.github/workflows/load-config.yaml
-    with:
-      config-file-directory: order
+    runs-on: ubuntu-latest
+    outputs:
+      app-name: ${{ steps.load-config.outputs.app-name }}
+      app-version: ${{ steps.load-config.outputs.app-version }}
+    steps:
+      - id: load-config
+        uses: ./.github/workflows/load-config.yaml
+        with:
+          config-file-directory: order
   config-debug:
     needs: 
       - workflow-config
       - workflow-config-2
     runs-on: ubuntu-latest
     steps:
+      - name: wc2
+        id: wc2
+        uses: ./.github/workflows/load-config.yaml
+        with:
+          config-file-directory: order
       - run: |
           echo app-name: ${{ needs.workflow-config.outputs.app-name}} //別ファイルから読み込み
           echo app-version: ${{ needs.workflow-config.outputs.app-version}} //echoコマンドで書き出し
