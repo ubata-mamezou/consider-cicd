@@ -17,8 +17,7 @@ on:
   workflow_dispatch: 
   pull_request:
     branches: 
-      - 'feature/**'
-      - 'topic/**'
+      - 'develop/**'
     paths: 
       - 'customer/**'
     types:
