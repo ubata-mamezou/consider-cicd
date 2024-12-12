@@ -1,30 +1,4 @@
-# # AWSへのデプロイ
-# * イメージ公開先：GitHub Packages(CI/CD)、ECR(デプロイ先)
-# * デプロイ先の環境：AWS
-# ## 前提条件
-# * イメージビルドが完了し、GitHub Packagesに公開されていること
-# * デプロイ先に必要な環境が構築されていること
-#   * VPC、サブネットなどのネットワーク設定
-#   * IAM：デプロイに必要なポリシーが設定されているユーザーが設定されていること
-#   * ECR
-#   * ECS：クラスター、サービス、タスク定義を設定し、サービスが動作していること
-# * GitHub SecretsにIAMのCredential情報を設定済みであること
-#   * 必要なポリシー
-#     * AmazonEC2ContainerRegistryFullAccess：イメージのプッシュに使用
-#     * AmazonECS_FullAccess：ECSの操作に使用
-#     * AmazonECSTaskExecutionRolePolicy：タスク定義の実行に使用
-#     * AmazonS3ReadOnlyAccess：S3から環境設定ファイルを取得する際に使用（任意）
-#   * 設定が必要な値
-#     * AWS_ACCESS_KEY_ID
-#     * AWS_SECRET_ACCESS_KEY
-# ## Appendix. 構築する際は段階を踏むと組みやすくなります
-# 1. イメージプッシュまで構築する
-#   1. ネットワーク、IAM、ECRを設定
-#   2. IAMのCredential情報を設定
-#   3. イメージプッシュまで構築
-# 2. サービス更新部分を追加で構築する
-#   1. プッシュされたイメージを使ったサービスを動作させる
-#   2. サービス更新を構築
+# AWSへのデプロイ(ステージング環境)
 name: deploy aws
 
 on:
@@ -58,12 +32,21 @@ on:
         description: ECSタスク名
         required: true
         type: string
+      env-variables:
+        description: |
+          環境変数(JSON) 
+          ■指定例
+          {"name": "PORT", "value": "8082"}, 
+          {"name": "TEST_ENV", "value": "dev"}
+        required: false
+        type: string
+        default: ""
 
 env:
   GITHUB_PACKAGES_IMAGE_URL: ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
-  ECR_URL: ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+  ECR_URL: ${{ secrets.STAGE_AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
   ECR_IMAGE_TAG: ${{ inputs.app-name }}-${{ inputs.app-version }}
-  ECR_IMAGE_URL: ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
+  ECR_IMAGE_URL: ${{ secrets.STAGE_AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.aws-ecr-repository-name }}:${{ inputs.app-name }}-${{ inputs.app-version }}
 
 jobs:
   deploy-aws:
@@ -79,8 +62,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.STAGE_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.STAGE_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ inputs.aws-region }}
 
       # イメージプッシュ
@@ -110,15 +93,10 @@ jobs:
               --task-definition ${{ inputs.ecs-task-name }} \
               --query 'taskDefinition' \
               --output json)
-          # echo "-----debug: current task definition"
-          # echo $TASK_DEFINITION
 
           NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq \
             --arg image_uri "${{ env.ECR_IMAGE_URL }}" \
-            --argjson env_vars '[
-              {"name": "PORT", "value": "8082"}, 
-              {"name": "TEST_ENV", "value": "dev"}
-              ]' \
+            --argjson env_vars '[${{ inputs.env-variables }}]' \
             '
             .containerDefinitions[0].image = $image_uri |
             .containerDefinitions[0].environment = $env_vars |
@@ -127,8 +105,6 @@ jobs:
             ')
 
           echo "$NEW_TASK_DEF" > new-task-def.json
-          # echo "-----debug: new task definition"
-          # cat new-task-def.json
 
       ## 新しいタスク定義を登録
       - name: update task

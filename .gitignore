@@ -4,3 +4,5 @@ order/mvnw.cmd
 customer/node_modules
 customer/customer-service/test-result
 order-ui/node_modules
+customer/customer-service/pages
+order-ui/test-result

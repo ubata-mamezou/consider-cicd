@@ -1,8 +1,6 @@
 # イメージビルド
 ## 事前条件
-## ・build-artifactという名称でアーティファクトをアップロードしてください。
-## ・dockerfileという名称でDockerfileをアップロードしてください。
-## ・other-fileという名称でその他に必要なファイルをアップロードしてください。（任意）
+## ・イメージビルドに使用するアーティファクトを事前にアップロードしてください。
 name: build-image
 
 on:
@@ -21,13 +19,21 @@ on:
         required: true
         type: string
       dist-directory:
-        description: ツールによるアーティファクトの参照先を吸収するための変数（ex. maven：/target, npm：/dist）
+        description: ツールによるアーティファクトの参照先を吸収するための変数（ex. maven：target, npm：dist）
         required: false
         type: string
-      cache-artifact-key:
+      build-artifacts-cached-key:
         description: キャッシュしたアーティファクトのキー名
         required: true
         type: string
+      scan-report-cache-key:
+        description: 脆弱性スキャンレポートのキャッシュキー名
+        required: true
+        type: string
+      is-publish:
+        description: イメージを公開する(true:公開、false:公開しない)
+        required: false
+        type: boolean
 env:
   GITHUB_PACKAGES_ARTIFACT_URL: ${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
 
@@ -42,24 +48,18 @@ jobs:
       ## コードをチェックアウト
       - name: checkout source
         uses: actions/checkout@v4
-      ## ビルドリソースをダウンロード
-      # - name: download artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: build-artifact
-      #     path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
-      # ## 対象のアーティファクトを取得(取得元：GitHub Packages)
-      # - name: Pull Artifact from GitHub Packages
-      #   run: |
-      #     npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
-      #     npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
-      #     npm install @${{ env.GITHUB_PACKAGES_ARTIFACT_URL }}
-      ## 対象のアーティファクトを復元(取得元：GitHub Packages)
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
+      ## 対象のアーティファクトをダウンロード
+      - name: download artifact
+        uses: actions/download-artifact@v4
         with:
-          path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
-          key: ${{ inputs.cache-artifact-key }}
+          name: ${{ inputs.build-artifacts-cached-key }}
+          path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
+      # ## 対象のアーティファクトを復元(取得元：GitHub Packages)
+      # - name: Restore build artifacts
+      #   uses: actions/cache/restore@v4
+      #   with:
+      #     path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
+      #     key: ${{ inputs.build-artifacts-cache-key }}
       # イメージビルド
       - name: Build Docker image
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
@@ -87,7 +87,7 @@ jobs:
         id: execute-image-scan
         run: |
           mkdir trivy-resource/result -p
-          trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/trivy-report_${{ inputs.app-name }}.html ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
+          trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/index.html ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
         env:
           # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
           # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
@@ -102,22 +102,22 @@ jobs:
         run: |
           echo 時間帯によってTrivyDBのダウンロードに失敗するため、エラーを抑止しています。
           echo イメージスキャンが異常終了しているため、脆弱性結果はありません。
-          echo "<h1>イメージスキャンが異常終了しているため、脆弱性結果はありません</h1>" > trivy-resource/result/trivy-report_${{ inputs.app-name }}.html
+          echo "<h1>イメージスキャンが異常終了しているため、脆弱性結果はありません</h1>" > trivy-resource/result/index.html
       # スキャンレポートのアップロード（レポート公開向けの一時保存）
       - name: move scan report
         run: |
-          mkdir -p pages/${{ inputs.app-name }}/image-scan-report
-          cp -r trivy-resource/result/* pages/${{ inputs.app-name }}/image-scan-report
+          mkdir -p pages/${{ inputs.app-name }}/reports/image-scan
+          mv trivy-resource/result/* pages/${{ inputs.app-name }}/reports/image-scan
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
-          name: image-scan-report_${{ inputs.app-name }}
+          name: ${{ inputs.scan-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
       # FIXME: 脆弱性があってもパイプラインが進んでしまっている
       # 脆弱性が見つかった場合、パイプラインを終了させる
       - name: Check for vulnerabilities
         run: |
-          if grep -q '"Vulnerabilities": \[' trivy-resource/result/trivy-report_${{ inputs.app-name }}.html; then
+          if grep -q '"Vulnerabilities": \[' trivy-resource/result/index.html; then
             echo "Vulnerabilities found."
             exit 1
           else
@@ -125,6 +125,7 @@ jobs:
           fi
       # コンテナイメージ公開（公開先：GitHub Packages）
       - name: Publish Docker image to GitHub Packages
+        if: inputs.is-publish == true
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}

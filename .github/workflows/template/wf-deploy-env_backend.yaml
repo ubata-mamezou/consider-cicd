@@ -5,16 +5,14 @@ on:
   push:
     branches:
       - 'develop/**'
-
-env:
-  APP_NAME: order
-  APP_VERSION: 0.0.1
-  AWS_REGION: ap-northeast-1
+    paths: 
+      - 'order/**'
+      - '.github/workflows/**' # ワークフロー自体の更新もトリガー
 
 jobs:
   # デプロイ(デプロイ先：AWS)
   deploy:
-    uses: ./.github/workflows/deploy-aws.yaml
+    uses: ./.github/workflows/deploy-env-aws.yaml
     secrets: inherit 
     with:
       app-name: order
@@ -24,3 +22,6 @@ jobs:
       ecs-cluster-name: consider-cicd-ecs
       ecs-service-name: consider-cicd-ecs-service_order-service
       ecs-task-name: consider-cicd-ecs-task-order
+      env-variables: |
+        {"name": "PORT", "value": "8081"}, 
+        {"name": "TEST_ENV", "value": "dev"}
