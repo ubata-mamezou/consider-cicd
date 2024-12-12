@@ -10,13 +10,14 @@ on:
   workflow_call:
     inputs:
       profile:
-        description: ロードする設定
+        description: |
+          プロファイル
+          -dev:開発環境
+          -stage:ステージング環境
+          -prod:本番環境
+          (設定を切り替える際に使用します)
         required: true
-        type: choice
-        options:
-          - dev
-          - stage
-          - prod
+        type: string
       config-file-directory:
         description: |
           設定ファイルディレクトリ
