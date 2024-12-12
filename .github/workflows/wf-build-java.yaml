@@ -43,8 +43,8 @@ jobs:
         id: config
         run: |
           echo "::set-output name=app-name::$(yq '.app-name' order/workflow-config.yaml)"
-          echo "::set-output name=app-version::0.0.1"
-          echo "::set-output name=work-directory::order"
+          echo "app-version=$(yq '.app-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
+          echo "work-directory=order" >> $GITHUB_OUTPUT
           echo "::set-output name=dist-directory::target"
           echo "::set-output name=java-version::21"
           echo "::set-output name=test-report-cache-key::test-report_order"
