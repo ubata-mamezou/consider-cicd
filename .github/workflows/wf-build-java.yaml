@@ -39,10 +39,11 @@ jobs:
       scan-report-cache-key: image-scan-report_order
     steps:
       - uses: actions/checkout@v4
+      - run: tree
       - name: config
         id: config
         run: |
-          echo "::set-output name=app-name::$(yq '.app-name' order/workflow-config.yml)"
+          echo "::set-output name=app-name::$(yq '.app-name' order/workflow-config.yaml)"
           echo "::set-output name=app-version::0.0.1"    
           echo "::set-output name=work-directory::order"
           echo "::set-output name=dist-directory::target"
