@@ -7,7 +7,14 @@ on:
         description: 設定ファイルディレクトリ（アプリのルートフォルダから見た設定ファイルへのディレクトリ）
         required: true
         type: string
-
+    outputs:
+      app-name: 
+        description: アプリ名
+        value: ${{ jobs.config.outputs.app-name }}
+      app-version: 
+        description: アプリバージョン
+        value: ${{ jobs.config.outputs.app-version }}
+    
 env:
   config-file-path: ${{ inputs.config-file-directory }}/workflow-config.yaml
 
