@@ -2,7 +2,7 @@
 # ## 前提とする言語など
 # * TypeScript
 # * Node.js
-name: Build TS Application
+name: CI TS Application
 
 env:
   APP_NAME: customer-service

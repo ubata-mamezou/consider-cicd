@@ -11,7 +11,7 @@
 #     * AmazonS3FullAccess：S3の操作に使用
 #     * CloudFrontFullAccess：CloudFrontの操作に使用
 #   * 設定が必要な値：secrets参照
-name: deploy aws
+name: (reusable workflow) deploy aws for frontend
 
 on:
   workflow_call:

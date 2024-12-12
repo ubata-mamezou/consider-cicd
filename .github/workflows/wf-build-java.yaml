@@ -2,7 +2,7 @@
 # ## 前提とする言語など
 # * Java
 # * Maven
-name: Build Java Application
+name: CI Java Application
 
 env:
   APP_NAME: order # アプリケーション名
