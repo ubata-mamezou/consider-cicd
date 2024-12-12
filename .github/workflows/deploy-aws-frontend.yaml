@@ -1,0 +1,76 @@
+# # AWSへのデプロイ(SSG)
+# * 静的サイト：S3+CloudFront
+# ## 前提条件
+# * ビルドが完了し、アーティファクトをアップロードしていること
+# * デプロイ先に必要な環境が構築されていること
+#   * VPC、サブネットなどのネットワーク設定
+#   * IAM：デプロイに必要なポリシーが設定されているユーザーが設定されていること
+#   * S3、CloudFront：静的サイト
+# * GitHub SecretsにIAMのCredential情報を設定済みであること
+#   * 必要なポリシー
+#     * AmazonS3FullAccess：S3の操作に使用
+#     * CloudFrontFullAccess：CloudFrontの操作に使用
+#   * 設定が必要な値：secrets参照
+name: deploy aws
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        description: AWSリージョン
+        required: true
+        type: string
+      work-directory:
+        description: 作業ディレクトリ（ルート：.、サブディレクトリにあるアプリを対象とする場合：フォルダ名）
+        required: true
+        type: string
+      dist-directory:
+        description: ツールによるアーティファクトの参照先を吸収するための変数（ex. dist）
+        required: false
+        type: string
+      build-artifacts-cached-key:
+        description: キャッシュしたアーティファクトのキー名
+        required: true
+        type: string
+    secrets:
+      aws-access-key-id:
+        description: AWSアクセスキーID
+        required: true
+      aws-secret-access-key:
+        description: AWSシークレットアクセスキー
+        required: true
+      s3-bucket-name:
+        description: S3バケット名
+        required: true
+      distribution-id:
+        description: ディストリビューションID
+        required: true
+  
+jobs:
+  deploy-aws:
+    runs-on: ubuntu-latest
+    steps:
+      # デプロイ実行環境セットアップ
+      ## 対象のアーティファクトをダウンロード
+      - name: download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.build-artifacts-cached-key }}
+          path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
+      ## AWS Credential情報を設定
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ inputs.aws-region }}
+      # デプロイ(S3)
+      - name: Deploy to S3
+        run: aws s3 sync ${{ inputs.work-directory }}/${{ inputs.dist-directory }} s3://${{ secrets.s3-bucket-name }} --delete
+      # キャッシュ削除(CloudFront)
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.distribution-id }} \
+            --paths "/*"
+  

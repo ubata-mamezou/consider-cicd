@@ -1,0 +1,36 @@
+# AWSへのデプロイ(開発環境)
+name: deploy aws(app:frontend, env:dev)
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        description: AWSリージョン
+        required: true
+        type: string
+      work-directory:
+        description: 作業ディレクトリ（ルート：.、サブディレクトリにあるアプリを対象とする場合：フォルダ名）
+        required: true
+        type: string
+      dist-directory:
+        description: ツールによるアーティファクトの参照先を吸収するための変数（ex. dist）
+        required: false
+        type: string
+      build-artifacts-cached-key:
+        description: キャッシュしたアーティファクトのキー名
+        required: true
+        type: string
+
+jobs:
+  deploy-aws:
+    uses: ./.github/workflows/deploy-aws-frontend.yaml
+    secrets: 
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      s3-bucket-name: ${{ secrets.S3_BUCKET_NAME }}
+      distribution-id: ${{ secrets.DISTRIBUTION_ID }}
+    with:
+      aws-region: ${{ inputs.aws-region }}
+      work-directory: ${{ inputs.work-directory}}
+      dist-directory: ${{ inputs.dist-directory  }}
+      build-artifacts-cached-key: ${{ inputs.build-artifacts-cached-key }}
