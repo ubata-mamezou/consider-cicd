@@ -115,7 +115,7 @@ jobs:
           echo "ecs-cluster-name=$(yq '.${{ inputs.profile }}.ecs-cluster-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-service-name=$(yq '.${{ inputs.profile }}.ecs-service-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-task-name=$(yq '.${{ inputs.profile }}.ecs-task-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
-          echo "env-variables=$(yq '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "env-variables=$(yq -r '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           # Java用
           echo "java-version=$(yq '.java-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
         
