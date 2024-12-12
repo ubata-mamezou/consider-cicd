@@ -54,13 +54,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo app-name: ${{ needs.workflow-config.outputs.app-name}}
-          echo app-version: ${{ needs.workflow-config.outputs.app-version}}
+          echo app-name: ${{ needs.workflow-config.outputs.app-name}} //別ファイルから読み込み
+          echo app-version: ${{ needs.workflow-config.outputs.app-version}} //echoコマンドで書き出し
           echo work-directory: ${{ needs.workflow-config.outputs.work-directory}}
           echo dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
           echo java-version: ${{ needs.workflow-config.outputs.java-version}}
           echo test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
           echo build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+          echo scan-report-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}} //outputsに固定値設定
   # ビルド
   build:
     needs: workflow-config
