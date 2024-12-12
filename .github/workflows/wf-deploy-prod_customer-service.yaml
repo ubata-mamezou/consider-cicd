@@ -15,13 +15,13 @@ jobs:
     uses: ./.github/workflows/deploy-prod-aws.yaml
     secrets: inherit 
     with:
-      app-name: customer
+      app-name: customer-service
       app-version: 0.0.1
       aws-region: ap-northeast-1
       aws-ecr-repository-name: consider-cicd
       ecs-cluster-name: consider-cicd-ecs
       ecs-service-name: consider-cicd-ecs-service_customer-service
-      ecs-task-name: consider-cicd-ecs-task-customer
+      ecs-task-name: consider-cicd-ecs-task-customer-service
       env-variables: |
         {"name": "PORT", "value": "8082"}, 
         {"name": "TEST_ENV", "value": "production"}
