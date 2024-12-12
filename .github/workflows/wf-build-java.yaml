@@ -57,11 +57,6 @@ jobs:
       - workflow-config-2
     runs-on: ubuntu-latest
     steps:
-      - name: wc2
-        id: wc2
-        uses: ./.github/workflows/load-config.yaml
-        with:
-          config-file-directory: order
       - run: |
           echo app-name: ${{ needs.workflow-config.outputs.app-name}} //別ファイルから読み込み
           echo app-version: ${{ needs.workflow-config.outputs.app-version}} //echoコマンドで書き出し
