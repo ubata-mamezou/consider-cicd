@@ -54,7 +54,9 @@ jobs:
     with: 
       config-file-directory: order
   config-debug:
-    needs: workflow-config
+    needs: 
+      - workflow-config
+      - workflow-config-2
     runs-on: ubuntu-latest
     steps:
       - run: |
