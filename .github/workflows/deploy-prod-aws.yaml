@@ -1,5 +1,5 @@
 # AWSへのデプロイ(本番環境)
-name: deploy aws
+name: (reusable workflow) deploy aws (env:production, env:backend)
 
 on:
   workflow_call:

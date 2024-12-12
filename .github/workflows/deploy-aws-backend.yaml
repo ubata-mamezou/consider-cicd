@@ -25,7 +25,7 @@
 # 2. サービス更新部分を追加で構築する
 #   1. プッシュされたイメージを使ったサービスを動作させる
 #   2. サービス更新を構築
-name: deploy aws
+name: (reusable workflow) deploy aws for backend
 
 on:
   workflow_call:

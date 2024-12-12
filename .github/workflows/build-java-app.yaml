@@ -2,7 +2,7 @@
 # ## 前提とする言語など
 # * Java
 # * Maven
-name: Build Java Application
+name: (reusable workflow) Build Java Application
 
 on:
   workflow_call:

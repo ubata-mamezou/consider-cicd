@@ -3,7 +3,7 @@
 # * TypeScript
 # * Node.js
 # * jest
-name: Build TypeScript Application
+name: (reusable workflow) Build TypeScript Application
 
 on:
   workflow_call:
