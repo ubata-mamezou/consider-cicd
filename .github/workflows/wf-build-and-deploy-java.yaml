@@ -53,7 +53,7 @@ jobs:
     with:
       app-name: order
       test-report-cached-key: test-report_order
-      build-artifacts-cached-key: artifact-dist-order
+      scan-report-cache-key: image-scan-report_order
   # デプロイ(デプロイ先：AWS)
   deploy:
     needs: build-image
