@@ -66,8 +66,7 @@ jobs:
           echo test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
           echo build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
           echo scan-report-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}} //outputsに固定値設定
-
-          echo app-name: ${{ needs.workflow-config-2.outputs.app-name}} //別ファイルから読み込み & Reusable wf
+          echo app-name: ${{ needs.workflow-config-2.outputs.app-name}} //別ファイルから読み込みと再利用
           echo app-version: ${{ needs.workflow-config-2.outputs.app-version}}
   # ビルド
   build:
