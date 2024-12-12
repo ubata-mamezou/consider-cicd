@@ -24,9 +24,5 @@ jobs:
       - name: Read Config
         id: read
         run: |
-          echo "::set-output name=app-name::$(yq '.app-name' ${{ env.config-file-path }})"
-          echo "::set-output name=app-version::$(yq '.app-version' ${{ env.config-file-path }})"
-
-      - run: |
-          echo ${{ steps.read.outputs.app-name }}
-          echo ${{ steps.read.outputs.app-version }}
+          echo "app-name=$(yq '.app-name' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
+          echo "app-version=$(yq '.app-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT

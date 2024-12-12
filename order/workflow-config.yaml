@@ -1,2 +1,6 @@
 app-name: order
 app-version: 0.0.1
+work-directory: order
+dist-directory: target
+java-version: 21
+test-report-cache-key: test-report_order

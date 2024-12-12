@@ -34,21 +34,19 @@ jobs:
       work-directory: ${{ steps.config.outputs.work-directory }}
       dist-directory: ${{ steps.config.outputs.dist-directory }}
       java-version: ${{ steps.config.outputs.java-version }}
-      test-report-cache-key: ${{ steps.config.outputs.test-report-cache-key }}
-      build-artifacts-cache-key: ${{ steps.config.outputs.build-artifacts-cache-key }}
-      scan-report-cache-key: image-scan-report_order
+      test-report-cache-key: test-report_${{ steps.config.outputs.app-name }}
+      build-artifacts-cache-key: artifact-dist_${{ steps.config.outputs.app-name }}
+      scan-report-cache-key: image-scan-report_${{ steps.config.outputs.app-name }}
     steps:
       - uses: actions/checkout@v4
       - name: config
         id: config
         run: |
-          echo "::set-output name=app-name::$(yq '.app-name' order/workflow-config.yaml)"
+          echo "app-name=$(yq '.app-name' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
           echo "app-version=$(yq '.app-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
-          echo "work-directory=order" >> $GITHUB_OUTPUT
-          echo "::set-output name=dist-directory::target"
-          echo "::set-output name=java-version::21"
-          echo "::set-output name=test-report-cache-key::test-report_order"
-          echo "::set-output name=build-artifacts-cache-key::artifact-dist-order"
+          echo "work-directory=$(yq '.work-directory' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
+          echo "dist-directory=$(yq '.dist-directory' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
+          echo "java-version=$(yq '.java-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
   workflow-config-2:
     uses: ./.github/workflows/load-config.yaml
     with: 
