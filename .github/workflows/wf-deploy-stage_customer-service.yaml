@@ -12,7 +12,7 @@ on:
 jobs:
   # デプロイ(デプロイ先：AWS)
   deploy:
-    uses: ./.github/workflows/deploy-aws_stage.yaml
+    uses: ./.github/workflows/deploy-stage-aws.yaml
     secrets: inherit 
     with:
       app-name: customer
