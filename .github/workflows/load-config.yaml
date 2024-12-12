@@ -1,0 +1,28 @@
+name: Load Workflow Config
+
+on: 
+  workflow_call:
+    inputs:
+      config-file-directory:
+        description: 設定ファイルディレクトリ（アプリのルートフォルダから見た設定ファイルへのディレクトリ）
+        required: true
+        type: string
+
+env:
+  config-file-path: ${{ inputs.config-file-directory }}/workflow-config.yaml
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    outputs:
+      app-name: ${{ steps.read.outputs.app-name }}
+      app-version: ${{ steps.read.outputs.app-version }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Read Config
+        id: read
+        run: |
+          echo "::set-output name=app-name::$(yq '.app-name' ${{ env.config-file-path }})"
+          echo "::set-output name=app-version::$(yq '.app-version' ${{ env.config-file-path }})"

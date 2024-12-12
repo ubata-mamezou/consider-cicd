@@ -39,17 +39,20 @@ jobs:
       scan-report-cache-key: image-scan-report_order
     steps:
       - uses: actions/checkout@v4
-      - run: tree
       - name: config
         id: config
         run: |
           echo "::set-output name=app-name::$(yq '.app-name' order/workflow-config.yaml)"
-          echo "::set-output name=app-version::0.0.1"    
+          echo "::set-output name=app-version::0.0.1"
           echo "::set-output name=work-directory::order"
           echo "::set-output name=dist-directory::target"
           echo "::set-output name=java-version::21"
           echo "::set-output name=test-report-cache-key::test-report_order"
           echo "::set-output name=build-artifacts-cache-key::artifact-dist-order"
+  workflow-config-2:
+    uses: ./.github/workflows/load-config.yaml
+    with: 
+      config-file-directory: order
   config-debug:
     needs: workflow-config
     runs-on: ubuntu-latest
@@ -63,6 +66,9 @@ jobs:
           echo test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
           echo build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
           echo scan-report-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}} //outputsに固定値設定
+
+          echo app-name: ${{ needs.workflow-config-2.outputs.app-name}} //別ファイルから読み込み & Reusable wf
+          echo app-version: ${{ needs.workflow-config-2.outputs.app-version}}
   # ビルド
   build:
     needs: workflow-config
