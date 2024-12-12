@@ -20,7 +20,7 @@ stage:
   ecs-task-name: consider-cicd-ecs-task-order
   env-variables: |
     {"name": "PORT", "value": "8081"}, 
-    {"name": "TEST_ENV", "value": "staging"}
+    {"name": "TEST_ENV", "value": "stage"}
 prod:
   aws-ecr-repository-name: consider-cicd
   ecs-cluster-name: consider-cicd-ecs

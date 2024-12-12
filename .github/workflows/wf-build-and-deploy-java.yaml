@@ -26,6 +26,7 @@ jobs:
   workflow-config:
     uses: ./.github/workflows/load-config.yaml
     with:
+      profile: dev
       config-file-directory: order
   # ビルド
   build:
