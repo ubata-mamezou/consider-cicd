@@ -2,7 +2,7 @@
 # ## 前提とする言語など
 # * Java
 # * Maven
-name: build Java Application
+name: Build Java Application
 
 env:
   APP_NAME: order # アプリケーション名
@@ -31,24 +31,48 @@ jobs:
     outputs:
       app-name: ${{ steps.config.outputs.app-name }}
       app-version: ${{ steps.config.outputs.app-version }}
+      work-directory: ${{ steps.config.outputs.work-directory }}
+      dist-directory: ${{ steps.config.outputs.dist-directory }}
+      java-version: ${{ steps.config.outputs.java-version }}
+      test-report-cache-key: ${{ steps.config.outputs.test-report-cache-key }}
+      build-artifacts-cache-key: ${{ steps.config.outputs.build-artifacts-cache-key }}
+      scan-report-cache-key: image-scan-report_order
     steps:
+      - uses: actions/checkout@v4
       - name: config
         id: config
         run: |
-          echo "::set-output name=app-name::order"
+          echo "::set-output name=app-name::$(yq '.app-name' workflow-config.yml)"
           echo "::set-output name=app-version::0.0.1"    
+          echo "::set-output name=work-directory::order"
+          echo "::set-output name=dist-directory::target"
+          echo "::set-output name=java-version::21"
+          echo "::set-output name=test-report-cache-key::test-report_order"
+          echo "::set-output name=build-artifacts-cache-key::artifact-dist-order"
+  config-debug:
+    needs: workflow-config
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo app-name: ${{ needs.workflow-config.outputs.app-name}}
+          echo app-version: ${{ needs.workflow-config.outputs.app-version}}
+          echo work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+          echo dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+          echo java-version: ${{ needs.workflow-config.outputs.java-version}}
+          echo test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+          echo build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
   # ビルド
   build:
     needs: workflow-config
     uses: ./.github/workflows/build-java-app.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
-      app-version: 0.0.1
-      work-directory: order
-      dist-directory: target
-      java-version: 21
-      test-report-cache-key: test-report_order
-      build-artifacts-cache-key: artifact-dist-order
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+      java-version: ${{ needs.workflow-config.outputs.java-version}}
+      test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
       is-publish: false
   # イメージビルド
   build-image:
@@ -58,11 +82,11 @@ jobs:
     uses: ./.github/workflows/build-image.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
-      app-version: 0.0.1
-      work-directory: order
-      dist-directory: /target
-      build-artifacts-cached-key: artifact-dist-order
-      scan-report-cache-key: image-scan-report_order
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+      build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+      scan-report-cache-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
       is-publish: false
   # テストレポートを公開
   publish-test-result:
@@ -72,5 +96,5 @@ jobs:
     uses: ./.github/workflows/publish-report.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
-      test-report-cached-key: test-report_order
-      scan-report-cached-key: image-scan-report_order
+      test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
