@@ -48,8 +48,10 @@ jobs:
           echo "dist-directory=$(yq '.dist-directory' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
           echo "java-version=$(yq '.java-version' order/workflow-config.yaml)" >> $GITHUB_OUTPUT
   workflow-config-2:
+    permissions: 
+      contents: read
     uses: ./.github/workflows/load-config.yaml
-    with: 
+    with:
       config-file-directory: order
   config-debug:
     needs: 
