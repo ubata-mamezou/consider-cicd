@@ -2,23 +2,13 @@
 # ## 前提とする言語など
 # * TypeScript
 # * Node.js
-name: Build TS Application
-
-env:
-  APP_NAME: customer-service
-  APP_VERSION: 0.0.1
-  AWS_REGION: ap-northeast-1
-  WORK_DIRECTORY: customer/customer-service
-  DIST_DIRECTORY: dist # ビルドリソースの生成されるフォルダー（ex. Node:dist）
-  TEST_REPORT_DIRECTORY: test-result #WORK_DIRECTORYから見たパス
-  NODE_VERSION: 20 # 使用するNode.jsのバージョン
+name: CI TS Application
 
 on:
   workflow_dispatch: 
   pull_request:
     branches: 
-      - 'feature/**'
-      - 'topic/**'
+      - 'develop/**'
     paths: 
       - 'customer/**'
     types:
@@ -27,34 +17,46 @@ on:
       - reopened
   
 jobs:
-  build:
-    uses: ./.github/workflows/build-ts-app.yaml
+  # ワークフローの設定ロード
+  workflow-config:
+    uses: ./.github/workflows/_load-config.yaml
     with:
-      app-name: customer-service
-      app-version: 0.0.1
-      work-directory: customer/customer-service
-      dist-directory: dist
-      node-version: 20
-      test-report-cache-key: test-report_customer-service
-      build-artifacts-cache-key: artifact-dist-customer-service
+      profile: dev
+      config-file-directory: customer/customer-service
+  # ビルド
+  build:
+    needs: workflow-config
+    uses: ./.github/workflows/_build-ts-app.yaml
+    with:
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+      node-version: ${{ needs.workflow-config.outputs.node-version}}
+      test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
       is-publish: false
   # イメージビルド
   build-image:
-    needs: build
-    uses: ./.github/workflows/build-image.yaml
+    needs: 
+      - workflow-config
+      - build
+    uses: ./.github/workflows/_build-image.yaml
     with:
-      app-name: customer-service
-      app-version: 0.0.1
-      work-directory: customer/customer-service
-      dist-directory: /dist
-      build-artifacts-cache-key: artifact-dist-customer-service
-      scan-report-cache-key: image-scan-report_customer-service
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+      build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+      scan-report-cache-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
       is-publish: false
   # テストレポートを公開
   publish-test-result:
-    needs: build-image
-    uses: ./.github/workflows/publish-report.yaml
+    needs: 
+      - workflow-config
+      - build-image
+    uses: ./.github/workflows/_publish-report.yaml
     with:
-      app-name: customer-service
-      test-report-cached-key: test-report_customer-service
-      scan-report-cached-key: image-scan-report_customer-service
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}

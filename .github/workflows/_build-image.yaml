@@ -1,7 +1,7 @@
 # イメージビルド
 ## 事前条件
 ## ・イメージビルドに使用するアーティファクトを事前にアップロードしてください。
-name: build-image
+name: (reusable workflow) build-image
 
 on:
   workflow_call:

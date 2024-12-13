@@ -4,15 +4,19 @@
 # * TypeScript
 # * Node.js
 # * Vite
-name: CI/CD React Application
+name: CI React Application
 
 on:
   workflow_dispatch: 
-  push:
+  pull_request:
     branches: 
       - 'develop/**'
     paths: 
       - 'order-ui/**'
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   # ワークフローの設定ロード
@@ -33,7 +37,7 @@ jobs:
       node-version: ${{ needs.workflow-config.outputs.node-version}}
       test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
       build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
-      is-publish: true
+      is-publish: false
   # テストレポートを公開
   publish-test-result:
     needs: 
@@ -43,18 +47,3 @@ jobs:
     with:
       app-name: order-ui
       test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
-  # デプロイ
-  deploy:
-    needs:
-      - workflow-config 
-      - build
-    uses: ./.github/workflows/_deploy-dev-aws-frontend.yaml
-    secrets: inherit
-    with:
-      aws-region: ${{ needs.workflow-config.outputs.aws-region}}
-      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
-      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
-      build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
-      s3-bucket-name: ${{ needs.workflow-config.outputs.s3-bucket-name}}
-      distribution-id: ${{ needs.workflow-config.outputs.distribution-id}}
-
