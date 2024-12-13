@@ -132,7 +132,7 @@ jobs:
 
           NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq \
             --arg image_uri "${{ env.ECR_IMAGE_URL }}" \
-            --argjson env_vars '[${{ inputs.env-variables }}]' \
+            --argjson env_vars '${{ inputs.env-variables }}' \
             '
             .containerDefinitions[0].image = $image_uri |
             .containerDefinitions[0].environment = $env_vars |
