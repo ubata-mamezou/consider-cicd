@@ -122,11 +122,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-        # echo "env-variables=$(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '. | map(tostring)')" >> $GITHUB_OUTPUT
       - name: Read Config
         id: read
         run: |
-          echo "test $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '. | map(tostring)')"
           echo "app-name=$(yq '.app-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "app-version=$(yq '.app-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "work-directory=$(yq '.work-directory' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
@@ -138,7 +136,7 @@ jobs:
           echo "ecs-cluster-name=$(yq '.${{ inputs.profile }}.ecs-cluster-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-service-name=$(yq '.${{ inputs.profile }}.ecs-service-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-task-name=$(yq '.${{ inputs.profile }}.ecs-task-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
-          echo "env-variables=$(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '.')" >> $GITHUB_OUTPUT
+          echo "env-variables=$(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c 'map(. | with_entries(.value |= tostring))')" >> $GITHUB_OUTPUT
           echo "s3-bucket-name=$(yq '.${{ inputs.profile }}.s3-bucket-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "distribution-id=$(yq '.${{ inputs.profile }}.distribution-id' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
 
