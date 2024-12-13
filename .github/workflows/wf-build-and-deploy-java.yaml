@@ -74,4 +74,9 @@ jobs:
       ecs-cluster-name: ${{ needs.workflow-config.outputs.ecs-cluster-name}}
       ecs-service-name: ${{ needs.workflow-config.outputs.ecs-service-name}}
       ecs-task-name: ${{ needs.workflow-config.outputs.ecs-task-name}}
-      env-variables: ${{ needs.workflow-config.outputs.env-variables}}
+      # env-variables: ${{ needs.workflow-config.outputs.env-variables}}
+      env-variables: |
+        [
+          {"name": "PORT", "value": 8081},
+          {"name": "TEST_ENV", "value": "dev"}
+        ]

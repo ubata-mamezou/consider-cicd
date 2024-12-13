@@ -16,7 +16,7 @@ dev:
   aws-ecr-repository-name: consider-cicd
   ecs-cluster-name: consider-cicd-ecs
   ecs-service-name: consider-cicd-ecs-service_customer-service
-  ecs-task-name: consider-cicd-ecs-task-customer
+  ecs-task-name: consider-cicd-ecs-task-customer-service
   env-variables:
     - name: PORT
       value: 8081
@@ -26,7 +26,7 @@ stage:
   aws-ecr-repository-name: consider-cicd
   ecs-cluster-name: consider-cicd-ecs
   ecs-service-name: consider-cicd-ecs-service_customer-service
-  ecs-task-name: consider-cicd-ecs-task-customer
+  ecs-task-name: consider-cicd-ecs-task-customer-service
   env-variables:
     - name: PORT
       value: 8081
@@ -36,7 +36,7 @@ prod:
   aws-ecr-repository-name: consider-cicd
   ecs-cluster-name: consider-cicd-ecs
   ecs-service-name: consider-cicd-ecs-service_customer-service
-  ecs-task-name: consider-cicd-ecs-task-customer
+  ecs-task-name: consider-cicd-ecs-task-customer-service
   env-variables:
     - name: PORT
       value: 8081
