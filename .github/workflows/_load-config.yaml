@@ -53,6 +53,18 @@ on:
           脆弱性スキャンレポートのキャッシュキー名
           (アプリケーション名から生成)
         value: image-scan-report_${{ jobs.config.outputs.app-name }}
+      # aws
+      aws-region:
+        description: AWSリージョン
+        value: ${{ jobs.config.outputs.aws-region }}
+      # Java用
+      java-version: 
+        description: 使用するJavaのバージョン
+        value: ${{ jobs.config.outputs.java-version }}
+      # Node用
+      node-version:
+        description: 使用するNode.jsのバージョン
+        value: ${{ jobs.config.outputs.node-version }}
       # プロファイル別
       aws-ecr-repository-name: 
         description: ECRリポジトリ名
@@ -79,14 +91,6 @@ on:
       distribution-id:
         description: CloudFrontディストリビューションID
         value: ${{ jobs.config.outputs.distribution-id }}
-      # Java用
-      java-version: 
-        description: 使用するJavaのバージョン
-        value: ${{ jobs.config.outputs.java-version }}
-      # Node用
-      node-version:
-        description: 使用するNode.jsのバージョン
-        value: ${{ jobs.config.outputs.node-version }}
   
 env:
   config-file-path: ${{ inputs.config-file-directory }}/workflow-config.yaml
@@ -100,6 +104,12 @@ jobs:
       work-directory: ${{ steps.read.outputs.work-directory }}
       dist-directory: ${{ steps.read.outputs.dist-directory }}
 
+      aws-region: ${{ steps.read.outputs.aws-region }}
+
+      java-version: ${{ steps.read.outputs.java-version }}
+
+      node-version: ${{ steps.read.outputs.node-version }}
+
       aws-ecr-repository-name: ${{ steps.read.outputs.aws-ecr-repository-name }}
       ecs-cluster-name: ${{ steps.read.outputs.ecs-cluster-name }}
       ecs-service-name: ${{ steps.read.outputs.ecs-service-name }}
@@ -107,10 +117,6 @@ jobs:
       env-variables: ${{ steps.read.outputs.env-variables }}
       s3-bucket-name: ${{ steps.read.outputs.s3-bucket-name }}
       distribution-id: ${{ steps.read.outputs.distribution-id }}
-
-      java-version: ${{ steps.read.outputs.java-version }}
-
-      node-version: ${{ steps.read.outputs.node-version }}
 
     steps:
       - name: Checkout Repository
@@ -124,6 +130,9 @@ jobs:
           echo "app-version=$(yq '.app-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "work-directory=$(yq '.work-directory' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "dist-directory=$(yq '.dist-directory' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "aws-region=$(yq '.aws-region' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "java-version=$(yq '.java-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "node-version=$(yq '.node-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "aws-ecr-repository-name=$(yq '.${{ inputs.profile }}.aws-ecr-repository-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-cluster-name=$(yq '.${{ inputs.profile }}.ecs-cluster-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-service-name=$(yq '.${{ inputs.profile }}.ecs-service-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
@@ -131,8 +140,6 @@ jobs:
           echo "env-variables=$(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '. | map(tostring)')" >> $GITHUB_OUTPUT
           echo "s3-bucket-name=$(yq '.${{ inputs.profile }}.s3-bucket-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "distribution-id=$(yq '.${{ inputs.profile }}.distribution-id' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
-          echo "java-version=$(yq '.java-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
-          echo "node-version=$(yq '.node-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
 
       - name: show config(debug)
         run: |
@@ -140,6 +147,9 @@ jobs:
           echo app-version=${{ steps.read.outputs.app-version }}
           echo work-directory=${{ steps.read.outputs.work-directory }}
           echo dist-directory=${{ steps.read.outputs.dist-directory }}
+          echo aws-region=${{ steps.read.outputs.aws-region }}
+          echo java-version=${{ steps.read.outputs.java-version }}
+          echo node-version=${{ steps.read.outputs.node-version }}
           echo aws-ecr-repository-name=${{ steps.read.outputs.aws-ecr-repository-name }}
           echo ecs-cluster-name=${{ steps.read.outputs.ecs-cluster-name }}
           echo ecs-service-name=${{ steps.read.outputs.ecs-service-name }}
@@ -147,6 +157,4 @@ jobs:
           echo env-variables=${{ steps.read.outputs.env-variables }}
           echo s3-bucket-name=${{ steps.read.outputs.s3-bucket-name }}
           echo distribution-id=${{ steps.read.outputs.distribution-id }}
-          echo java-version=${{ steps.read.outputs.java-version }}
-          echo node-version=${{ steps.read.outputs.node-version }}
 
