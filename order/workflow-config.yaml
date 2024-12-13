@@ -20,7 +20,7 @@ dev:
     - name: PORT
       value: 8081
     - name: TEST_ENV
-      value: dev
+      value: development
   # env-variables:
   #   - '\{"name": "PORT", "value": "8081"\}'
   #   - '\{"name": "TEST_ENV", "value": "dev"\}'
