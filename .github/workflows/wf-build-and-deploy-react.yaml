@@ -23,6 +23,7 @@ jobs:
       config-file-directory: order-ui
   # ビルド
   build:
+    needs: workflow-config
     uses: ./.github/workflows/_build-react-app.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
@@ -35,14 +36,18 @@ jobs:
       is-publish: true
   # テストレポートを公開
   publish-test-result:
-    needs: build
+    needs: 
+      - workflow-config
+      - build
     uses: ./.github/workflows/_publish-report.yaml
     with:
       app-name: order-ui
       test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
   # デプロイ
   deploy:
-    needs: build
+    needs:
+      - workflow-config 
+      - build
     uses: ./.github/workflows/_deploy-dev-aws-frontend.yaml
     secrets: inherit
     with:

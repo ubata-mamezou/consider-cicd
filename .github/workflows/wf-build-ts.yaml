@@ -25,6 +25,7 @@ jobs:
       config-file-directory: customer/customer-service
   # ビルド
   build:
+    needs: workflow-config
     uses: ./.github/workflows/_build-ts-app.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
@@ -37,7 +38,9 @@ jobs:
       is-publish: false
   # イメージビルド
   build-image:
-    needs: build
+    needs: 
+      - workflow-config
+      - build
     uses: ./.github/workflows/_build-image.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
@@ -49,7 +52,9 @@ jobs:
       is-publish: false
   # テストレポートを公開
   publish-test-result:
-    needs: build-image
+    needs: 
+      - workflow-config
+      - build-image
     uses: ./.github/workflows/_publish-report.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}

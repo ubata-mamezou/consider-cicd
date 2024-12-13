@@ -21,6 +21,7 @@ jobs:
       config-file-directory: customer/customer-service
   # ビルド
   build:
+    needs: workflow-config
     uses: ./.github/workflows/_build-ts-app.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
@@ -33,7 +34,9 @@ jobs:
       is-publish: true
   # イメージビルド
   build-image:
-    needs: build
+    needs: 
+      - workflow-config
+      - build
     uses: ./.github/workflows/_build-image.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
@@ -45,7 +48,9 @@ jobs:
       is-publish: true
   # テストレポートを公開
   publish-test-result:
-    needs: build-image
+    needs: 
+      - workflow-config
+      - build-image
     uses: ./.github/workflows/_publish-report.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
@@ -53,7 +58,9 @@ jobs:
       scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
   # デプロイ
   deploy:
-    needs: build-image
+    needs: 
+      - workflow-config
+      - build-image
     uses: ./.github/workflows/_deploy-dev-aws-backend.yaml
     secrets: inherit
     with:

@@ -18,6 +18,7 @@ jobs:
       config-file-directory: order
   # デプロイ(デプロイ先：AWS)
   deploy:
+    needs: workflow-config
     uses: ./.github/workflows/_deploy-prod-aws-backend.yaml
     secrets: inherit 
     with:
