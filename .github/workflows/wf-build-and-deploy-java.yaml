@@ -4,15 +4,6 @@
 # * Maven
 name: CI/CD Java Application
 
-env:
-  APP_NAME: order # アプリケーション名
-  APP_VERSION: 0.0.1 # アプリケーションバージョン
-  AWS_REGION: ap-northeast-1 # AWSリージョン
-  WORK_DIRECTORY: order # 作業ディレクトリ
-  DIST_DIRECTORY: target # ビルドリソースの生成されるフォルダー
-  JAVA_VERSION: 21 # 使用するJavaのバージョン
-
-
 on:
   workflow_dispatch: #手動実行
   push:
@@ -24,14 +15,14 @@ on:
 jobs:
   # ワークフローの設定ロード
   workflow-config:
-    uses: ./.github/workflows/load-config.yaml
+    uses: ./.github/workflows/_load-config.yaml
     with:
       profile: dev
       config-file-directory: order
   # ビルド
   build:
     needs: workflow-config
-    uses: ./.github/workflows/build-java-app.yaml
+    uses: ./.github/workflows/_build-java-app.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
       app-version: ${{ needs.workflow-config.outputs.app-version}}
@@ -46,7 +37,7 @@ jobs:
     needs: 
       - workflow-config
       - build
-    uses: ./.github/workflows/build-image.yaml
+    uses: ./.github/workflows/_build-image.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
       app-version: ${{ needs.workflow-config.outputs.app-version}}
@@ -60,17 +51,17 @@ jobs:
     needs: 
       - workflow-config
       - build-image
-    uses: ./.github/workflows/publish-report.yaml
+    uses: ./.github/workflows/_publish-report.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
       test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
       scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
-  # デプロイ(デプロイ先：AWS)
+  # デプロイ
   deploy:
     needs:
       - workflow-config 
       - build-image
-    uses: ./.github/workflows/deploy-dev-aws.yaml
+    uses: ./.github/workflows/_deploy-dev-aws-backend.yaml
     # Tips：自身で設定したsecretを別ファイルから参照するには？
     # 別ファイルにしたワークフローはスコープの問題でsecretの参照に失敗します。
     # inheritをつけることで呼び出し先にSecretが引き継がれるので、呼び出し先でも参照することができます。
@@ -78,11 +69,9 @@ jobs:
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
       app-version: ${{ needs.workflow-config.outputs.app-version}}
-      aws-region: ap-northeast-1
-      aws-ecr-repository-name: consider-cicd
-      ecs-cluster-name: consider-cicd-ecs
-      ecs-service-name: consider-cicd-ecs-service_order-service
-      ecs-task-name: consider-cicd-ecs-task-order
-      env-variables: |
-        {"name": "PORT", "value": "8081"}, 
-        {"name": "TEST_ENV", "value": "dev"}
+      aws-region: ${{ needs.workflow-config.outputs.aws-region}}
+      aws-ecr-repository-name: ${{ needs.workflow-config.outputs.aws-ecr-repository-name}}
+      ecs-cluster-name: ${{ needs.workflow-config.outputs.ecs-cluster-name}}
+      ecs-service-name: ${{ needs.workflow-config.outputs.ecs-service-name}}
+      ecs-task-name: ${{ needs.workflow-config.outputs.ecs-task-name}}
+      env-variables: ${{ needs.workflow-config.outputs.env-variables}}

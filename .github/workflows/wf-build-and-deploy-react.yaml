@@ -6,15 +6,6 @@
 # * Vite
 name: CI/CD React Application
 
-env:
-  APP_NAME: order-ui
-  APP_VERSION: 0.0.1
-  AWS_REGION: ap-northeast-1
-  WORK_DIRECTORY: order-ui
-  DIST_DIRECTORY: dist # ビルドリソースの生成されるフォルダー（ex. Node:dist）
-  TEST_REPORT_DIRECTORY: test-result #WORK_DIRECTORYから見たパス
-  NODE_VERSION: 20 # 使用するNode.jsのバージョン
-
 on:
   workflow_dispatch: 
   push:
@@ -22,60 +13,43 @@ on:
       - 'develop/**'
     paths: 
       - 'order-ui/**'
-      # - '.github/workflows/**' #ワークフロー実装中の一時的なトリガー
 
 jobs:
-  build:
-    uses: ./.github/workflows/build-react-app.yaml
+  # ワークフローの設定ロード
+  workflow-config:
+    uses: ./.github/workflows/_load-config.yaml
     with:
-      # app-name: order-ui
-      app-name: ${{ vars.APP_NAME_ORDER_UI }}
-      app-version: 0.0.1
-      work-directory: order-ui
-      dist-directory: dist
-      node-version: 20
-      test-report-cache-key: test-report_order-ui
-      build-artifacts-cache-key: artifact-dist-order-ui
+      profile: dev
+      config-file-directory: order-ui
+  # ビルド
+  build:
+    uses: ./.github/workflows/_build-react-app.yaml
+    with:
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+      node-version: ${{ needs.workflow-config.outputs.node-version}}
+      test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
       is-publish: true
   # テストレポートを公開
   publish-test-result:
     needs: build
-    uses: ./.github/workflows/publish-report.yaml
+    uses: ./.github/workflows/_publish-report.yaml
     with:
       app-name: order-ui
-      test-report-cached-key: test-report_order-ui
-  # デプロイ(デプロイ先：AWS)
+      test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+  # デプロイ
   deploy:
     needs: build
-    uses: ./.github/workflows/deploy-dev-aws-frontend.yaml
+    uses: ./.github/workflows/_deploy-dev-aws-frontend.yaml
     secrets: inherit
     with:
-      aws-region: ${{ vars.AWS_REGION }}
-      work-directory: order-ui
-      dist-directory: dist
-      build-artifacts-cached-key: artifact-dist-order-ui
-  # deploy:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   ## 対象のアーティファクトをダウンロード
-  #   - name: download artifact
-  #     uses: actions/download-artifact@v4
-  #     with:
-  #       name: artifact-dist-order-ui
-  #       path: ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }}
-  #   - run: tree #debug
-  #   ## AWS Credential情報を設定
-  #   - name: Configure AWS credentials
-  #     uses: aws-actions/configure-aws-credentials@v4
-  #     with:
-  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #       aws-region: ap-northeast-1
-  #   - name: Deploy to S3
-  #     run: aws s3 sync ${{ env.WORK_DIRECTORY }}/${{ env.DIST_DIRECTORY }} s3://${{ secrets.S3_BUCKET_NAME }} --delete
-  #   - name: Invalidate CloudFront cache
-  #     run: |
-  #       aws cloudfront create-invalidation \
-  #         --distribution-id ${{ secrets.DISTRIBUTION_ID }} \
-  #         --paths "/*"
+      aws-region: ${{ needs.workflow-config.outputs.aws-region}}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+      build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+      s3-bucket-name: ${{ needs.workflow-config.outputs.s3-bucket-name}}
+      distribution-id: ${{ needs.workflow-config.outputs.distribution-id}}
+

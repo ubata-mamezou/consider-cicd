@@ -10,18 +10,22 @@ on:
       - 'customer/**'
 
 jobs:
+  # ワークフローの設定ロード
+  workflow-config:
+    uses: ./.github/workflows/_load-config.yaml
+    with:
+      profile: stage
+      config-file-directory: customer/customer-service
   # デプロイ(デプロイ先：AWS)
   deploy:
-    uses: ./.github/workflows/deploy-stage-aws.yaml
+    uses: ./.github/workflows/_deploy-prod-aws-backend.yaml
     secrets: inherit 
     with:
-      app-name: customer-service
-      app-version: 0.0.1
-      aws-region: ap-northeast-1
-      aws-ecr-repository-name: consider-cicd
-      ecs-cluster-name: consider-cicd-ecs
-      ecs-service-name: consider-cicd-ecs-service_customer-service
-      ecs-task-name: consider-cicd-ecs-task-customer-service
-      env-variables: |
-        {"name": "PORT", "value": "8082"}, 
-        {"name": "TEST_ENV", "value": "stage"}
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
+      aws-region: ${{ needs.workflow-config.outputs.aws-region}}
+      aws-ecr-repository-name: ${{ needs.workflow-config.outputs.aws-ecr-repository-name}}
+      ecs-cluster-name: ${{ needs.workflow-config.outputs.ecs-cluster-name}}
+      ecs-service-name: ${{ needs.workflow-config.outputs.ecs-service-name}}
+      ecs-task-name: ${{ needs.workflow-config.outputs.ecs-task-name}}
+      env-variables: ${{ needs.workflow-config.outputs.env-variables}}

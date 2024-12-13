@@ -20,17 +20,25 @@ on:
         description: キャッシュしたアーティファクトのキー名
         required: true
         type: string
-
+      s3-bucket-name:
+        description: S3バケット名
+        required: true
+        type: string
+      distribution-id:
+        description: ディストリビューションID
+        required: true
+        type: string
+  
 jobs:
   deploy-aws:
-    uses: ./.github/workflows/deploy-aws-frontend.yaml
+    uses: ./.github/workflows/_deploy-aws-frontend.yaml
     secrets: 
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      s3-bucket-name: ${{ secrets.S3_BUCKET_NAME }}
-      distribution-id: ${{ secrets.DISTRIBUTION_ID }}
     with:
       aws-region: ${{ inputs.aws-region }}
       work-directory: ${{ inputs.work-directory}}
       dist-directory: ${{ inputs.dist-directory  }}
       build-artifacts-cached-key: ${{ inputs.build-artifacts-cached-key }}
+      s3-bucket-name: ${{ inputs.s3-bucket-name }}
+      distribution-id: ${{ inputs.distribution-id }}

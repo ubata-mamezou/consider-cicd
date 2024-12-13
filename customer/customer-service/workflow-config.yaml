@@ -1,22 +1,22 @@
 # ワークフロー設定ファイルテンプレート
 
 # 共通
-app-name: order
+app-name: customer-service
 app-version: 0.0.1
-work-directory: order
-dist-directory: target
+work-directory: customer/customer-service
+dist-directory: dist
 ## aws
 aws-region: ap-northeast-1
 
-# java
-java-version: 21
+# node
+node-version: 20
 
 # プロファイル別
 dev:
   aws-ecr-repository-name: consider-cicd
   ecs-cluster-name: consider-cicd-ecs
-  ecs-service-name: consider-cicd-ecs-service_order-service
-  ecs-task-name: consider-cicd-ecs-task-order
+  ecs-service-name: consider-cicd-ecs-service_customer-service
+  ecs-task-name: consider-cicd-ecs-task-customer
   env-variables:
     - name: PORT
       value: 8081
@@ -25,8 +25,8 @@ dev:
 stage:
   aws-ecr-repository-name: consider-cicd
   ecs-cluster-name: consider-cicd-ecs
-  ecs-service-name: consider-cicd-ecs-service_order-service
-  ecs-task-name: consider-cicd-ecs-task-order
+  ecs-service-name: consider-cicd-ecs-service_customer-service
+  ecs-task-name: consider-cicd-ecs-task-customer
   env-variables:
     - name: PORT
       value: 8081
@@ -35,8 +35,8 @@ stage:
 prod:
   aws-ecr-repository-name: consider-cicd
   ecs-cluster-name: consider-cicd-ecs
-  ecs-service-name: consider-cicd-ecs-service_order-service
-  ecs-task-name: consider-cicd-ecs-task-order
+  ecs-service-name: consider-cicd-ecs-service_customer-service
+  ecs-task-name: consider-cicd-ecs-task-customer
   env-variables:
     - name: PORT
       value: 8081

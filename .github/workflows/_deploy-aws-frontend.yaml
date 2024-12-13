@@ -32,18 +32,20 @@ on:
         description: キャッシュしたアーティファクトのキー名
         required: true
         type: string
+      s3-bucket-name:
+        description: S3バケット名
+        required: true
+        type: string
+      distribution-id:
+        description: ディストリビューションID
+        required: true
+        type: string
     secrets:
       aws-access-key-id:
         description: AWSアクセスキーID
         required: true
       aws-secret-access-key:
         description: AWSシークレットアクセスキー
-        required: true
-      s3-bucket-name:
-        description: S3バケット名
-        required: true
-      distribution-id:
-        description: ディストリビューションID
         required: true
   
 jobs:
@@ -66,11 +68,11 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
       # デプロイ(S3)
       - name: Deploy to S3
-        run: aws s3 sync ${{ inputs.work-directory }}/${{ inputs.dist-directory }} s3://${{ secrets.s3-bucket-name }} --delete
+        run: aws s3 sync ${{ inputs.work-directory }}/${{ inputs.dist-directory }} s3://${{ inputs.s3-bucket-name }} --delete
       # キャッシュ削除(CloudFront)
       - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.distribution-id }} \
+            --distribution-id ${{ inputs.distribution-id }} \
             --paths "/*"
   

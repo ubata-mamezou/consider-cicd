@@ -1,8 +1,10 @@
-# # TypeScriptアプリケーションのビルド
+# # Reactアプリケーションのビルド
 # ## 前提とする言語など
+# * React
 # * TypeScript
 # * Node.js
-name: CI TS Application
+# * Vite
+name: CI React Application
 
 on:
   workflow_dispatch: 
@@ -10,22 +12,22 @@ on:
     branches: 
       - 'develop/**'
     paths: 
-      - 'customer/**'
+      - 'order-ui/**'
     types:
       - opened
       - synchronize
       - reopened
-  
+
 jobs:
   # ワークフローの設定ロード
   workflow-config:
     uses: ./.github/workflows/_load-config.yaml
     with:
       profile: dev
-      config-file-directory: customer/customer-service
+      config-file-directory: order-ui
   # ビルド
   build:
-    uses: ./.github/workflows/_build-ts-app.yaml
+    uses: ./.github/workflows/_build-react-app.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
       app-version: ${{ needs.workflow-config.outputs.app-version}}
@@ -35,23 +37,10 @@ jobs:
       test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
       build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
       is-publish: false
-  # イメージビルド
-  build-image:
-    needs: build
-    uses: ./.github/workflows/_build-image.yaml
-    with:
-      app-name: ${{ needs.workflow-config.outputs.app-name}}
-      app-version: ${{ needs.workflow-config.outputs.app-version}}
-      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
-      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
-      build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
-      scan-report-cache-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
-      is-publish: false
   # テストレポートを公開
   publish-test-result:
-    needs: build-image
+    needs: build
     uses: ./.github/workflows/_publish-report.yaml
     with:
-      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      app-name: order-ui
       test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
-      scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}

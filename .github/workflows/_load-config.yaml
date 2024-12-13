@@ -55,7 +55,7 @@ on:
         value: image-scan-report_${{ jobs.config.outputs.app-name }}
       # プロファイル別
       aws-ecr-repository-name: 
-        description: ECRレジストリ名
+        description: ECRリポジトリ名
         value: ${{ jobs.config.outputs.aws-ecr-repository-name }}
       ecs-cluster-name: 
         description: ECSクラスター名
@@ -73,10 +73,20 @@ on:
             {"name": "PORT", "value": "8081"}, 
             {"name": "TEST_ENV", "value": "dev"}
         value: ${{ jobs.config.outputs.env-variables }}
+      s3-bucket-name:
+        description: S3バケット名
+        value: ${{ jobs.config.outputs.s3-bucket-name }}
+      distribution-id:
+        description: CloudFrontディストリビューションID
+        value: ${{ jobs.config.outputs.distribution-id }}
       # Java用
       java-version: 
         description: 使用するJavaのバージョン
         value: ${{ jobs.config.outputs.java-version }}
+      # Node用
+      node-version:
+        description: 使用するNode.jsのバージョン
+        value: ${{ jobs.config.outputs.node-version }}
   
 env:
   config-file-path: ${{ inputs.config-file-directory }}/workflow-config.yaml
@@ -95,25 +105,17 @@ jobs:
       ecs-service-name: ${{ steps.read.outputs.ecs-service-name }}
       ecs-task-name: ${{ steps.read.outputs.ecs-task-name }}
       env-variables: ${{ steps.read.outputs.env-variables }}
+      s3-bucket-name: ${{ steps.read.outputs.s3-bucket-name }}
+      distribution-id: ${{ steps.read.outputs.distribution-id }}
 
       java-version: ${{ steps.read.outputs.java-version }}
+
+      node-version: ${{ steps.read.outputs.node-version }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-        # echo "env-variables=$(yq -r '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
-        # echo "step1 $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})"
-        # echo "step2 $(yq -o=json '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value})' ${{ env.config-file-path }})"
-        # echo "step3 $(yq -o=json '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value}) | join(",")' ${{ env.config-file-path }})"
-        # echo "stepa $(yq '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})"
-        # echo "stepa $(yq '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value})' ${{ env.config-file-path }})"
-        # echo "stepa $(yq '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value}) | join(",")' ${{ env.config-file-path }})"
-        # echo "cgpt1 $(yq -o=json '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value}) | join(",")' ${{ env.config-file-path }})"
-        # echo "cgpt2 $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '. | map({"name": .name, "value": .value}) | join(",")')"
-        # echo "cgpt3 $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq '. | map({"name": .name, "value": .value}) | join(",")')"
-        # echo "cgpt4 $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '. | map(tostring) | join(",")')"
-        # echo "env-variables=$(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
       - name: Read Config
         id: read
         run: |
@@ -127,7 +129,10 @@ jobs:
           echo "ecs-service-name=$(yq '.${{ inputs.profile }}.ecs-service-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-task-name=$(yq '.${{ inputs.profile }}.ecs-task-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "env-variables=$(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '. | map(tostring)')" >> $GITHUB_OUTPUT
+          echo "s3-bucket-name=$(yq '.${{ inputs.profile }}.s3-bucket-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "distribution-id=$(yq '.${{ inputs.profile }}.distribution-id' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "java-version=$(yq '.java-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "node-version=$(yq '.node-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
 
       - name: show config(debug)
         run: |
@@ -140,5 +145,8 @@ jobs:
           echo ecs-service-name=${{ steps.read.outputs.ecs-service-name }}
           echo ecs-task-name=${{ steps.read.outputs.ecs-task-name }}
           echo env-variables=${{ steps.read.outputs.env-variables }}
+          echo s3-bucket-name=${{ steps.read.outputs.s3-bucket-name }}
+          echo distribution-id=${{ steps.read.outputs.distribution-id }}
           echo java-version=${{ steps.read.outputs.java-version }}
+          echo node-version=${{ steps.read.outputs.node-version }}
 

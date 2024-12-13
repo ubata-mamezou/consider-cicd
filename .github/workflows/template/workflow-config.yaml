@@ -1,0 +1,62 @@
+# ワークフロー設定ファイルテンプレート
+
+# 共通
+app-name: order # アプリケーション名
+app-version: 0.0.1 # アプリケーションバージョン
+work-directory: order # 作業ディレクトリ
+dist-directory: target # ビルドリソースの生成されるフォルダー(Maven:target,NPM:dist)
+## aws
+aws-region: ap-northeast-1 # AWSリージョン
+
+# java
+java-version: 21 #Javaバージョン
+
+# node
+node-version: 20 #Nodeバージョン
+
+# プロファイル別(環境などによって変わる情報を設定する)
+# {プロファイル名}:
+#   # コンテナで動作させるアプリケーション用
+#   aws-ecr-repository-name: order # ECRリポジトリ名
+#   ecs-cluster-name: scm-cluster # ECSクラスター名
+#   ecs-service-name: order-service # ECSサービス名
+#   ecs-task-name: order-service-task # ECSタスク定義名
+#   env-variables:
+#     - name: PORT
+#       value: 8081
+#     - name: TEST_ENV
+#       value: dev
+#   #　SSGアプリケーション用
+#   s3-bucket-name: consider-cicd-s3 #S3バケット名
+#   distribution-id: E35MEVIJLAFNNK #CloudFrontディストリビューションID
+dev:
+  aws-ecr-repository-name: consider-cicd
+  ecs-cluster-name: consider-cicd-ecs
+  ecs-service-name: consider-cicd-ecs-service_order-service
+  ecs-task-name: consider-cicd-ecs-task-order
+  env-variables:
+    - name: PORT
+      value: 8081
+    - name: TEST_ENV
+      value: dev
+stage:
+  aws-ecr-repository-name: consider-cicd
+  ecs-cluster-name: consider-cicd-ecs
+  ecs-service-name: consider-cicd-ecs-service_order-service
+  ecs-task-name: consider-cicd-ecs-task-order
+  env-variables:
+    - name: PORT
+      value: 8081
+    - name: TEST_ENV
+      value: stage
+prod:
+  aws-ecr-repository-name: consider-cicd
+  ecs-cluster-name: consider-cicd-ecs
+  ecs-service-name: consider-cicd-ecs-service_order-service
+  ecs-task-name: consider-cicd-ecs-task-order
+  env-variables:
+    - name: PORT
+      value: 8081
+    - name: TEST_ENV
+      value: prod
+

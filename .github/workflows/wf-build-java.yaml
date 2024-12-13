@@ -19,14 +19,14 @@ on:
 jobs:
   # ワークフローの設定ロード
   workflow-config:
-    uses: ./.github/workflows/load-config.yaml
+    uses: ./.github/workflows/_load-config.yaml
     with:
       profile: dev
       config-file-directory: order
   # ビルド
   build:
     needs: workflow-config
-    uses: ./.github/workflows/build-java-app.yaml
+    uses: ./.github/workflows/_build-java-app.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
       app-version: ${{ needs.workflow-config.outputs.app-version}}
@@ -41,7 +41,7 @@ jobs:
     needs: 
       - workflow-config
       - build
-    uses: ./.github/workflows/build-image.yaml
+    uses: ./.github/workflows/_build-image.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
       app-version: ${{ needs.workflow-config.outputs.app-version}}
@@ -55,7 +55,7 @@ jobs:
     needs: 
       - workflow-config
       - build-image
-    uses: ./.github/workflows/publish-report.yaml
+    uses: ./.github/workflows/_publish-report.yaml
     with:
       app-name: ${{ needs.workflow-config.outputs.app-name}}
       test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
