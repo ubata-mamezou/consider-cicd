@@ -117,8 +117,11 @@ jobs:
           echo "step1 $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})"
           echo "step2 $(yq -o=json '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value})' ${{ env.config-file-path }})"
           echo "step3 $(yq -o=json '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value}) | join(",")' ${{ env.config-file-path }})"
-          echo "cgpt1 $(yq -o=json '.${{ inputs.profile }}."env-variables" | map({"name": .name, "value": .value}) | join(", ")' ${{ env.config-file-path }})"
-          echo "cgpt2 $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '. | map({\"name\": .name, "value": .value}) | join(", ")')"
+          echo "stepa $(yq '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value}) | join(",")' ${{ env.config-file-path }})"
+          echo "cgpt1 $(yq -o=json '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value}) | join(",")' ${{ env.config-file-path }})"
+          echo "cgpt2 $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '. | map({"name": .name, "value": .value}) | join(",")')"
+          echo "cgpt3 $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq '. | map({"name": .name, "value": .value}) | join(",")')"
+          echo "cgpt4 $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '. | map(tostring) | join(",")')"
           echo "env-variables=$(yq -o=json '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value}) | join(", ")' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "java-version=$(yq '.java-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
         
