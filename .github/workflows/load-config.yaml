@@ -103,6 +103,7 @@ jobs:
         uses: actions/checkout@v4
 
         # echo "env-variables=$(yq -r '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+        # echo "env-variables=$(yq -o=json '.${{ inputs.profile }}.env-variables' | map({"name": .name, "value": .value}) | join(", ") ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
       - name: Read Config
         id: read
         run: |
@@ -114,10 +115,9 @@ jobs:
           echo "ecs-cluster-name=$(yq '.${{ inputs.profile }}.ecs-cluster-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-service-name=$(yq '.${{ inputs.profile }}.ecs-service-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
           echo "ecs-task-name=$(yq '.${{ inputs.profile }}.ecs-task-name' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
-          echo step1 $(yq -o=json '.${{ inputs.profile }}."env-variables" ${{ env.config-file-path }})
-          echo step2 $(yq -o=json '.${{ inputs.profile }}.env-variables' | map({"name": .name, "value": .value}) ${{ env.config-file-path }})
-          echo step3 $(yq -o=json '.${{ inputs.profile }}.env-variables' | map({"name": .name, "value": .value}) | join(", ") ${{ env.config-file-path }})
-          echo "env-variables=$(yq -o=json '.${{ inputs.profile }}.env-variables' | map({"name": .name, "value": .value}) | join(", ") ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
+          echo "step1 $(yq -o=json '.${{ inputs.profile }}."env-variables" ${{ env.config-file-path }})"
+          echo "step2 $(yq -o=json '.${{ inputs.profile }}.env-variables' | map({"name": .name, "value": .value}) ${{ env.config-file-path }})"
+          echo "step3 $(yq -o=json '.${{ inputs.profile }}.env-variables' | map({"name": .name, "value": .value}) | join(", ") ${{ env.config-file-path }})"
           echo "java-version=$(yq '.java-version' ${{ env.config-file-path }})" >> $GITHUB_OUTPUT
         
       - name: show config(debug)
