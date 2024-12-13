@@ -117,6 +117,8 @@ jobs:
           echo "step1 $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})"
           echo "step2 $(yq -o=json '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value})' ${{ env.config-file-path }})"
           echo "step3 $(yq -o=json '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value}) | join(",")' ${{ env.config-file-path }})"
+          echo "stepa $(yq '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }})"
+          echo "stepa $(yq '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value})' ${{ env.config-file-path }})"
           echo "stepa $(yq '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value}) | join(",")' ${{ env.config-file-path }})"
           echo "cgpt1 $(yq -o=json '.${{ inputs.profile }}.env-variables | map({"name": .name, "value": .value}) | join(",")' ${{ env.config-file-path }})"
           echo "cgpt2 $(yq -o=json '.${{ inputs.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '. | map({"name": .name, "value": .value}) | join(",")')"
