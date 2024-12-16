@@ -19,9 +19,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: yq debug
-        run: 
+        run: |
           echo "aws-ecr-repository-name=$(yq '.${{ env.profile }}.aws-ecr-repository-name' ${{ env.config-file-path }})"
           echo "ecs-cluster-name=$(yq '.${{ env.profile }}.ecs-cluster-name' ${{ env.config-file-path }})"
           echo "ecs-service-name=$(yq '.${{ env.profile }}.ecs-service-name' ${{ env.config-file-path }})"
           echo "ecs-task-name=$(yq '.${{ env.profile }}.ecs-task-name' ${{ env.config-file-path }})"
           echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c 'map(. | with_entries(.value |= tostring))')"
+          echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '.')"
+          echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c 'map(. | map(tostring))')"
