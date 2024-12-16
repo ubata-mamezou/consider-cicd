@@ -7,7 +7,7 @@
 # * jest
 # ## 備考
 # * 初稿時点では、処理内容はTypeScript Applicationと同じが、UI特有の処理(ヴィジュアルテストなど)が追加される可能性を考慮して、別ファイルで作成。
-name: Build React+TypeScript Application
+name: (reusable workflow) Build React Application
 
 on:
   workflow_call:

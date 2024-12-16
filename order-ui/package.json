@@ -5,12 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:dev": "vite --mode dev",
+    "dev:development": "vite --mode development",
+    "dev:prod": "vite --mode prod",
     "build": "tsc -b && vite build",
+    "build:dev": "tsc -b && vite build --mode dev",
+    "build:prod": "tsc -b && vite build --mode prod",
     "lint": "eslint .",
     "preview": "vite preview",
     "test:ci": "jest --coverage --passWithNoTests"
   },
   "dependencies": {
+    "dotenv": "^16.4.7",
     "jest-html-reporters": "^3.1.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
