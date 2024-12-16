@@ -2,59 +2,61 @@
 # ## 前提とする言語など
 # * Java
 # * Maven
-name: build Java Application
-
-env:
-  APP_NAME: order # アプリケーション名
-  APP_VERSION: 0.0.1 # アプリケーションバージョン
-  AWS_REGION: ap-northeast-1 # AWSリージョン
-  WORK_DIRECTORY: order # 作業ディレクトリ
-  DIST_DIRECTORY: target # ビルドリソースの生成されるフォルダー
-  JAVA_VERSION: 21 # 使用するJavaのバージョン
+name: CI Java Application
 
 on:
   workflow_dispatch:
   pull_request:
     branches: 
-      - 'feature/**'
-      - 'topic/**'
+      - 'develop/**'
     paths: 
       - 'order/**'
     types:
       - opened
       - synchronize
       - reopened
-      
+
 jobs:
+  # ワークフローの設定ロード
+  workflow-config:
+    uses: ./.github/workflows/_load-config.yaml
+    with:
+      profile: dev
+      config-file-directory: order
   # ビルド
   build:
-    uses: ./.github/workflows/build-java-app.yaml
+    needs: workflow-config
+    uses: ./.github/workflows/_build-java-app.yaml
     with:
-      app-name: order
-      app-version: 0.0.1
-      work-directory: order
-      dist-directory: target
-      java-version: 21
-      test-report-cache-key: test-report_order
-      build-artifacts-cache-key: artifact-dist-order
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+      java-version: ${{ needs.workflow-config.outputs.java-version}}
+      test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
       is-publish: false
   # イメージビルド
   build-image:
-    needs: build
-    uses: ./.github/workflows/build-image.yaml
+    needs: 
+      - workflow-config
+      - build
+    uses: ./.github/workflows/_build-image.yaml
     with:
-      app-name: order
-      app-version: 0.0.1
-      work-directory: order
-      dist-directory: /target
-      build-artifacts-cached-key: artifact-dist-order
-      scan-report-cache-key: image-scan-report_order
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+      build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+      scan-report-cache-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
       is-publish: false
   # テストレポートを公開
   publish-test-result:
-    needs: build-image
-    uses: ./.github/workflows/publish-report.yaml
+    needs: 
+      - workflow-config
+      - build-image
+    uses: ./.github/workflows/_publish-report.yaml
     with:
-      app-name: order
-      test-report-cached-key: test-report_order
-      scan-report-cached-key: image-scan-report_order
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}

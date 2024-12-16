@@ -1,0 +1,45 @@
+# ワークフロー設定ファイルテンプレート
+
+# 共通
+app-name: customer-service
+app-version: 0.0.1
+work-directory: customer/customer-service
+dist-directory: dist
+## aws
+aws-region: ap-northeast-1
+
+# node
+node-version: 20
+
+# プロファイル別
+dev:
+  aws-ecr-repository-name: consider-cicd
+  ecs-cluster-name: consider-cicd-ecs
+  ecs-service-name: consider-cicd-ecs-service_customer-service
+  ecs-task-name: consider-cicd-ecs-task-customer-service
+  env-variables:
+    - name: PORT
+      value: 8081
+    - name: TEST_ENV
+      value: development
+stage:
+  aws-ecr-repository-name: consider-cicd
+  ecs-cluster-name: consider-cicd-ecs
+  ecs-service-name: consider-cicd-ecs-service_customer-service
+  ecs-task-name: consider-cicd-ecs-task-customer-service
+  env-variables:
+    - name: PORT
+      value: 8081
+    - name: TEST_ENV
+      value: stage
+prod:
+  aws-ecr-repository-name: consider-cicd
+  ecs-cluster-name: consider-cicd-ecs
+  ecs-service-name: consider-cicd-ecs-service_customer-service
+  ecs-task-name: consider-cicd-ecs-task-customer-service
+  env-variables:
+    - name: PORT
+      value: 8081
+    - name: TEST_ENV
+      value: prod
+

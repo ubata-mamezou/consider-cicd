@@ -1,0 +1,60 @@
+# AWSへのデプロイ(開発環境)
+name: (reusable workflow) deploy aws (env:dev, app:backend)
+
+on:
+  workflow_call:
+    inputs:
+      app-name:
+        description: アプリケーション名
+        required: true
+        type: string
+      app-version:
+        description: アプリケーションバージョン
+        required: true
+        type: string
+      aws-region:
+        description: AWSリージョン
+        required: true
+        type: string
+      aws-ecr-repository-name:
+        description: AWS ECR名
+        required: true
+        type: string
+      ecs-cluster-name:
+        description: ECSクラスター名
+        required: true
+        type: string
+      ecs-service-name:
+        description: ECSサービス名
+        required: true
+        type: string
+      ecs-task-name:
+        description: ECSタスク名
+        required: true
+        type: string
+      env-variables:
+        description: |
+          環境変数(JSON) 
+          ■指定例
+          {"name": "PORT", "value": "8082"}, 
+          {"name": "TEST_ENV", "value": "dev"}
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  deploy-aws:
+    uses: ./.github/workflows/_deploy-aws-backend.yaml
+    secrets: 
+      aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    with:
+      app-name: ${{ inputs.app-name }}
+      app-version: ${{ inputs.app-version }}
+      aws-region: ${{ inputs.aws-region }}
+      aws-ecr-repository-name: ${{ inputs.aws-ecr-repository-name }}
+      ecs-cluster-name: ${{ inputs.ecs-cluster-name }}
+      ecs-service-name: ${{ inputs.ecs-service-name }}
+      ecs-task-name: ${{ inputs.ecs-task-name }}
+      env-variables: ${{ inputs.env-variables }}

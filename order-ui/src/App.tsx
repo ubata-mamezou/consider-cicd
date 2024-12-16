@@ -3,13 +3,21 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
+const testArg = import.meta.env.TEST_ARG;
+
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
-      <h1>ビルド検証用アプリ</h1>
-      
+      <h1>ビルド検証用アプリ:{import.meta.env.TEST_ARG}</h1>
+      <pre>
+        1:{import.meta.env.BASE_URL}<br/>
+        2:{import.meta.env.DEV}<br/>
+        3:{import.meta.env.MODE}<br/>
+        4:{import.meta.env.PROD}<br/>
+        5:{import.meta.env.SSR}<br/>
+      </pre>
       <div>
         <a href="https://vitejs.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />

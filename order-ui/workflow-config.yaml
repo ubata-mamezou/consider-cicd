@@ -1,0 +1,24 @@
+# ワークフロー設定ファイルテンプレート
+
+# 共通
+app-name: order-ui
+app-version: 0.0.1
+work-directory: order-ui
+dist-directory: dist
+## aws
+aws-region: ap-northeast-1
+
+# node
+node-version: 20
+
+# プロファイル別
+dev:
+  s3-bucket-name: consider-cicd-s3
+  distribution-id: E35MEVIJLAFNNK
+stage:
+  s3-bucket-name: consider-cicd-s3
+  distribution-id: E35MEVIJLAFNNK
+prod:
+  s3-bucket-name: consider-cicd-s3
+  distribution-id: E35MEVIJLAFNNK
+
