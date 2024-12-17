@@ -45,12 +45,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo <html><body><h1>PRにファイルを添付しよｗ</h1></body></html>" > pages/report.html
+          echo "<html><body><h1>PRにファイルを添付してみるか</h1></body></html>" > pages/report.html
       - uses: actions/upload-artifact@v4
         with:
           name: test-report_order
           path: pages
   pr-fb:
+    needs: pre-pr-fb
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
