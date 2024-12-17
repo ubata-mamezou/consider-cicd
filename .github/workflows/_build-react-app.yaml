@@ -108,7 +108,18 @@ jobs:
       - name: PR FB
         if: ${{ github.event.pull_request.number != '' }}
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body-file pages/${{ env.test-report-directory }}/index.html
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAGES_URL="https://${{ github.repository_owner }}.github.io/${{ github.repository }}"
+          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/test-report"
+          COVERAGE_URL="$TEST_REPORT_ROOT_URL/coverage/lcov-report/index.html"
+          TEST_REPORT_URL="$TEST_REPORT_ROOT_URL/rest-report/index.html"
+
+          COMMENT="テスト結果のフィードバックです。\n\n"
+          COMMENT+="ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）\n"
+          COMMENT+="カバレッジレポートのプレビューは[こちら]($COVERAGE_URL)　※ワークフローが動くと上書きされます\n"
+          COMMENT+="テスト結果レポートのプレビューは[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます\n"
+
+          gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
