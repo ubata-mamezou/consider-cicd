@@ -123,7 +123,7 @@ jobs:
       - name: PR FB
         if: ${{ github.event.pull_request.number != '' }}
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body 脆弱性スキャン結果 --body-file pages/${{ inputs.app-name }}/reports/image-scan/trivy-resource/result/index.html
+          gh pr comment ${{ github.event.pull_request.number }} --body-file pages/${{ inputs.app-name }}/reports/image-scan/trivy-resource/result/index.html
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # memo: Enterprise planの場合、下記のパラメータが必要になるらしい

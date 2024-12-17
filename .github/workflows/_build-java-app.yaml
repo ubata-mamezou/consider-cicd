@@ -109,7 +109,7 @@ jobs:
       - name: PR FB
         if: ${{ github.event.pull_request.number != '' }}
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body テスト結果 --body-file pages/${{ env.test-report-directory }}/index.html
+          gh pr comment ${{ github.event.pull_request.number }} --body-file pages/${{ env.test-report-directory }}/index.html
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
