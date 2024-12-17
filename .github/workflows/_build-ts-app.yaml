@@ -112,10 +112,10 @@ jobs:
           COVERAGE_URL="$TEST_REPORT_ROOT_URL/coverage/lcov-report/index.html"
           TEST_REPORT_URL="$TEST_REPORT_ROOT_URL/rest-report/index.html"
           
-          COMMENT="テスト結果のフィードバックです。\n\n"
-          COMMENT+="ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）\n"
-          COMMENT+="カバレッジレポートのプレビューは[こちら]($COVERAGE_URL)　※ワークフローが動くと上書きされます\n"
-          COMMENT+="テスト結果レポートのプレビューは[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます\n"
+          COMMENT="## テスト結果のフィードバックです。\n\n"
+          COMMENT+="* ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）"
+          COMMENT+="* カバレッジレポートのプレビューは[こちら]($COVERAGE_URL)　※ワークフローが動くと上書きされます"
+          COMMENT+="* テスト結果レポートのプレビューは[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます"
 
           gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT"
         env:

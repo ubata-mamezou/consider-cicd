@@ -114,9 +114,9 @@ jobs:
           TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/test-report"
           TEST_REPORT_URL="$TEST_REPORT_ROOT_URL/index.html"
           
-          COMMENT="テスト結果のフィードバックです。\n\n"
-          COMMENT+="ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）\n"
-          COMMENT+="テスト結果レポートのプレビュー環境は[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます\n"
+          COMMENT="## テスト結果のフィードバックです。  "
+          COMMENT+="* ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）"
+          COMMENT+="* テスト結果レポートのプレビュー環境は[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます"
 
           gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT"
         env:
