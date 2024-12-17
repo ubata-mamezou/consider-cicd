@@ -120,6 +120,16 @@ jobs:
         with:
           name: ${{ inputs.scan-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
+      - name: PR FB
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body 脆弱性スキャン結果 --body-file pages/${{ inputs.app-name }}/reports/image-scan/trivy-resource/result/index.html
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
+          # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GH_HOST: your-host.com 
+  
       # FIXME: 脆弱性があってもパイプラインが進んでしまっている
       # 脆弱性が見つかった場合、パイプラインを終了させる
       # - name: Check for vulnerabilities

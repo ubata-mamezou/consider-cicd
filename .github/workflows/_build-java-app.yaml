@@ -106,17 +106,15 @@ jobs:
         with:
           name: test-report_${{ inputs.app-name }}
           path: ${{ inputs.work-directory }}/pages
-      - run: |
-          echo ref_name: ${{ github.ref_name }}
-          echo no: ${{ github.event.pull_request.number }}
-          tree
-          gh pr comment ${{ github.event.pull_request.number }} --body-file pages/${{ env.test-report-directory }}/index.html
+      - name: PR FB
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body テスト結果 --body-file pages/${{ env.test-report-directory }}/index.html
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
           # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # GH_HOST: your-host.com 
-      
   
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages

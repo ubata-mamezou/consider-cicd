@@ -54,6 +54,8 @@ jobs:
     defaults:
       run:
         working-directory: ${{ inputs.work-directory }}
+    env:
+      test-report-directory: ${{ inputs.app-name }}/reports/test-report
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -81,17 +83,35 @@ jobs:
         run: npm run test:ci
       ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
-        env:
-          test-report-directory: ${{ inputs.app-name }}/reports/test-report
         run: |
           mkdir -p pages/${{ env.test-report-directory }}
           mv test-result/* pages/${{ env.test-report-directory }}
+      - name: create index
+        run: |
+          echo "
+            <html>
+              <body>
+                <ul>
+                <li><a href='coverage/lcov-report/index.html'>coverage report</a></li>
+                <li><a href='rest-report/index.html'>test report</a></li>
+                </ul>
+              </body>
+            </html>" > pages/${{ env.test-report-directory }}/index.html
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
-
+      - name: PR FB
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body テスト結果 --body-file pages/${{ env.test-report-directory }}/index.html
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
+          # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GH_HOST: your-host.com 
+  
       # ビルド
       - name: Build TS App
         run: npm run build
