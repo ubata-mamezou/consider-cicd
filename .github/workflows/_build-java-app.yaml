@@ -52,6 +52,8 @@ jobs:
       run:
           #Tips: defaults > run > working-directoryの設定はActionへの引数には適用されません
           working-directory: ${{ inputs.work-directory }}
+    env:
+      test-report-directory: ${{ inputs.app-name }}/reports/test-report
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -95,8 +97,6 @@ jobs:
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}/${{ inputs.app-name }}-${{ inputs.app-version }}.jar
       ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
-        env:
-          test-report-directory: ${{ inputs.app-name }}/reports/test-report
         run: |
           mkdir -p pages/${{ env.test-report-directory }}
           mv ${{ inputs.dist-directory }}/reports/* pages/${{ env.test-report-directory }}
@@ -106,7 +106,17 @@ jobs:
         with:
           name: test-report_${{ inputs.app-name }}
           path: ${{ inputs.work-directory }}/pages
-
+      - run: |
+          echo ref_name: ${{ github.ref_name }}
+          echo no: ${{ github.event.pull_request.number }}
+          gh pr comment ${{ github.event.pull_request.number }} --body --body $(cat pages/${{ env.test-report-directory }}/index.html)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
+          # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GH_HOST: your-host.com 
+      
+  
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         if: inputs.is-publish

@@ -69,5 +69,24 @@ jobs:
           # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
           # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # GH_HOST: your-host.com 
+  # ワークフロー設定のロード
+  workflow-config:
+    uses: ./.github/workflows/_load-config.yaml
+    with:
+      profile: dev
+      config-file-directory: order
+  # ビルド
+  build:
+    needs: workflow-config
+    uses: ./.github/workflows/_build-java-app.yaml
+    with:
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      app-version: ${{ needs.workflow-config.outputs.app-version}}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+      java-version: ${{ needs.workflow-config.outputs.java-version}}
+      test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+      is-publish: false
       
   
