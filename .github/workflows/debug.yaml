@@ -63,8 +63,7 @@ jobs:
       - run: |
           echo ref_name: ${{ github.ref_name }}
           echo no: ${{ github.event.pull_request.number }}
-          gh pr comment ${{ github.event.pull_request.number }} --body "PRへテストコメント"
-          gh pr comment ${{ github.event.pull_request.number }} --body pages/report.html
+          gh pr comment ${{ github.event.pull_request.number }} --body "PRへテストコメント" | gh pr comment ${{ github.event.pull_request.number }} --body $(cat pages/report.html)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
