@@ -40,3 +40,14 @@ jobs:
           echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c 'map(. | with_entries(.value |= tostring))')"
           echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '.')"
           echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c 'map(. | map(tostring))')"
+  pr-fb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: gh pr comment ${{ github.ref_name }} --body "PRへテストコメント"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
+          # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GH_HOST: your-host.com 
+  

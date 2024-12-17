@@ -11,14 +11,6 @@ on:
       - 'develop/**'
     paths: 
       - 'order/**'
-  #検証用の一時的なトリガー
-  pull_request:
-    branches: 
-      - 'develop/**'
-      - 'main'
-    types: 
-      - opened
-      - synchronize
 
 jobs:
   # ワークフロー設定のロード
@@ -27,16 +19,6 @@ jobs:
     with:
       profile: dev
       config-file-directory: order
-  pr-fb:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: gh pr comment ${{ github.ref_name }} --body "PRへテストコメント"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
-          # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # GH_HOST: your-host.com 
   # ビルド
   build:
     needs: workflow-config
