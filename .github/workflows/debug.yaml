@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - 'develop/**'
+  pull_request:
     
 
 env:
@@ -40,14 +41,31 @@ jobs:
           echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c 'map(. | with_entries(.value |= tostring))')"
           echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '.')"
           echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c 'map(. | map(tostring))')"
+  pre-pr-fb:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo <html><body><h1>PRにファイルを添付しよｗ</h1></body></html>" > pages/report.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-report_order
+          path: pages
   pr-fb:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: gh pr comment ${{ github.ref_name }} --body "PRへテストコメント"
+      - uses: actions/download-artifact@v4
+        with:
+          name: test-report_order
+          path: pages
+      - run: |
+          echo ref_name: ${{ github.ref_name }}
+          echo no: ${{ github.event.pull_request.number }}
+          gh pr comment ${{ github.event.pull_request.number }} --body "PRへテストコメント" | gh pr comment ${{ github.event.pull_request.number }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
           # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # GH_HOST: your-host.com 
+      
   

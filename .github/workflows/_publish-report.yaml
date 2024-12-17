@@ -46,7 +46,6 @@ jobs:
       with:
         name: ${{ inputs.scan-report-cached-key }}
         path: pages
-    - run: tree #debug
 
     # レポート公開(公開先：GitHub Pages)
     - name: upload report
