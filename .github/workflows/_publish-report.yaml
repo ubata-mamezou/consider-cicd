@@ -1,8 +1,9 @@
 # # レポート公開
+# ## 前提とする言語、環境など
 # * レポート公開先：GitHub Pages
 # ## 前提条件
 # * GitHub Pagesが利用可能になっていること
-name: (reusable workflow) Publish Reports
+name: Publish Reports
 
 on:
   workflow_call:

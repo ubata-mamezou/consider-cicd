@@ -1,5 +1,5 @@
 # # Javaアプリケーションのビルド
-# ## 前提とする言語など
+# ## 前提とする言語、環境など
 # * Java
 # * Maven
 name: CI Java Application
@@ -17,7 +17,7 @@ on:
       - reopened
 
 jobs:
-  # ワークフローの設定ロード
+  # ワークフロー設定のロード
   workflow-config:
     uses: ./.github/workflows/_load-config.yaml
     with:

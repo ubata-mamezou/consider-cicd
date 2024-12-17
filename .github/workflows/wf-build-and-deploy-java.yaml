@@ -1,6 +1,6 @@
 # # Javaアプリケーションのビルド
-# ## 前提とする言語など
-# * Java21
+# ## 前提とする言語、環境など
+# * Java
 # * Maven
 name: CI/CD Java Application
 
@@ -13,7 +13,7 @@ on:
       - 'order/**'
 
 jobs:
-  # ワークフローの設定ロード
+  # ワークフロー設定のロード
   workflow-config:
     uses: ./.github/workflows/_load-config.yaml
     with:

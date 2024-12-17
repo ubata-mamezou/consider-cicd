@@ -1,9 +1,13 @@
 # # Reactアプリケーションのビルド
-# ## 前提とする言語など
-# * React
-# * TypeScript
+# ## 前提とする言語、環境など
 # * Node.js
-# * Vite
+# * (React)
+# * (TypeScript)
+# * lint: esLint
+# * test: jest
+# * build: vite
+# * ※「xxx: yyy」：yyyをベースとして実装していますが、xxxコマンドで実行できればよいので他のモノでも代替可。
+# * ※(yyy)：yyyをベースとして実装していますが、当ワークフローはこれに特化した処理は含んでいないため、他のモノでも代替可。
 name: CI/CD React Application
 
 on:
@@ -15,7 +19,7 @@ on:
       - 'order-ui/**'
 
 jobs:
-  # ワークフローの設定ロード
+  # ワークフロー設定のロード
   workflow-config:
     uses: ./.github/workflows/_load-config.yaml
     with:

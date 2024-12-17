@@ -1,13 +1,16 @@
 # # React+TypeScriptアプリケーションのビルド
-# ## 前提とする言語など
-# * React
-# * TypeScript
+# ## 前提とする言語、環境など
 # * Node.js
-# * Vite
-# * jest
+# * (React)
+# * (TypeScript)
+# * lint: esLint
+# * test: jest
+# * build: vite
+# * ※「xxx: yyy」：yyyをベースとして実装していますが、xxxコマンドで実行できればよいので他のモノでも代替可。
+# * ※(yyy)：yyyをベースとして実装していますが、当ワークフローはこれに特化した処理は含んでいないため、他のモノでも代替可。
 # ## 備考
-# * 初稿時点では、処理内容はTypeScript Applicationと同じが、UI特有の処理(ヴィジュアルテストなど)が追加される可能性を考慮して、別ファイルで作成。
-name: (reusable workflow) Build React Application
+# * 初稿時点では、処理内容はTypeScript Applicationと同じですが、UI特有の処理(ヴィジュアルテストなど)が追加される可能性を考慮して、別ファイルで作成。
+name: Build React Application
 
 on:
   workflow_call:
@@ -70,13 +73,15 @@ jobs:
         run: |
           npm install
           npm install --save-dev jest-html-reporters
+
       # 静的解析（Lint）
       - name: Run Lint
         run: npm run lint
+
       # テスト
       - name: Run Unit Tests
         run: npm run test:ci
-      # テストレポートのアップロード（レポート公開向けの一時保存）
+      ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
         env:
           test-report-directory: ${{ inputs.app-name }}/reports/test-report
@@ -88,15 +93,17 @@ jobs:
         with:
           name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
-      # アーティファクト生成
+
+      # ビルド
       - name: Build App
         run: npm run build
-      # アーティファクトのアップロード（イメージビルド向けの一時保存）
+      ## アーティファクトのアップロード（イメージビルド向けの一時保存）
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.build-artifacts-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
+
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         if: inputs.is-publish
@@ -105,9 +112,9 @@ jobs:
           npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
           npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
           npm publish || echo "Publish failed, skipping"
-        ## 同一バージョンを公開するとエラーになってパイプラインがfailしてしまうので、エラーが発生しても成功扱いにするように設定
-        continue-on-error: true
-      # アーティファクト公開コールバック
+        continue-on-error: true #リポジトリがimmutableの場合、同一バージョンのpushはできないため、エラー無視
+      ## アーティファクト公開コールバック
+      ## * 前ステップがエラーだった場合、エラーが出ている旨をコンソールに表示
       - name: callback
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。

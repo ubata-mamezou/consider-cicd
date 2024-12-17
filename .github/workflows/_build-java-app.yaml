@@ -1,8 +1,11 @@
 # # Javaアプリケーションのビルド
-# ## 前提とする言語など
+# ## 前提とする言語、環境など
 # * Java
 # * Maven
-name: (reusable workflow) Build Java Application
+# ## 未対応事項
+# * 静的解析
+# * カバレッジ計測
+name: Build Java Application
 
 on:
   workflow_call:
@@ -80,24 +83,17 @@ jobs:
                     </server>
                   </servers>
                 </settings>" > ~/.m2/settings.xml
+
       # ビルド、テスト、パッケージ（Maven）
       - name: Build with Maven
         run: mvn clean install surefire-report:report-only
-      # アーティファクトのアップロード（イメージビルド向けの一時保存）
+      ## アーティファクトのアップロード（イメージビルド向けの一時保存）
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.build-artifacts-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}/${{ inputs.app-name }}-${{ inputs.app-version }}.jar
-      # # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
-      # - name: Cache build artifacts
-      #   uses: actions/cache@v4
-      #   # uses: actions/cache/save@v4
-      #   with:
-      #     path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
-      #     key: ${{ inputs.build-artifacts-cache-key }}
-      #     fail-on-cache-miss: true
-      # テストレポートのアップロード（レポート公開向けの一時保存）
+      ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
         env:
           test-report-directory: ${{ inputs.app-name }}/reports/test-report
@@ -110,6 +106,7 @@ jobs:
         with:
           name: test-report_${{ inputs.app-name }}
           path: ${{ inputs.work-directory }}/pages
+
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         if: inputs.is-publish
@@ -117,8 +114,9 @@ jobs:
         run: mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true #同一バージョンのpushエラーが発生するため、エラー無視
-      # アーティファクト公開コールバック
+        continue-on-error: true #リポジトリがimmutableの場合、同一バージョンのpushはできないため、エラー無視
+      ## アーティファクト公開コールバック
+      ## * 前ステップがエラーだった場合、エラーが出ている旨をコンソールに表示
       - name: callback
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
