@@ -26,6 +26,9 @@ jobs:
   pr-feedback:
     runs-on: ubuntu-latest
     steps:
+    ## コードをチェックアウト
+    - name: checkout source
+      uses: actions/checkout@v4
     # PRコメントダウンロード（事前にアップロードしていたファイルを取得）
     - name: download pr-comment
       uses: actions/download-artifact@v4
