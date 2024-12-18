@@ -116,15 +116,11 @@ jobs:
 
           TEST_REPORT_URL="$TEST_REPORT_ROOT_URL/index.html"
           
-          COMMENT="## テスト結果のフィードバックです。  "
-          COMMENT+="* ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  "
-          COMMENT+="* テスト結果レポートのプレビュー環境は[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます  "
+          COMMENT="## テスト結果のフィードバックです。  <br/>"
+          COMMENT+="* ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  <br/>"
+          COMMENT+="* テスト結果レポートのプレビュー環境は[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます  <br/>"
 
-          gh pr comment ${{ github.event.pull_request.number }} --body <<EOF
-            ## テスト結果のフィードバックです。
-            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）
-            * テスト結果レポートのプレビュー環境は[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます
-          EOF
+          gh pr comment ${{ github.event.pull_request.number }} --edit-last --body "$COMMENT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
