@@ -31,7 +31,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.pr-comment-cached-key }}
-        path: ${{ inputs.pr-comment-folder-name }}
+        path: pr
 
     # debug
     - run: tree
@@ -40,7 +40,7 @@ jobs:
     - name: PR comment
       if: ${{ github.event.pull_request.number != '' }}
       run: |
-        gh pr comment ${{ github.event.pull_request.number }} --body-file ${{ inputs.pr-comment-file-name }}
+        gh pr comment ${{ github.event.pull_request.number }} --body-file ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
