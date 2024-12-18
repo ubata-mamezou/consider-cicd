@@ -100,12 +100,12 @@ jobs:
       ## PRコメントダウンロード
       ## * PRコメントがある場合、加筆するためダウンロード。
       ## * ファイルが存在しなくてもエラーにしない
-      - run: mkdir pr/${{ inputs.pr-comment-folder-name }} -p
+      - run: mkdir ${{ inputs.pr-comment-folder-name }} -p
       - name: Download pr-comment
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
-          path: pr
+          path: ${{ inputs.pr-comment-folder-name }}
         continue-on-error: true
 
       # ビルド、テスト、パッケージ（Maven）
