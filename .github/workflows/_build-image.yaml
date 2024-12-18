@@ -131,7 +131,7 @@ jobs:
           echo イメージスキャンが異常終了しているため、脆弱性結果はありません。
           echo "<h1>イメージスキャンが異常終了しているため、脆弱性結果はありません</h1>" > trivy-resource/result/index.html
       - name: callback to PR
-        if: steps.execute-image-scan.outcome == 'failure' && ${{ github.event.pull_request.number != '' }}
+        if: ${{ steps.execute-image-scan.outcome == 'failure' && github.event.pull_request.number != '' }}
         run: |
           echo "
             ## 脆弱性スキャンに失敗しました  

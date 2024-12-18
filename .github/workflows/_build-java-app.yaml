@@ -157,7 +157,7 @@ jobs:
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
       - name: callback to PR
-        if: steps.publish-artifact-to-packages.outcome == 'failure' && ${{ github.event.pull_request.number != '' }}
+        if: ${{ steps.publish-artifact-to-packages.outcome == 'failure' && github.event.pull_request.number != '' }}
         run: |
           echo "
             ## パッケージプッシュのフィードバック  
