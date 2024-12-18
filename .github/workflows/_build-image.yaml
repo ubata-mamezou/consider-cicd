@@ -69,6 +69,7 @@ jobs:
         uses: actions/checkout@v4
       ## 対象のアーティファクトをダウンロード
       ## note: キャッシュ/リストアだと受け渡しの挙動が不安定だったので、アップロード/ダウンロードで実現
+      - run: mkdir ${{ inputs.pr-comment-folder-name }}
       - name: download artifact
         uses: actions/download-artifact@v4
         with:
