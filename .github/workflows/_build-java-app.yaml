@@ -171,4 +171,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
-          path: pr
+          path: ${{ inputs.work-directory }}/pr
