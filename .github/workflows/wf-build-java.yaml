@@ -28,13 +28,16 @@ jobs:
     needs: workflow-config
     uses: ./.github/workflows/_build-java-app.yaml
     with:
-      app-name: ${{ needs.workflow-config.outputs.app-name}}
-      app-version: ${{ needs.workflow-config.outputs.app-version}}
-      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
-      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
-      java-version: ${{ needs.workflow-config.outputs.java-version}}
-      test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
-      build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+      app-name: ${{ needs.workflow-config.outputs.app-name }}
+      app-version: ${{ needs.workflow-config.outputs.app-version }}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory }}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory }}
+      java-version: ${{ needs.workflow-config.outputs.java-version }}
+      test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key }}
+      build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key }}
+      pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
+      pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
       is-publish: false
   # イメージビルド
   build-image:
@@ -43,12 +46,15 @@ jobs:
       - build
     uses: ./.github/workflows/_build-image.yaml
     with:
-      app-name: ${{ needs.workflow-config.outputs.app-name}}
-      app-version: ${{ needs.workflow-config.outputs.app-version}}
-      work-directory: ${{ needs.workflow-config.outputs.work-directory}}
-      dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
-      build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
-      scan-report-cache-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
+      app-name: ${{ needs.workflow-config.outputs.app-name }}
+      app-version: ${{ needs.workflow-config.outputs.app-version }}
+      work-directory: ${{ needs.workflow-config.outputs.work-directory }}
+      dist-directory: ${{ needs.workflow-config.outputs.dist-directory }}
+      build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key }}
+      scan-report-cache-key: ${{ needs.workflow-config.outputs.scan-report-cache-key }}
+      pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
+      pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
       is-publish: false
   # テストレポートを公開
   publish-test-result:
@@ -57,6 +63,17 @@ jobs:
       - build-image
     uses: ./.github/workflows/_publish-report.yaml
     with:
-      app-name: ${{ needs.workflow-config.outputs.app-name}}
-      test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
-      scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
+      app-name: ${{ needs.workflow-config.outputs.app-name }}
+      test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key }}
+      scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key }}
+  # PRフィードバック
+  pr-feedback:
+    needs: 
+      - workflow-config
+      - build-image
+    uses: ./.github/workflows/_pr-fb.yaml
+    with:
+      pr-comment-cached-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
+      pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
+    

@@ -37,6 +37,18 @@ on:
         description: 脆弱性スキャンレポートのキャッシュキー名
         required: true
         type: string
+      pr-comment-cache-key:
+        description: PRコメントファイルのキャッシュキー名
+        required: true
+        type: string
+      pr-comment-folder-name:
+        description: PRへのフィードバックコメントファイルの格納先フォルダー名
+        required: true
+        type: string
+      pr-comment-file-name:
+        description: PRへのフィードバックコメントファイル名
+        required: true
+        type: string
       is-publish:
         description: イメージを公開する(true:公開、false:公開しない)
         required: false
@@ -62,6 +74,16 @@ jobs:
         with:
           name: ${{ inputs.build-artifacts-cached-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
+      ## PRコメントダウンロード
+      ## * PRコメントがある場合、加筆するためダウンロード。
+      ## * ファイルが存在しなくてもエラーにしない
+      - run: mkdir pr/${{ inputs.pr-comment-folder-name }} -p
+      - name: Download pr-comment
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: pr
+        continue-on-error: true
 
       # イメージビルド
       - name: Build Docker image
@@ -102,14 +124,21 @@ jobs:
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true #rete limitによるエラーが頻発するので暫定的にエラー無視
       ## 脆弱性スキャンコールバック
-      ## * 前ステップがエラーだった場合、脆弱性スキャンができてない旨をレポートを作成
       - name: callback
         if: steps.execute-image-scan.outcome == 'failure'
         run: |
           echo 時間帯によってTrivyDBのダウンロードに失敗するため、エラーを抑止しています。
           echo イメージスキャンが異常終了しているため、脆弱性結果はありません。
           echo "<h1>イメージスキャンが異常終了しているため、脆弱性結果はありません</h1>" > trivy-resource/result/index.html
-
+      - name: callback to PR
+        if: ${{ steps.execute-image-scan.outcome == 'failure' && github.event.pull_request.number != '' }}
+        run: |
+          echo "
+            ## 脆弱性スキャンに失敗しました  
+            * 時間帯によってTrivyDBのダウンロードに失敗するため、エラーを抑止しています。
+            * イメージスキャンが異常終了しているため、脆弱性結果はありません。
+            " >> pr/${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+  
       # スキャンレポートのアップロード（レポート公開向けの一時保存）
       - name: move scan report
         run: |
@@ -123,12 +152,18 @@ jobs:
       - name: PR FB
         if: ${{ github.event.pull_request.number != '' }}
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body-file pages/${{ inputs.app-name }}/reports/image-scan/trivy-resource/result/index.html
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
-          # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # GH_HOST: your-host.com 
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
+
+          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/image-scan"
+          SCAN_REPORT_URL="$TEST_REPORT_ROOT_URL/index.html"
+          
+          echo "
+            ## 脆弱性テスト結果のフィードバック
+            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）
+            * スキャン結果レポートのプレビューは[こちら]($SCAN_REPORT_URL)　※ワークフローが動くと上書きされます
+            " >> pr/${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
   
       # FIXME: 脆弱性があってもパイプラインが進んでしまっている
       # 脆弱性が見つかった場合、パイプラインを終了させる
@@ -151,3 +186,10 @@ jobs:
       # クリーンアップ
       - name: Remove Docker images
         run: docker rmi ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
+
+      # PRコメントアップロード
+      - name: Upload pr-comment
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}

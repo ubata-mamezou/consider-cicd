@@ -9,6 +9,7 @@
 # * 取得可能な値
 #   * 当ワークフローのoutputs参照。
 #   * (ｘｘから生成)と補記しているものは、特定の設定値を使って当ワークフローで生成した値を返す値になります。
+#   * (定数)と補記しているものは、固定値
 name: Load Workflow Config
 
 on: 
@@ -58,6 +59,17 @@ on:
           脆弱性スキャンレポートのキャッシュキー名
           (アプリケーション名から生成)
         value: image-scan-report_${{ jobs.config.outputs.app-name }}
+      pr-comment-cache-key:
+        description: |
+          PRコメントファイルのキャッシュキー名
+          (アプリケーション名から生成)
+        value: pr-comment_${{ jobs.config.outputs.app-name }}
+      pr-comment-folder-name:
+        description: PRへのフィードバックコメントファイルの格納先フォルダー名(定数)
+        value: pr-fb
+      pr-comment-file-name:
+        description: PRへのフィードバックコメントファイル名(定数)
+        value: pr-comment.md
       # aws
       aws-region:
         description: AWSリージョン
