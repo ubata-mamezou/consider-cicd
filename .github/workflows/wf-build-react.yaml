@@ -52,3 +52,11 @@ jobs:
     with:
       app-name: order-ui
       test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+  # PRフィードバック
+  pr-feedback:
+    needs: 
+      - workflow-config
+      - build
+    uses: ./.github/workflows/_pr-fb.yaml
+    with:
+      pr-comment-cached-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}

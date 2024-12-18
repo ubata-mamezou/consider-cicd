@@ -118,10 +118,11 @@ jobs:
           TEST_REPORT_URL="$TEST_REPORT_ROOT_URL/rest-report/index.html"
 
           echo "
-          ## テスト結果のフィードバック
-          * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）
-          * カバレッジレポートのプレビューは[こちら]($COVERAGE_URL)　※ワークフローが動くと上書きされます
-          * テスト結果レポートのプレビューは[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます
+            ## テスト結果のフィードバック
+            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）
+            * カバレッジレポートのプレビューは[こちら]($COVERAGE_URL)　※ワークフローが動くと上書きされます
+            * テスト結果レポートのプレビューは[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます
+            " >> pr-comment.md
   
       # ビルド
       - name: Build App
