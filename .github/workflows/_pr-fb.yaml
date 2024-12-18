@@ -31,7 +31,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.pr-comment-cached-key }}
-        path: pr
+        path: ${{ inputs.pr-comment-folder-name }}
 
     # debug
     - run: tree

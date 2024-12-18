@@ -64,12 +64,6 @@ on:
           PRコメントファイルのキャッシュキー名
           (アプリケーション名から生成)
         value: pr-comment_${{ jobs.config.outputs.app-name }}
-      pr-comment-root-folder-name:
-        description: |
-          PRへのフィードバックコメントファイルの格納先ルートフォルダー名(定数)
-          アップロードするには、2階層以上のディレクトリ構成が必要になるため用意。
-          ワークフロー中では「pr/pr-fb/pr-comment.md」でファイルを扱う。
-        value: pr
       pr-comment-folder-name:
         description: PRへのフィードバックコメントファイルの格納先フォルダー名(定数)
         value: pr-fb
