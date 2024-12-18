@@ -162,7 +162,7 @@ jobs:
           echo "
             ## パッケージプッシュのフィードバック  
             * 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
-            " >> pr/${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
 
       - run: tree
 
