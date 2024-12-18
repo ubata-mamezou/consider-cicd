@@ -164,6 +164,8 @@ jobs:
             * 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
 
+      - run: tree
+
       # PRコメントアップロード
       - name: Upload pr-comment
         uses: actions/upload-artifact@v4
