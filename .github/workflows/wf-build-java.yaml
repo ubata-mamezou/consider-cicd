@@ -74,5 +74,6 @@ jobs:
     uses: ./.github/workflows/_pr-fb.yaml
     with:
       pr-comment-cached-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
-      
+      pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
+      pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
     
