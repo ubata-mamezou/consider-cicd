@@ -2,9 +2,10 @@ name: debug wf
 
 on:
   workflow_dispatch: #手動実行
-  push:
-    branches:
-      - 'develop/**'
+  # push:
+  #   branches:
+  #     - 'develop/**'
+  pull_request:
     
 
 env:
@@ -40,3 +41,52 @@ jobs:
           echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c 'map(. | with_entries(.value |= tostring))')"
           echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c '.')"
           echo "env-variables=$(yq -o=json '.${{ env.profile }}.env-variables' ${{ env.config-file-path }} | jq -c 'map(. | map(tostring))')"
+  # pre-pr-fb:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - run: |
+  #         mkdir pages
+  #         echo "<html><body><h1>PRにファイルを添付してみるか</h1></body></html>" > pages/report.html
+  #     - uses: actions/upload-artifact@v4
+  #       with:
+  #         name: test-report_order
+  #         path: pages
+  # pr-fb:
+  #   needs: pre-pr-fb
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: test-report_order
+  #         path: pages
+  #     - run: |
+  #         echo ref_name: ${{ github.ref_name }}
+  #         echo no: ${{ github.event.pull_request.number }}
+  #         gh pr comment ${{ github.event.pull_request.number }} --body "PRへテストコメント" | gh pr comment ${{ github.event.pull_request.number }} --body $(cat pages/report.html)
+  #       env:
+  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
+  #         # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         # GH_HOST: your-host.com 
+  # # ワークフロー設定のロード
+  # workflow-config:
+  #   uses: ./.github/workflows/_load-config.yaml
+  #   with:
+  #     profile: dev
+  #     config-file-directory: order
+  # # ビルド
+  # build:
+  #   needs: workflow-config
+  #   uses: ./.github/workflows/_build-java-app.yaml
+  #   with:
+  #     app-name: ${{ needs.workflow-config.outputs.app-name}}
+  #     app-version: ${{ needs.workflow-config.outputs.app-version}}
+  #     work-directory: ${{ needs.workflow-config.outputs.work-directory}}
+  #     dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
+  #     java-version: ${{ needs.workflow-config.outputs.java-version}}
+  #     test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+  #     build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+  #     is-publish: false
+      
+  

@@ -1,5 +1,7 @@
-# order-serviceを本番環境にデプロイ
-name: Deploy to AWS(order-service:production)
+# デプロイ
+# * デプロイ先：本番環境
+# * デプロイ対象：order-service
+name: Deploy to AWS(env:production, app:order-service)
 
 on:
   workflow_dispatch: 
@@ -10,13 +12,13 @@ on:
       - 'order/**'
 
 jobs:
-  # ワークフローの設定ロード
+  # ワークフロー設定のロード
   workflow-config:
     uses: ./.github/workflows/_load-config.yaml
     with:
       profile: prod
       config-file-directory: order
-  # デプロイ(デプロイ先：AWS)
+  # デプロイ
   deploy:
     needs: workflow-config
     uses: ./.github/workflows/_deploy-prod-aws-backend.yaml

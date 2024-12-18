@@ -1,8 +1,11 @@
 # # Javaアプリケーションのビルド
-# ## 前提とする言語など
+# ## 前提とする言語、環境など
 # * Java
 # * Maven
-name: (reusable workflow) Build Java Application
+# ## 未対応事項
+# * 静的解析
+# * カバレッジ計測
+name: Build Java Application
 
 on:
   workflow_call:
@@ -36,6 +39,18 @@ on:
         description: ビルドしたアーティファクトのキャッシュキー名
         required: true
         type: string
+      pr-comment-cache-key:
+        description: PRコメントファイルのキャッシュキー名
+        required: true
+        type: string
+      pr-comment-folder-name:
+        description: PRへのフィードバックコメントファイルの格納先フォルダー名
+        required: true
+        type: string
+      pr-comment-file-name:
+        description: PRへのフィードバックコメントファイル名
+        required: true
+        type: string
       is-publish:
         description: Jar,イメージの公開有無(true:公開する、false:公開しない)
         required: false
@@ -49,6 +64,8 @@ jobs:
       run:
           #Tips: defaults > run > working-directoryの設定はActionへの引数には適用されません
           working-directory: ${{ inputs.work-directory }}
+    env:
+      test-report-directory: ${{ inputs.app-name }}/reports/test-report
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -80,27 +97,28 @@ jobs:
                     </server>
                   </servers>
                 </settings>" > ~/.m2/settings.xml
+      ## PRコメントダウンロード
+      ## * PRコメントがある場合、加筆するためダウンロード。
+      ## * ファイルが存在しなくてもエラーにしない
+      - run: mkdir ${{ inputs.pr-comment-folder-name }} -p
+      - name: Download pr-comment
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: ${{ inputs.pr-comment-folder-name }}
+        continue-on-error: true
+
       # ビルド、テスト、パッケージ（Maven）
       - name: Build with Maven
         run: mvn clean install surefire-report:report-only
-      # アーティファクトのアップロード（イメージビルド向けの一時保存）
+      ## アーティファクトのアップロード（イメージビルド向けの一時保存）
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.build-artifacts-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}/${{ inputs.app-name }}-${{ inputs.app-version }}.jar
-      # # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
-      # - name: Cache build artifacts
-      #   uses: actions/cache@v4
-      #   # uses: actions/cache/save@v4
-      #   with:
-      #     path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
-      #     key: ${{ inputs.build-artifacts-cache-key }}
-      #     fail-on-cache-miss: true
-      # テストレポートのアップロード（レポート公開向けの一時保存）
+      ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
-        env:
-          test-report-directory: ${{ inputs.app-name }}/reports/test-report
         run: |
           mkdir -p pages/${{ env.test-report-directory }}
           mv ${{ inputs.dist-directory }}/reports/* pages/${{ env.test-report-directory }}
@@ -110,6 +128,22 @@ jobs:
         with:
           name: test-report_${{ inputs.app-name }}
           path: ${{ inputs.work-directory }}/pages
+      - name: PR comment
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
+          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/test-report"
+
+          TEST_REPORT_URL="$TEST_REPORT_ROOT_URL/index.html"
+          
+          echo "
+            ## テスト結果のフィードバック  
+            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
+            * テスト結果レポートのプレビュー環境は[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます  
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+  
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         if: inputs.is-publish
@@ -117,8 +151,24 @@ jobs:
         run: mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true #同一バージョンのpushエラーが発生するため、エラー無視
-      # アーティファクト公開コールバック
-      - name: callback
+        continue-on-error: true #リポジトリがimmutableの場合、同一バージョンのpushはできないため、エラー無視
+      ## アーティファクト公開コールバック
+      - name: callback to console
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
+      - name: callback to PR
+        if: ${{ steps.publish-artifact-to-packages.outcome == 'failure' && github.event.pull_request.number != '' }}
+        run: |
+          echo "
+            ## パッケージプッシュのフィードバック  
+            * 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
+            " >> pr/${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+
+      - run: tree
+
+      # PRコメントアップロード
+      - name: Upload pr-comment
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}

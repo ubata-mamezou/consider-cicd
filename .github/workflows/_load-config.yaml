@@ -1,9 +1,15 @@
-# ワークフローの設定読み込み
-# # 事前条件
+# # 設定ファイルの読み込み
+# GitHub Actionsには設定ファイルの読み込み機能がないため、独自実装した設定ファイル(YAML)の読み込み機能。
+# ワークフローの引数を外部化し、特定のキーを読み込むだけなので、汎用的な機能ではありません。
+# ## 事前条件
 # * 「workflow-config.yaml」というファイル名で設定ファイルを作成してください。
-# # ロード対象のキー項目
-# * outputsを参照してください。
-# * (ｘｘから生成)と説明しているものはロード対象外です。
+# ## その他
+# * 設定ファイルの書き方
+#   * テンプレート(`.github/workflows/template/workflow-config.yaml`)で書き方を説明しているので、そちらを参照してください。
+# * 取得可能な値
+#   * 当ワークフローのoutputs参照。
+#   * (ｘｘから生成)と補記しているものは、特定の設定値を使って当ワークフローで生成した値を返す値になります。
+#   * (定数)と補記しているものは、固定値
 name: Load Workflow Config
 
 on: 
@@ -53,6 +59,17 @@ on:
           脆弱性スキャンレポートのキャッシュキー名
           (アプリケーション名から生成)
         value: image-scan-report_${{ jobs.config.outputs.app-name }}
+      pr-comment-cache-key:
+        description: |
+          PRコメントファイルのキャッシュキー名
+          (アプリケーション名から生成)
+        value: pr-comment_${{ jobs.config.outputs.app-name }}
+      pr-comment-folder-name:
+        description: PRへのフィードバックコメントファイルの格納先フォルダー名(定数)
+        value: pr-fb
+      pr-comment-file-name:
+        description: PRへのフィードバックコメントファイル名(定数)
+        value: pr-comment.md
       # aws
       aws-region:
         description: AWSリージョン
@@ -79,11 +96,7 @@ on:
         description: ECSタスク定義名
         value: ${{ jobs.config.outputs.ecs-task-name }}
       env-variables: 
-        description: |
-          環境変数
-          指定例：
-            {"name": "PORT", "value": "8081"}, 
-            {"name": "TEST_ENV", "value": "dev"}
+        description: 環境変数(JSON)
         value: ${{ jobs.config.outputs.env-variables }}
       s3-bucket-name:
         description: S3バケット名

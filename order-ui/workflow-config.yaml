@@ -21,4 +21,3 @@ stage:
 prod:
   s3-bucket-name: consider-cicd-s3
   distribution-id: E35MEVIJLAFNNK
-

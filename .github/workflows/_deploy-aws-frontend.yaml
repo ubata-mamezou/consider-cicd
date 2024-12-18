@@ -1,17 +1,18 @@
 # # AWSへのデプロイ(SSG)
+# ## 前提とする言語、環境など
 # * 静的サイト：S3+CloudFront
 # ## 前提条件
-# * ビルドが完了し、アーティファクトをアップロードしていること
+# * デプロイ対象バージョンのアーティファクトをアップロードしていること
 # * デプロイ先に必要な環境が構築されていること
 #   * VPC、サブネットなどのネットワーク設定
 #   * IAM：デプロイに必要なポリシーが設定されているユーザーが設定されていること
 #   * S3、CloudFront：静的サイト
 # * GitHub SecretsにIAMのCredential情報を設定済みであること
-#   * 必要なポリシー
+#   * IAMに必要なポリシー
 #     * AmazonS3FullAccess：S3の操作に使用
 #     * CloudFrontFullAccess：CloudFrontの操作に使用
-#   * 設定が必要な値：secrets参照
-name: (reusable workflow) deploy aws for frontend
+#   * 設定値：当ワークフローのsecrets参照
+name: deploy aws for frontend
 
 on:
   workflow_call:
@@ -66,10 +67,12 @@ jobs:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: ${{ inputs.aws-region }}
-      # デプロイ(S3)
+
+      # デプロイ
+      ## コンテンツの同期、不要リソースの削除(S3)
       - name: Deploy to S3
         run: aws s3 sync ${{ inputs.work-directory }}/${{ inputs.dist-directory }} s3://${{ inputs.s3-bucket-name }} --delete
-      # キャッシュ削除(CloudFront)
+      ## キャッシュ削除(CloudFront)
       - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation \
