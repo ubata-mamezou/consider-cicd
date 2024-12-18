@@ -43,7 +43,8 @@ jobs:
     - name: PR comment
       if: ${{ github.event.pull_request.number != '' }}
       run: |
-        gh pr comment ${{ github.event.pull_request.number }} --edit-last --body-file ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+        # edit-last：1つもコメントがない場合、「no comments found for current user」とエラーを吐いて終了してしまうので、その対処
+        gh pr comment ${{ github.event.pull_request.number }} --body-file ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }} --edit-last || gh pr comment ${{ github.event.pull_request.number }} --edit-last --body-file ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
