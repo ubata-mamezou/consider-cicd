@@ -90,11 +90,14 @@ jobs:
                   </servers>
                 </settings>" > ~/.m2/settings.xml
       ## PRコメントダウンロード
-      - name: Upload pr-comment
+      ## * PRコメントがある場合、加筆するためダウンロード。
+      ## * ファイルが存在しなくてもエラーにしない
+      - name: Download pr-comment
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
           path: pr-comment.md
+        continue-on-error: true
 
       # ビルド、テスト、パッケージ（Maven）
       - name: Build with Maven

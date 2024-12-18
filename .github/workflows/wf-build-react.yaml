@@ -41,6 +41,7 @@ jobs:
       node-version: ${{ needs.workflow-config.outputs.node-version}}
       test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
       build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+      pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key}}
       is-publish: false
   # テストレポートを公開
   publish-test-result:
