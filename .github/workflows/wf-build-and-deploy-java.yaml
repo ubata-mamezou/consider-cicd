@@ -32,6 +32,8 @@ jobs:
       test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
       build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
       pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
+      pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
       is-publish: true
   # イメージビルド
   build-image:
@@ -47,6 +49,8 @@ jobs:
       build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
       scan-report-cache-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
       pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
+      pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
       is-publish: true
   # テストレポートを公開
   publish-test-result:

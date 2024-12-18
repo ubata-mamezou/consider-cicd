@@ -13,31 +13,34 @@ on:
           description: キャッシュしたPRコメントファイルのキー名
           required: true
           type: string
-        
+        pr-comment-folder-name:
+          description: PRへのフィードバックコメントファイルの格納先フォルダー名
+          required: true
+          type: string
+        pr-comment-file-name:
+          description: PRへのフィードバックコメントファイル名
+          required: true
+          type: string
+                
 jobs:
   pr-feedback:
     runs-on: ubuntu-latest
-  #   permissions:
-  #     pages: write
-  #     id-token: write
-  #   environment:
-  #     name: github-pages
-  #     url: ${{ steps.deployment.outputs.page_url }}
     steps:
-  #   - name: init
-  #     run: mkdir pages
     # PRコメントダウンロード（事前にアップロードしていたファイルを取得）
     - name: download pr-comment
       uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.pr-comment-cached-key }}
-        path: pr-comment.md
+        path: ${{ inputs.pr-comment-folder-name }}
+
+    # debug
+    - run: tree
 
     # PRコメント
     - name: PR comment
       if: ${{ github.event.pull_request.number != '' }}
       run: |
-        gh pr comment ${{ github.event.pull_request.number }} --body-file pr-comment.md
+        gh pr comment ${{ github.event.pull_request.number }} --body-file ${{ inputs.pr-comment-file-name }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # memo: Enterprise planの場合、下記のパラメータが必要になるらしい

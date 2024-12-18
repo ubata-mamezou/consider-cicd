@@ -46,6 +46,14 @@ on:
         description: PRコメントファイルのキャッシュキー名
         required: true
         type: string
+      pr-comment-folder-name:
+        description: PRへのフィードバックコメントファイルの格納先フォルダー名
+        required: true
+        type: string
+      pr-comment-file-name:
+        description: PRへのフィードバックコメントファイル名
+        required: true
+        type: string
       is-publish:
         description: Jar,イメージの公開有無(true:公開する、false:公開しない)
         required: false
@@ -84,7 +92,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
-          path: pr-comment.md
+          path: ${{ inputs.pr-comment-folder-name }}
         continue-on-error: true
 
       # 静的解析（Lint）
@@ -120,7 +128,7 @@ jobs:
             * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
             * カバレッジレポートのプレビューは[こちら]($COVERAGE_URL)　※次のワークフローが動くと上書きされます  
             * テスト結果レポートのプレビュー環境は[こちら]($TEST_REPORT_URL)　※次のワークフローが動くと上書きされます  
-            " >> pr-comment.md
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
   
       # ビルド
       - name: Build TS App
@@ -151,11 +159,11 @@ jobs:
           echo "
             ## パッケージプッシュのフィードバック  
             * 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
-            " >> pr-comment.md
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
 
       # PRコメントアップロード
       - name: Upload pr-comment
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
-          path: pr-comment.md
+          path: ${{ inputs.pr-comment-folder-name }}

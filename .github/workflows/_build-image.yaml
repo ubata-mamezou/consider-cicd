@@ -41,6 +41,14 @@ on:
         description: PRコメントファイルのキャッシュキー名
         required: true
         type: string
+      pr-comment-folder-name:
+        description: PRへのフィードバックコメントファイルの格納先フォルダー名
+        required: true
+        type: string
+      pr-comment-file-name:
+        description: PRへのフィードバックコメントファイル名
+        required: true
+        type: string
       is-publish:
         description: イメージを公開する(true:公開、false:公開しない)
         required: false
@@ -73,7 +81,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
-          path: pr-comment.md
+          path: ${{ inputs.pr-comment-folder-name }}
         continue-on-error: true
 
       # イメージビルド
@@ -128,7 +136,7 @@ jobs:
             ## 脆弱性スキャンに失敗しました  
             * 時間帯によってTrivyDBのダウンロードに失敗するため、エラーを抑止しています。
             * イメージスキャンが異常終了しているため、脆弱性結果はありません。
-            " >> pr-comment.md
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
   
       # スキャンレポートのアップロード（レポート公開向けの一時保存）
       - name: move scan report
@@ -154,7 +162,7 @@ jobs:
             ## 脆弱性テスト結果のフィードバック
             * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）
             * スキャン結果レポートのプレビューは[こちら]($SCAN_REPORT_URL)　※ワークフローが動くと上書きされます
-            " >> pr-comment.md
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
   
       # FIXME: 脆弱性があってもパイプラインが進んでしまっている
       # 脆弱性が見つかった場合、パイプラインを終了させる
@@ -183,4 +191,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
-          path: pr-comment.md
+          path: ${{ inputs.pr-comment-folder-name }}
