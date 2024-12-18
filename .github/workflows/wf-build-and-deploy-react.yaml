@@ -37,6 +37,7 @@ jobs:
       node-version: ${{ needs.workflow-config.outputs.node-version}}
       test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
       build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}_dev
+      pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key}}
       is-publish: true
   # テストレポートを公開
   publish-test-result:
@@ -61,4 +62,11 @@ jobs:
       build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}_dev
       s3-bucket-name: ${{ needs.workflow-config.outputs.s3-bucket-name}}
       distribution-id: ${{ needs.workflow-config.outputs.distribution-id}}
-
+  # PRフィードバック
+  pr-feedback:
+    needs: 
+      - workflow-config
+      - deploy
+    uses: ./.github/workflows/_pr-fb.yaml
+    with:
+      pr-comment-cached-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}

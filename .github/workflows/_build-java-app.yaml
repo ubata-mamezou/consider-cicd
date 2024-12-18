@@ -39,6 +39,10 @@ on:
         description: ビルドしたアーティファクトのキャッシュキー名
         required: true
         type: string
+      pr-comment-cache-key:
+        description: PRコメントファイルのキャッシュキー名
+        required: true
+        type: string
       is-publish:
         description: Jar,イメージの公開有無(true:公開する、false:公開しない)
         required: false
@@ -85,6 +89,12 @@ jobs:
                     </server>
                   </servers>
                 </settings>" > ~/.m2/settings.xml
+      ## PRコメントダウンロード
+      - name: Upload pr-comment
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: pr-comment.md
 
       # ビルド、テスト、パッケージ（Maven）
       - name: Build with Maven
@@ -106,7 +116,7 @@ jobs:
         with:
           name: test-report_${{ inputs.app-name }}
           path: ${{ inputs.work-directory }}/pages
-      - name: PR FB
+      - name: PR comment
         if: ${{ github.event.pull_request.number != '' }}
         run: |
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
@@ -121,13 +131,6 @@ jobs:
             * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
             * テスト結果レポートのプレビュー環境は[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます  
             " >> pr-comment.md
-
-          gh pr comment ${{ github.event.pull_request.number }} --body-file pr-comment.md
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
-          # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # GH_HOST: your-host.com 
   
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
@@ -138,7 +141,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true #リポジトリがimmutableの場合、同一バージョンのpushはできないため、エラー無視
       ## アーティファクト公開コールバック
-      ## * 前ステップがエラーだった場合、エラーが出ている旨をコンソールに表示
-      - name: callback
+      - name: callback to console
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
+      - name: callback to PR
+        if: steps.publish-artifact-to-packages.outcome == 'failure' && ${{ github.event.pull_request.number != '' }}
+        run: |
+          echo "
+            ## パッケージプッシュのフィードバック  
+            * 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
+            " >> pr-comment.md
+
+      # PRコメントアップロード
+      - name: Upload pr-comment
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: pr-comment.md

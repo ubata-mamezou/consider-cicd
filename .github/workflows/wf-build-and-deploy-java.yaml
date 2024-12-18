@@ -31,6 +31,7 @@ jobs:
       java-version: ${{ needs.workflow-config.outputs.java-version}}
       test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
       build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+      pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
       is-publish: true
   # イメージビルド
   build-image:
@@ -45,6 +46,7 @@ jobs:
       dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
       build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
       scan-report-cache-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
+      pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
       is-publish: true
   # テストレポートを公開
   publish-test-result:
@@ -75,3 +77,12 @@ jobs:
       ecs-service-name: ${{ needs.workflow-config.outputs.ecs-service-name}}
       ecs-task-name: ${{ needs.workflow-config.outputs.ecs-task-name}}
       env-variables: ${{ needs.workflow-config.outputs.env-variables}}
+  # PRフィードバック
+  pr-feedback:
+    needs: 
+      - workflow-config
+      - build-image
+      - deploy
+    uses: ./.github/workflows/_pr-fb.yaml
+    with:
+      pr-comment-cached-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
