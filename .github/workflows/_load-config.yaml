@@ -59,11 +59,6 @@ on:
           脆弱性スキャンレポートのキャッシュキー名
           (アプリケーション名から生成)
         value: image-scan-report_${{ jobs.config.outputs.app-name }}
-      pr-comment-cache-key:
-        description: |
-          PRコメントファイルのキャッシュキー名
-          (アプリケーション名から生成)
-        value: pr-comment_${{ jobs.config.outputs.app-name }}
       pr-comment-folder-name:
         description: PRへのフィードバックコメントファイルの格納先フォルダー名(定数)
         value: pr-fb

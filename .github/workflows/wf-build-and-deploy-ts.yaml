@@ -37,7 +37,6 @@ jobs:
       node-version: ${{ needs.workflow-config.outputs.node-version}}
       test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
       build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
-      pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
       pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
       pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
       is-publish: true
@@ -54,7 +53,7 @@ jobs:
       dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
       build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
       scan-report-cache-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
-      pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      current-pr-comment-cache-key: ${{ needs.build.outputs.new-pr-comment-cache-key }}
       pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
       pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
       is-publish: true
@@ -92,6 +91,6 @@ jobs:
       - deploy
     uses: ./.github/workflows/_pr-fb.yaml
     with:
-      pr-comment-cached-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      pr-comment-cached-key: ${{ needs.build.outputs.new-pr-comment-cache-key }}
       pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
       pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
