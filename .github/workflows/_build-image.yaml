@@ -85,10 +85,6 @@ jobs:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
         continue-on-error: true
-      #debug
-      - run: |
-          tree
-          cat ${{ inputs.pr-comment-folder-name }}/${{inputs.pr-comment-file-name}}
 
       # イメージビルド
       - name: Build Docker image
@@ -193,7 +189,10 @@ jobs:
         run: docker rmi ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
 
       #debug
-      - run: cat ${{inputs.work-directory}}/${{ inputs.pr-comment-folder-name }}/${{inputs.pr-comment-file-name}}
+      - run: |
+          tree
+          cat ${{ inputs.pr-comment-folder-name }}/${{inputs.pr-comment-file-name}}
+        continue-on-error: true
 
       # PRコメントアップロード
       - name: Upload pr-comment
