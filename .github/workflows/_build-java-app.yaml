@@ -142,7 +142,7 @@ jobs:
 
           COVERAGE_REPORT_URL="$TEST_REPORT_ROOT_URL/jacoco/index.html"
           CODE_STYLE_REPORT_URL="$TEST_REPORT_ROOT_URL/checkstyle/index.html"
-          CODE_BUG_REPORT_URL="$TEST_REPORT_ROOT_URL/sportbugs/index.html"
+          CODE_BUG_REPORT_URL="$TEST_REPORT_ROOT_URL/spotbugs/index.html"
           
           echo "
             ## 静的解析結果のフィードバック  
