@@ -68,7 +68,6 @@ jobs:
           #Tips: defaults > run > working-directoryの設定はActionへの引数には適用されません
           working-directory: ${{ inputs.work-directory }}
     env:
-      static-analysis-report-directory: ${{ inputs.app-name }}/reports/static-analysis-report
       test-report-directory: ${{ inputs.app-name }}/reports/test-report
     steps:
       # 実行環境セットアップ
@@ -101,16 +100,19 @@ jobs:
                     </server>
                   </servers>
                 </settings>" > ~/.m2/settings.xml
+      ## 後続プロセスで使用するディレクトリの初期化
+      - run: |
+          mkdir -p ${{ inputs.pr-comment-folder-name }}
+          mkdir -p pages/${{ env.test-report-directory }}
       ## PRコメントダウンロード
       ## * PRコメントがある場合、加筆するためダウンロード。
       ## * ファイルが存在しなくてもエラーにしない
-      - run: mkdir ${{ inputs.pr-comment-folder-name }} -p
       - name: Download pr-comment
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
-        continue-on-error: true
+        continue-on-error: true      
 
       # 静的解析
       ## 静的解析実行
@@ -119,12 +121,11 @@ jobs:
       ## 静的解析レポートのアップロード（レポート公開向けの一時保存）
       - name: move static analysis report
         run: |
-          mkdir -p pages/${{ env.static-analysis-report-directory }}
-          mv ${{ inputs.dist-directory }}/reports/jacoco pages/${{ env.static-analysis-report-directory }}
+          mv ${{ inputs.dist-directory }}/reports/jacoco pages/${{ env.test-report-directory }}
           mv ${{ inputs.dist-directory }}/reports/checkstyle/checkstyle.html ${{ inputs.dist-directory }}/reports/checkstyle/index.html
-          mv ${{ inputs.dist-directory }}/reports/checkstyle pages/${{ env.static-analysis-report-directory }}
+          mv ${{ inputs.dist-directory }}/reports/checkstyle pages/${{ env.test-report-directory }}
           mv ${{ inputs.dist-directory }}/reports/spotbugs/spotbugs.html ${{ inputs.dist-directory }}/reports/spotbugs/index.html
-          mv ${{ inputs.dist-directory }}/reports/spotbugs pages/${{ env.static-analysis-report-directory }}
+          mv ${{ inputs.dist-directory }}/reports/spotbugs pages/${{ env.test-report-directory }}
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
@@ -179,7 +180,6 @@ jobs:
       ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
         run: |
-          mkdir -p pages/${{ env.test-report-directory }}
           mv ${{ inputs.dist-directory }}/reports/test/surefire.html ${{ inputs.dist-directory }}/reports/test/index.html
           mv ${{ inputs.dist-directory }}/reports/test pages/${{ env.test-report-directory }}
       - name: Upload Test Report
