@@ -83,7 +83,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
-          path: ${{ inputs.pr-comment-folder-name }}
+          path: ${{inputs.work-directory}}/${{ inputs.pr-comment-folder-name }}
         continue-on-error: true
       #debug
       - run: |
