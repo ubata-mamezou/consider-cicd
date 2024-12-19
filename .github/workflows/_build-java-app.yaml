@@ -39,11 +39,10 @@ on:
         description: ビルドしたアーティファクトのキャッシュキー名
         required: true
         type: string
-      current-pr-comment-cache-key:
-        description: PRコメントファイルのキャッシュキー名(コメントをキャッシュしている場合は必須)
-        required: false
+      pr-comment-cache-key:
+        description: PRコメントファイルのキャッシュキー名
+        required: true
         type: string
-        default: ''
       pr-comment-folder-name:
         description: PRへのフィードバックコメントファイルの格納先フォルダー名
         required: true
@@ -57,10 +56,6 @@ on:
         required: false
         type: boolean
         default: false
-    outputs:
-      new-pr-comment-cache-key:
-        description: PRコメントファイルのキャッシュキー名
-        value: ${{ jobs.build.outputs.new-pr-comment-cache-key }}
 
 jobs:
   build:
@@ -71,8 +66,6 @@ jobs:
           working-directory: ${{ inputs.work-directory }}
     env:
       test-report-directory: ${{ inputs.app-name }}/reports/test-report
-    outputs:
-      new-pr-comment-cache-key: ${{ steps.generate-pr-comment-cache-key.outputs.key }}
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -105,18 +98,15 @@ jobs:
                   </servers>
                 </settings>" > ~/.m2/settings.xml
       ## PRコメントダウンロード
+      ## * PRコメントがある場合、加筆するためダウンロード。
+      ## * ファイルが存在しなくてもエラーにしない
       - run: mkdir ${{ inputs.pr-comment-folder-name }} -p
       - name: Download pr-comment
-        if: inputs.current-pr-comment-cache-key != ''
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.current-pr-comment-cache-key }}
+          name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ inputs.pr-comment-folder-name }}
         continue-on-error: true
-      ## このジョブ内でPRコメントのキャッシュに使用するキー生成
-      - name: generate pr-comment cache key
-        id: generate-pr-comment-cache-key
-        run: echo "key=pr-comment-${{ github.run_id }}-${{ github.job }}" >> $GITHUB_OUTPUT
 
       # ビルド、テスト、パッケージ（Maven）
       - name: Build with Maven
@@ -180,5 +170,6 @@ jobs:
       - name: Upload pr-comment
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.generate-pr-comment-cache-key.outputs.new-pr-comment-cache-key }}
+          name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
+          overwrite: true
