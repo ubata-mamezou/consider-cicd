@@ -76,11 +76,6 @@ jobs:
     outputs:
       new-pr-comment-cache-key: ${{ steps.generate-pr-comment-cache-key.outputs.key }}
     steps:
-      # このジョブでPRコメントのキャッシュに使用するキー名生成
-      - name: generate pr-comment cache key
-        id: generate-pr-comment-cache-key
-        run: echo "key=pr-comment-${{ github.run_id }}-${{ github.job }}" >> $GITHUB_OUTPUT
-
       # 実行環境セットアップ
       ## コードをチェックアウト
       - name: checkout source
@@ -98,8 +93,6 @@ jobs:
           npm install
           npm install --save-dev jest-html-reporters
       ## PRコメントダウンロード
-      ## * PRコメントがある場合、加筆するためダウンロード。
-      ## * ファイルが存在しなくてもエラーにしない
       - run: mkdir ${{ inputs.pr-comment-folder-name }}
       - name: Download pr-comment
         if: inputs.current-pr-comment-cache-key != ''
@@ -108,6 +101,10 @@ jobs:
           name: ${{ inputs.current-pr-comment-cache-key }}
           path: ${{ inputs.pr-comment-folder-name }}
         continue-on-error: true
+      ## このジョブ内でPRコメントのキャッシュに使用するキー生成
+      - name: generate pr-comment cache key
+        id: generate-pr-comment-cache-key
+        run: echo "key=pr-comment-${{ github.run_id }}-${{ github.job }}" >> $GITHUB_OUTPUT
 
       # 静的解析（Lint）
       - name: Run Lint
