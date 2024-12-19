@@ -35,11 +35,6 @@ jobs:
       with:
         name: ${{ inputs.pr-comment-cached-key }}
         path: ${{ inputs.pr-comment-folder-name }}
-
-    #debug
-    - run: |
-        tree
-        cat ${{ inputs.pr-comment-folder-name }}/${{inputs.pr-comment-file-name}}
       continue-on-error: true
 
     # PRコメント

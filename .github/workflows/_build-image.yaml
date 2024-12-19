@@ -188,12 +188,6 @@ jobs:
       - name: Remove Docker images
         run: docker rmi ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
 
-      #debug
-      - run: |
-          tree
-          cat ${{ inputs.pr-comment-folder-name }}/${{inputs.pr-comment-file-name}}
-        continue-on-error: true
-
       # PRコメントアップロード
       - name: Upload pr-comment
         uses: actions/upload-artifact@v4

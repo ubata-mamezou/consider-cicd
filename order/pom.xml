@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.5</version>
-		<relativePath/>
+		<relativePath />
 		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.mau.consider.cicd</groupId>
@@ -14,18 +15,18 @@
 	<version>0.0.1</version>
 	<name>consider.cicd</name>
 	<description>CI/CD検証プロジェクト(backend, java, REST)</description>
-	<url/>
+	<url />
 	<licenses>
-		<license/>
+		<license />
 	</licenses>
 	<developers>
-		<developer/>
+		<developer />
 	</developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+		<connection />
+		<developerConnection />
+		<tag />
+		<url />
 	</scm>
 	<distributionManagement>
 		<!-- 
@@ -38,7 +39,8 @@
 		</repository>
 	</distributionManagement>
 	<properties>
-		<java.version>21</java.version>
+		<!-- <java.version>21</java.version> -->
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -53,7 +55,6 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.34</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -94,6 +95,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<!-- jacoco -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -132,7 +134,84 @@
 						</configuration>
 					</execution>
 				</executions>
+				<configuration>
+					<outputDirectory>${project.build.directory}/reports/jacoco</outputDirectory>
+				</configuration>
 			</plugin>
+
+			<!-- CheckStyle for code style -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.6.0</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>10.9.3</version>
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+						<id>checkstyle</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>checkstyle</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<configLocation>${project.basedir}/config/custom_google_checks_cs10.9.3.xml</configLocation>
+					<linkXRef>false</linkXRef>
+					<outputDirectory>${project.build.directory}/reports/checkstyle</outputDirectory>
+				</configuration>
+			</plugin>
+
+			<!-- SpotBugs for bug detection -->
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.8.6.4</version>
+				<configuration>
+					<includeFilterFile>${project.basedir}/config/spotbugs-include.xml</includeFilterFile>
+					<excludeFilterFile>${project.basedir}/config/spotbugs-exclude.xml</excludeFilterFile>
+					<xmlOutput>true</xmlOutput>
+					<xmlOutputDirectory>${project.build.directory}/reports/spotbugs</xmlOutputDirectory>
+					<outputDirectory>${project.build.directory}/reports/spotbugs</outputDirectory>
+					<htmlOutput>true</htmlOutput>
+					<plugins>
+						<plugin>
+							<groupId>com.h3xstream.findsecbugs</groupId>
+							<artifactId>findsecbugs-plugin</artifactId>
+							<version>1.12.0</version>
+						</plugin>
+					</plugins>
+				</configuration>
+				<!-- <dependencies>
+					<dependency>
+						<groupId>com.github.spotbugs</groupId>
+						<artifactId>spotbugs</artifactId>
+						<version>4.8.6</version>
+					</dependency>
+				</dependencies> -->
+				<executions>
+					<execution>
+						<id>spotbugs</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>spotbugs</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>3.5.2</version>
+        <configuration>
+							<outputDirectory>${project.build.directory}/reports/test</outputDirectory>
+        </configuration>
+      </plugin>
 		</plugins>
 	</build>
 

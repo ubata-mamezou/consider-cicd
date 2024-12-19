@@ -47,6 +47,7 @@ jobs:
       is-publish: false
   # テストレポートを公開
   publish-test-result:
+    if: always()
     needs: 
       - workflow-config
       - build
@@ -56,6 +57,7 @@ jobs:
       test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
   # PRフィードバック
   pr-feedback:
+    if: always()
     needs: 
       - workflow-config
       - build
