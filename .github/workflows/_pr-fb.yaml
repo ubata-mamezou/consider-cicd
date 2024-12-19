@@ -36,14 +36,19 @@ jobs:
         name: ${{ inputs.pr-comment-cached-key }}
         path: ${{ inputs.pr-comment-folder-name }}
 
-    # debug
-    - run: tree
+    #debug
+    - run: |
+        tree
+        cat ${{ inputs.pr-comment-folder-name }}/${{inputs.pr-comment-file-name}}
+      continue-on-error: true
 
     # PRコメント
     - name: PR comment
       if: ${{ github.event.pull_request.number != '' }}
+      # Tips: botが1回もコメントしてない場合、--edit-lastを付けるとエラーになる
+      # botのコメントが1つもない場合、「no comments found for current user」となってしまう。
+      # それに対処するため、「||」以降に通常のコメントコマンドも併記している。
       run: |
-        # --edit-last:1つもコメントがない場合、「no comments found for current user」とエラーを吐いて終了してしまうので、その対処
         gh pr comment ${{ github.event.pull_request.number }} --body-file ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }} --edit-last || gh pr comment ${{ github.event.pull_request.number }} --body-file ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
