@@ -117,7 +117,7 @@ jobs:
       # 静的解析
       ## 静的解析実行
       - name: Static analysis
-        run: mvn verify jacoco:report checkstyle:checkstyle spotbugs:spotbugs
+        run: mvn compile checkstyle:checkstyle spotbugs:spotbugs
       ## 静的解析レポートのアップロード（レポート公開向けの一時保存）
       - name: move static analysis report
         run: |
@@ -170,7 +170,7 @@ jobs:
 
       # ビルド、テスト、パッケージ（Maven）
       - name: Build with Maven
-        run: mvn install surefire-report:report-only
+        run: mvn install jacoco:report surefire-report:report-only
       ## アーティファクトのアップロード（イメージビルド向けの一時保存）
       - name: Upload artifact
         uses: actions/upload-artifact@v4

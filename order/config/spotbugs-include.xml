@@ -1,14 +1,42 @@
 <FindBugsFilter>
     <Match>
+        <!-- 悪いプラクティス -->
         <Bug category="BAD_PRACTICE"/>
+    </Match>
+    <Match>
+        <!-- 正確性 -->
         <Bug category="CORRECTNESS"/>
+    </Match>
+    <Match>
+        <!-- 実験的 -->
         <Bug category="EXPERIMENTAL"/>
+    </Match>
+    <Match>
+        <!-- 国際化 -->
         <Bug category="I18N"/>
+    </Match>
+    <Match>
+        <!-- 悪意のあるコード -->
         <Bug category="MALICIOUS_CODE"/>
+    </Match>
+    <Match>
+        <!-- マルチスレッドの正確性 -->
         <Bug category="MT_CORRECTNESS"/>
+    </Match>
+    <Match>
+        <!-- ノイズ -->
         <Bug category="NOISE"/>
+    </Match>
+    <Match>
+        <!-- パフォーマンス -->
         <Bug category="PERFORMANCE"/>
+    </Match>
+    <Match>
+        <!-- セキュリティ -->
         <Bug category="SECURITY"/>
+    </Match>
+    <Match>
+        <!-- スタイル -->
         <Bug category="STYLE"/>
     </Match>
 </FindBugsFilter>
