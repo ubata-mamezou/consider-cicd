@@ -121,7 +121,6 @@ jobs:
       ## 静的解析レポートのアップロード（レポート公開向けの一時保存）
       - name: move static analysis report
         run: |
-          mv ${{ inputs.dist-directory }}/reports/jacoco pages/${{ env.test-report-directory }}
           mv ${{ inputs.dist-directory }}/reports/checkstyle/checkstyle.html ${{ inputs.dist-directory }}/reports/checkstyle/index.html
           mv ${{ inputs.dist-directory }}/reports/checkstyle pages/${{ env.test-report-directory }}
           mv ${{ inputs.dist-directory }}/reports/spotbugs/spotbugs.html ${{ inputs.dist-directory }}/reports/spotbugs/index.html
@@ -180,6 +179,7 @@ jobs:
       ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
         run: |
+          mv ${{ inputs.dist-directory }}/reports/jacoco pages/${{ env.test-report-directory }}
           mv ${{ inputs.dist-directory }}/reports/test/surefire.html ${{ inputs.dist-directory }}/reports/test/index.html
           mv ${{ inputs.dist-directory }}/reports/test pages/${{ env.test-report-directory }}
       - name: Upload Test Report
