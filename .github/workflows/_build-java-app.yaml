@@ -139,14 +139,12 @@ jobs:
           PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
           TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/test-report"
 
-          COVERAGE_REPORT_URL="$TEST_REPORT_ROOT_URL/jacoco/index.html"
           CODE_STYLE_REPORT_URL="$TEST_REPORT_ROOT_URL/checkstyle/index.html"
           CODE_BUG_REPORT_URL="$TEST_REPORT_ROOT_URL/spotbugs/index.html"
           
           echo "
             ## 静的解析結果のフィードバック  
             * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
-            * カバレッジレポートのプレビューは[こちら]($COVERAGE_REPORT_URL)　※ワークフローが動くと上書きされます  
             * コードスタイルレポートのプレビューは[こちら]($CODE_STYLE_REPORT_URL)　※ワークフローが動くと上書きされます  
             * 潜在バグレポートのプレビューは[こちら]($CODE_BUG_REPORT_URL)　※ワークフローが動くと上書きされます  
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
@@ -196,10 +194,12 @@ jobs:
           PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
           TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/test-report"
 
+          COVERAGE_REPORT_URL="$TEST_REPORT_ROOT_URL/jacoco/index.html"
           TEST_REPORT_URL="$TEST_REPORT_ROOT_URL/test/index.html"
           
           echo "
             ## テスト結果のフィードバック  
+            * カバレッジレポートのプレビューは[こちら]($COVERAGE_REPORT_URL)　※ワークフローが動くと上書きされます  
             * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
             * テスト結果レポートのプレビューは[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます  
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
