@@ -8,7 +8,10 @@ import { AppConfig } from '../AppConfig';
  * 顧客コントローラー
  */
 @Controller('customers')
-export class CustomerController {
+export class CustomerController 
+{
+  un_used_att: string;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly appConfig: AppConfig,

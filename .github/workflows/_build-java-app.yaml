@@ -68,7 +68,12 @@ jobs:
           #Tips: defaults > run > working-directoryの設定はActionへの引数には適用されません
           working-directory: ${{ inputs.work-directory }}
     env:
-      test-report-directory: ${{ inputs.app-name }}/reports/test-report
+      test-report-directory_built: ${{ inputs.dist-directory }}/reports
+      test-report-directory_for_transport-to-pages: pages/${{ inputs.app-name }}/reports
+      test-report-directory_for_pages: ${{ inputs.app-name }}/reports
+      coverage-tool-name: jacoco
+      style-check-tool-name: checkstyle
+      bug-check-tool-name: spotbugs
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -103,7 +108,7 @@ jobs:
       ## 後続プロセスで使用するディレクトリの初期化
       - run: |
           mkdir -p ${{ inputs.pr-comment-folder-name }}
-          mkdir -p pages/${{ env.test-report-directory }}
+          mkdir -p ${{ env.test-report-directory_for_transport-to-pages }}
       ## PRコメントダウンロード
       ## * PRコメントがある場合、加筆するためダウンロード。
       ## * ファイルが存在しなくてもエラーにしない
@@ -114,17 +119,21 @@ jobs:
           path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
         continue-on-error: true      
 
+      # ビルド
+      - name: build
+        run: mvn compile
+
       # 静的解析
       ## 静的解析実行
       - name: Static analysis
-        run: mvn compile checkstyle:checkstyle spotbugs:spotbugs
+        run: mvn checkstyle:checkstyle spotbugs:spotbugs
       ## 静的解析レポートのアップロード（レポート公開向けの一時保存）
       - name: move static analysis report
         run: |
-          mv ${{ inputs.dist-directory }}/reports/checkstyle/checkstyle.html ${{ inputs.dist-directory }}/reports/checkstyle/index.html
-          mv ${{ inputs.dist-directory }}/reports/checkstyle pages/${{ env.test-report-directory }}
-          mv ${{ inputs.dist-directory }}/reports/spotbugs/spotbugs.html ${{ inputs.dist-directory }}/reports/spotbugs/index.html
-          mv ${{ inputs.dist-directory }}/reports/spotbugs pages/${{ env.test-report-directory }}
+          mv ${{ env.test-report-directory_built }}/${{ env.style-check-tool-name }}/checkstyle.html ${{ env.test-report-directory_built }}/${{ env.style-check-tool-name }}/index.html
+          mv ${{ env.test-report-directory_built }}/${{ env.style-check-tool-name }} ${{ env.test-report-directory_for_transport-to-pages }}
+          mv ${{ env.test-report-directory_built }}/${{ env.bug-check-tool-name }}/spotbugs.html ${{ env.test-report-directory_built }}/${{ env.bug-check-tool-name }}/index.html
+          mv ${{ env.test-report-directory_built }}/${{ env.bug-check-tool-name }} ${{ env.test-report-directory_for_transport-to-pages }}
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
@@ -137,10 +146,10 @@ jobs:
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
           ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
-          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/test-report"
+          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ env.test-report-directory_for_pages }}"
 
-          CODE_STYLE_REPORT_URL="$TEST_REPORT_ROOT_URL/checkstyle/index.html"
-          CODE_BUG_REPORT_URL="$TEST_REPORT_ROOT_URL/spotbugs/index.html"
+          CODE_STYLE_REPORT_URL="$TEST_REPORT_ROOT_URL/${{ env.style-check-tool-name }}/index.html"
+          CODE_BUG_REPORT_URL="$TEST_REPORT_ROOT_URL/${{ env.bug-check-tool-name }}/index.html"
           
           echo "
             ## 静的解析結果のフィードバック  
@@ -156,16 +165,16 @@ jobs:
           path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
           overwrite: true
       ## 静的解析結果の解析
-      ## * CheckStyleでwaningからErrorが検出されていた場合、ワークフローを中断する
+      ## * CheckStyleでWaningまたはErrorが検出されていた場合、ワークフローを中断する
       ## * SpotBugsでbugが検出されていた場合、ワークフローを中断する
       - name: Check for Warnings and Errors
         run: |
-          if grep -q "<error" target/checkstyle-result.xml || \
-             grep -q "<BugInstance" target/spotbugsXml.xml; then
+          if grep -q "<error" ${{ inputs.work-directory }}/checkstyle-result.xml || \
+             grep -q "<BugInstance" ${{ inputs.work-directory }}/spotbugsXml.xml; then
             exit 1
           fi      
 
-      # ビルド、テスト、パッケージ（Maven）
+      # テスト、パッケージ（Maven）
       - name: Build with Maven
         run: mvn install jacoco:report surefire-report:report-only
       ## アーティファクトのアップロード（イメージビルド向けの一時保存）
@@ -177,9 +186,9 @@ jobs:
       ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
         run: |
-          mv ${{ inputs.dist-directory }}/reports/jacoco pages/${{ env.test-report-directory }}
-          mv ${{ inputs.dist-directory }}/reports/test/surefire.html ${{ inputs.dist-directory }}/reports/test/index.html
-          mv ${{ inputs.dist-directory }}/reports/test pages/${{ env.test-report-directory }}
+          mv ${{ env.test-report-directory_built }}/${{ env.coverage-tool-name }} ${{ env.test-report-directory_for_transport-to-pages }}
+          mv ${{ env.test-report-directory_built }}/test/surefire.html ${{ env.test-report-directory_built }}/test/index.html
+          mv ${{ env.test-report-directory_built }}/test ${{ env.test-report-directory_for_transport-to-pages }}
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
@@ -192,9 +201,9 @@ jobs:
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
           ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
-          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/test-report"
+          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ env.test-report-directory_for_pages }}"
 
-          COVERAGE_REPORT_URL="$TEST_REPORT_ROOT_URL/jacoco/index.html"
+          COVERAGE_REPORT_URL="$TEST_REPORT_ROOT_URL/${{ env.coverage-tool-name }}/index.html"
           TEST_REPORT_URL="$TEST_REPORT_ROOT_URL/test/index.html"
           
           echo "
