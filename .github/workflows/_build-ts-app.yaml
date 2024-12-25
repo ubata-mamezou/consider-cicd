@@ -160,6 +160,7 @@ jobs:
         with:
           name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
+          overwrite: true
       - name: PR comment
         if: ${{ github.event.pull_request.number != '' }}
         run: |
