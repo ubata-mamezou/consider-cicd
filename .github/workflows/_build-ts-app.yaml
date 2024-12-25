@@ -87,7 +87,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
-          npm install --save-dev jest-html-reporters
+          npm install jest-html-reporters --save-dev
       ## 後続プロセスで使用するディレクトリの初期化
       - run: |
           mkdir -p ${{ inputs.pr-comment-folder-name }}
@@ -146,7 +146,7 @@ jobs:
           overwrite: true
       ## 静的解析結果の解析
       ## * ESLintでWaningまたはErrorが検出されていた場合、ワークフローを中断する
-      - run: tree #debug
+      - run: tree test-result #debug
       - name: Check if Lint Report Exists
         run: |
           if [ ! -f test-result/reports/lint/index.html ]; then

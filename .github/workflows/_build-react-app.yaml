@@ -148,7 +148,7 @@ jobs:
           overwrite: true
       ## 静的解析結果の解析
       ## * ESLintでWaningまたはErrorが検出されていた場合、ワークフローを中断する
-      - run: tree # debug
+      - run: tree test-result # debug
       - name: 静的解析結果が見えてない？
         run: |
           if [ ! -f test-result/reports/lint/index.html ]; then
