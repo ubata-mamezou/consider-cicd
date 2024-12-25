@@ -149,6 +149,12 @@ jobs:
       ## 静的解析結果の解析
       ## * ESLintでWaningまたはErrorが検出されていた場合、ワークフローを中断する
       - run: tree # debug
+      - name: 静的解析結果が見えてない？
+        run: |
+          if [ ! -f test-result/reports/lint/index.html ]; then
+            echo "Lint report not found!"
+            exit 1
+          fi
       - name: Check for Warnings and Errors
         run: |
           if grep -q -E "error|warnings" test-result/reports/lint/index.html; then
@@ -166,6 +172,7 @@ jobs:
         with:
           name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
+          overwrite: true
       - name: PR FB
         if: ${{ github.event.pull_request.number != '' }}
         run: |

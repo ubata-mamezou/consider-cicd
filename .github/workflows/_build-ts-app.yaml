@@ -147,6 +147,12 @@ jobs:
       ## 静的解析結果の解析
       ## * ESLintでWaningまたはErrorが検出されていた場合、ワークフローを中断する
       - run: tree #debug
+      - name: Check if Lint Report Exists
+        run: |
+          if [ ! -f test-result/reports/lint/index.html ]; then
+            echo "Lint report not found!"
+            exit 1
+          fi
       - name: Check for Warnings and Errors
         run: |
           if grep -q -E "error|warnings" ${{ env.test-report-directory_built }}/${{ env.style-check-tool-name }}/index.html; then
