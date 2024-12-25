@@ -1,4 +1,4 @@
-import { plus } from ".";
+import { plus } from "features/samples/components";
 
 describe('plus test', () => {
   test('positive + positive', () => {

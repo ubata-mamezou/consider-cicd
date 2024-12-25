@@ -12,6 +12,7 @@
     "build:dev": "tsc -b && vite build --mode dev",
     "build:prod": "tsc -b && vite build --mode prod",
     "lint": "eslint .",
+    "lint:ci": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix --format html --output-file test-result/reports/lint/index.html",
     "preview": "vite preview",
     "test:ci": "jest --coverage --passWithNoTests"
   },
@@ -46,32 +47,28 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts",
-      "tsx"
-    ],
+    "preset": "ts-jest",
+    "moduleNameMapper": {
+      "^features/(.*)$": "<rootDir>/src/features/$1"
+    },
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
     "rootDir": "src",
-    "testRegex": ".*\\.test\\.tsx",
+    "testRegex": ".*\\.test\\.(t|j)sx",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.(t|j)sx?"
     ],
-    "coverageDirectory": "../test-result/coverage",
+    "coverageDirectory": "../test-result/reports/coverage",
     "testEnvironment": "node",
-    "coverageReporters": [
-      "text",
-      "lcov"
-    ],
+    "coverageReporters": ["text", "lcov"],
     "reporters": [
       "default",
       [
         "jest-html-reporters",
         {
-          "publicPath": "./test-result/test-report",
+          "publicPath": "./test-result/reports/test",
           "filename": "index.html",
           "expand": true
         }

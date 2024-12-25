@@ -67,13 +67,10 @@ jobs:
       run:
         working-directory: ${{ inputs.work-directory }}
     env:
-      # test-report-directory: ${{ inputs.app-name }}/reports/test-report
       test-report-directory_built: test-result/reports
       test-report-directory_for_transport-to-pages: pages/${{ inputs.app-name }}/test-result/reports
       test-report-directory_for_pages: ${{ inputs.app-name }}/test-result/reports
-      # coverage-tool-name: jacoco
       style-check-tool-name: lint
-      # bug-check-tool-name: spotbugs
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -104,6 +101,14 @@ jobs:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
         continue-on-error: true
+      ## PRコメント
+      - name: PR comment
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "
+            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
 
       # 静的解析（Lint）
       - name: Run Lint
@@ -123,7 +128,6 @@ jobs:
         if: ${{ github.event.pull_request.number != '' }}
         run: |
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
           TEST_REPORT_ROOT_URL="$PAGES_URL/${{ env.test-report-directory_for_pages }}"
 
@@ -131,7 +135,6 @@ jobs:
           
           echo "
             ## 静的解析結果のフィードバック  
-            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
             * コードスタイルレポートのプレビューは[こちら]($LINT_REPORT_URL)　※ワークフローが動くと上書きされます  
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
       ## PRコメントアップロード
@@ -147,7 +150,7 @@ jobs:
         run: |
           if grep -q -E "error|warnings" test-result/reports/lint/index.html; then
             exit 1
-          fi      
+          fi
 
       # テスト
       - name: Run Unit Tests
@@ -165,7 +168,6 @@ jobs:
         if: ${{ github.event.pull_request.number != '' }}
         run: |
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
           TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/test-report"
 
@@ -174,7 +176,6 @@ jobs:
           
           echo "
             ## テスト結果のフィードバック  
-            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
             * カバレッジレポートのプレビューは[こちら]($COVERAGE_URL)　※次のワークフローが動くと上書きされます  
             * テスト結果レポートのプレビューは[こちら]($TEST_REPORT_URL)　※次のワークフローが動くと上書きされます  
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}

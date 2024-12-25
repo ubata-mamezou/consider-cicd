@@ -117,7 +117,15 @@ jobs:
         with:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
-        continue-on-error: true      
+        continue-on-error: true
+      ## PRコメント
+      - name: PR comment
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "
+            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
 
       # ビルド
       - name: build
@@ -144,7 +152,6 @@ jobs:
         if: ${{ github.event.pull_request.number != '' }}
         run: |
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
           TEST_REPORT_ROOT_URL="$PAGES_URL/${{ env.test-report-directory_for_pages }}"
 
@@ -153,7 +160,6 @@ jobs:
           
           echo "
             ## 静的解析結果のフィードバック  
-            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
             * コードスタイルレポートのプレビューは[こちら]($CODE_STYLE_REPORT_URL)　※ワークフローが動くと上書きされます  
             * 潜在バグレポートのプレビューは[こちら]($CODE_BUG_REPORT_URL)　※ワークフローが動くと上書きされます  
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
@@ -199,7 +205,6 @@ jobs:
         if: ${{ github.event.pull_request.number != '' }}
         run: |
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
           TEST_REPORT_ROOT_URL="$PAGES_URL/${{ env.test-report-directory_for_pages }}"
 
@@ -209,7 +214,6 @@ jobs:
           echo "
             ## テスト結果のフィードバック  
             * カバレッジレポートのプレビューは[こちら]($COVERAGE_REPORT_URL)　※ワークフローが動くと上書きされます  
-            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
             * テスト結果レポートのプレビューは[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます  
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
   

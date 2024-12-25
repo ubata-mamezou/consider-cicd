@@ -68,15 +68,7 @@
     ],
     "coverageDirectory": "../test-result/reports/coverage",
     "testEnvironment": "node",
-    "coverageReporters": [
-      "text",
-      [
-        "lcov",
-        {
-          "projectRoot": "../test-result/reports/coverage"
-        }
-      ]
-    ],
+    "coverageReporters": ["text", "lcov"],
     "reporters": [
       "default",
       [

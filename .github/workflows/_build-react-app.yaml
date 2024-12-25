@@ -69,7 +69,10 @@ jobs:
       run:
         working-directory: ${{ inputs.work-directory }}
     env:
-      test-report-directory: ${{ inputs.app-name }}/reports/test-report
+      test-report-directory_built: test-result/reports
+      test-report-directory_for_transport-to-pages: pages/${{ inputs.app-name }}/test-result/reports
+      test-report-directory_for_pages: ${{ inputs.app-name }}/test-result/reports
+      style-check-tool-name: lint
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -87,6 +90,10 @@ jobs:
         run: |
           npm install
           npm install --save-dev jest-html-reporters
+      ## 後続プロセスで使用するディレクトリの初期化
+      - run: |
+          mkdir -p ${{ inputs.pr-comment-folder-name }}
+          mkdir -p ${{ env.test-report-directory_for_transport-to-pages }}
       ## PRコメントダウンロード
       ## * PRコメントがある場合、加筆するためダウンロード。
       ## * ファイルが存在しなくてもエラーにしない
@@ -97,19 +104,63 @@ jobs:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
         continue-on-error: true
+      ## PRコメント
+      - name: PR comment
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "
+            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
 
       # 静的解析（Lint）
       - name: Run Lint
         run: npm run lint
+        continue-on-error: true #Lintエラーは後続でチェックするためスキップ
+      ## 静的解析レポートのアップロード（レポート公開向けの一時保存）
+      - name: move static analysis report
+        run: |
+          mv ${{ env.test-report-directory_built }}/${{ env.style-check-tool-name }} ${{ env.test-report-directory_for_transport-to-pages }}
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.test-report-cache-key }}
+          path: ${{ inputs.work-directory }}/pages
+      ## PRコメント
+      - name: PR comment
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
+          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ env.test-report-directory_for_pages }}"
+
+          LINT_REPORT_URL="$TEST_REPORT_ROOT_URL/${{ env.style-check-tool-name }}/index.html"
+          
+          echo "
+            ## 静的解析結果のフィードバック  
+            * コードスタイルレポートのプレビューは[こちら]($LINT_REPORT_URL)　※ワークフローが動くと上書きされます  
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+      ## PRコメントアップロード
+      - name: Upload pr-comment
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
+          overwrite: true
+      ## 静的解析結果の解析
+      ## * ESLintでWaningまたはErrorが検出されていた場合、ワークフローを中断する
+      - name: Check for Warnings and Errors
+        run: |
+          if grep -q -E "error|warnings" test-result/reports/lint/index.html; then
+            exit 1
+          fi
 
       # テスト
       - name: Run Unit Tests
         run: npm run test:ci
       ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
-        run: |
-          mkdir -p pages/${{ env.test-report-directory }}
-          mv test-result/* pages/${{ env.test-report-directory }}
+        run: mv test-result/* ${{ env.test-report-directory_for_transport-to-pages }}
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
@@ -119,7 +170,6 @@ jobs:
         if: ${{ github.event.pull_request.number != '' }}
         run: |
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
           TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/test-report"
 
@@ -128,7 +178,6 @@ jobs:
 
           echo "
             ## テスト結果のフィードバック
-            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）
             * カバレッジレポートのプレビューは[こちら]($COVERAGE_URL)　※ワークフローが動くと上書きされます
             * テスト結果レポートのプレビューは[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
