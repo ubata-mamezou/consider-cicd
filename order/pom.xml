@@ -137,7 +137,7 @@
 				</executions>
 				<configuration>
 					<!-- 出力先ディレクトリ -->
-					<outputDirectory>${project.basedir}/reports/jacoco</outputDirectory>
+					<outputDirectory>${project.build.directory}/reports/jacoco</outputDirectory>
 				</configuration>
 			</plugin>
 

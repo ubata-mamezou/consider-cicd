@@ -39,7 +39,7 @@ jobs:
 
     # PRコメント
     - name: PR comment
-      if: ${{ github.event.pull_request.number != '' }}
+      if: ${{ github.event.pull_request.number != '' }} && test -f ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
       # Tips: botが1回もコメントしてない場合、--edit-lastを付けるとエラーになる
       # botのコメントが1つもない場合、「no comments found for current user」となってしまう。
       # それに対処するため、「||」以降に通常のコメントコマンドも併記している。
