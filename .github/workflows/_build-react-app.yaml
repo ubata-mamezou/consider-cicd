@@ -114,7 +114,7 @@ jobs:
 
       # 静的解析（Lint）
       - name: Run Lint
-        run: npm run lint
+        run: npm run lint:ci
         continue-on-error: true #Lintエラーは後続でチェックするためスキップ
       ## 静的解析レポートのアップロード（レポート公開向けの一時保存）
       - name: move static analysis report
@@ -148,6 +148,7 @@ jobs:
           overwrite: true
       ## 静的解析結果の解析
       ## * ESLintでWaningまたはErrorが検出されていた場合、ワークフローを中断する
+      - run: tree # debug
       - name: Check for Warnings and Errors
         run: |
           if grep -q -E "error|warnings" test-result/reports/lint/index.html; then
