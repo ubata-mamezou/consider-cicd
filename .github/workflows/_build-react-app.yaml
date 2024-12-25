@@ -97,7 +97,6 @@ jobs:
       ## PRコメントダウンロード
       ## * PRコメントがある場合、加筆するためダウンロード。
       ## * ファイルが存在しなくてもエラーにしない
-      - run: mkdir ${{ inputs.pr-comment-folder-name }}
       - name: Download pr-comment
         uses: actions/download-artifact@v4
         with:
