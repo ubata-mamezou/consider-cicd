@@ -107,6 +107,7 @@ jobs:
         run: |
           ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "
+            # Backend(TypeScript) build workflowからのフィードバック
             * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
 
@@ -146,7 +147,6 @@ jobs:
           overwrite: true
       ## 静的解析結果の解析
       ## * ESLintでWaningまたはErrorが検出されていた場合、ワークフローを中断する
-      - run: tree pages #debug
       - name: Check for Warnings and Errors
         run: |
           if grep -q -E "error|warnings" ${{ env.test-report-directory_for_transport-to-pages }}/${{ env.style-check-tool-name }}/index.html; then

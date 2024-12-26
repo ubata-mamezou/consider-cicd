@@ -88,7 +88,7 @@ jobs:
       ## 依存ライブラリのインストール
       - name: Install dependencies
         run: |
-          npm install
+          npm ci
           npm install --save-dev jest-html-reporters
       ## 後続プロセスで使用するディレクトリの初期化
       - run: |
@@ -109,6 +109,7 @@ jobs:
         run: |
           ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "
+            # Frontend build workflowからのフィードバック
             * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
 
@@ -149,9 +150,9 @@ jobs:
       ## 静的解析結果の解析
       ## * ESLintでWaningまたはErrorが検出されていた場合、ワークフローを中断する
       - name: Check for Warnings and Errors
-        if: test -f ${{ inputs.work-directory }}/${{ env.test-report-directory_for_transport-to-pages }}/${{ env.style-check-tool-name }}/index.html
         run: |
           if grep -q -E "error|warnings" ${{ env.test-report-directory_for_transport-to-pages }}/${{ env.style-check-tool-name }}/index.html; then
+
             exit 1
           fi
 
