@@ -12,6 +12,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint:ci": "eslint \"{src,apps,libs,test}/**/*.ts\" --format html --output-file test-result/reports/lint/index.html",
     "test": "jest --reporters:default",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -65,7 +66,7 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../test-result/coverage",
+    "coverageDirectory": "../test-result/reports/coverage",
     "testEnvironment": "node",
     "coverageReporters": ["text", "lcov"],
     "reporters": [
@@ -73,7 +74,7 @@
       [
         "jest-html-reporters",
         {
-          "publicPath": "./test-result/test-report",
+          "publicPath": "./test-result/reports/test",
           "filename": "index.html",
           "expand": true
         }

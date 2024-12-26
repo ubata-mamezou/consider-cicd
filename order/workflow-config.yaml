@@ -21,7 +21,7 @@ dev:
     - name: PORT
       value: "8081"
     - name: TEST_ENV
-      value: dev
+      value: development
 stage:
   aws-ecr-repository-name: consider-cicd
   ecs-cluster-name: consider-cicd-ecs

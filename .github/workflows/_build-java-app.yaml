@@ -2,6 +2,9 @@
 # ## 前提とする言語、環境など
 # * Java
 # * Maven
+# * jacoco
+# * CheckStyle
+# * SpotBugs
 # ## 未対応事項
 # * 静的解析
 # * カバレッジ計測
@@ -65,7 +68,13 @@ jobs:
           #Tips: defaults > run > working-directoryの設定はActionへの引数には適用されません
           working-directory: ${{ inputs.work-directory }}
     env:
-      test-report-directory: ${{ inputs.app-name }}/reports/test-report
+      pr-comment-directory: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
+      test-report-directory_built: ${{ inputs.dist-directory }}/reports
+      test-report-directory_for_transport-to-pages: pages/${{ inputs.app-name }}/reports
+      test-report-directory_for_pages: ${{ inputs.app-name }}/reports
+      coverage-tool-name: jacoco
+      style-check-tool-name: checkstyle
+      bug-check-tool-name: spotbugs
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -97,20 +106,92 @@ jobs:
                     </server>
                   </servers>
                 </settings>" > ~/.m2/settings.xml
+      ## 後続プロセスで使用するディレクトリの初期化
+      - run: |
+          mkdir -p ${{ inputs.pr-comment-folder-name }}
+          mkdir -p ${{ env.test-report-directory_for_transport-to-pages }}
+      ## 編集を伴う変数定義
+      - name: variable settings
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
+          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ env.test-report-directory_for_pages }}"
+
+          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
+          echo "PAGES_URL=$PAGES_URL" >> $GITHUB_ENV
+          echo "TEST_REPORT_ROOT_URL=$TEST_REPORT_ROOT_URL" >> $GITHUB_ENV
       ## PRコメントダウンロード
       ## * PRコメントがある場合、加筆するためダウンロード。
       ## * ファイルが存在しなくてもエラーにしない
-      - run: mkdir ${{ inputs.pr-comment-folder-name }} -p
       - name: Download pr-comment
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
-          path: ${{ inputs.pr-comment-folder-name }}
+          path: ${{ env.pr-comment-directory }}
         continue-on-error: true
+      ## PRコメント
+      - name: PR comment
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "
+            # Backend(Java) build workflowからのフィードバック
+            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
 
-      # ビルド、テスト、パッケージ（Maven）
+      # ビルド
+      - name: build
+        run: mvn compile
+
+      # 静的解析
+      ## 静的解析実行
+      - name: Static analysis
+        run: mvn checkstyle:checkstyle spotbugs:spotbugs
+      ## 静的解析レポートのアップロード（レポート公開向けの一時保存）
+      - name: move static analysis report
+        run: |
+          mv ${{ env.test-report-directory_built }}/${{ env.style-check-tool-name }}/checkstyle.html ${{ env.test-report-directory_built }}/${{ env.style-check-tool-name }}/index.html
+          mv ${{ env.test-report-directory_built }}/${{ env.style-check-tool-name }} ${{ env.test-report-directory_for_transport-to-pages }}
+          mv ${{ env.test-report-directory_built }}/${{ env.bug-check-tool-name }}/spotbugs.html ${{ env.test-report-directory_built }}/${{ env.bug-check-tool-name }}/index.html
+          mv ${{ env.test-report-directory_built }}/${{ env.bug-check-tool-name }} ${{ env.test-report-directory_for_transport-to-pages }}
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.test-report-cache-key }}
+          path: ${{ inputs.work-directory }}/pages
+      ## PRコメント
+      - name: PR comment
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          CODE_STYLE_REPORT_URL="$TEST_REPORT_ROOT_URL/${{ env.style-check-tool-name }}/index.html"
+          CODE_BUG_REPORT_URL="$TEST_REPORT_ROOT_URL/${{ env.bug-check-tool-name }}/index.html"
+          
+          echo "
+            ## 静的解析結果のフィードバック  
+            * コードスタイルレポートのプレビューは[こちら]($CODE_STYLE_REPORT_URL)　※ワークフローが動くと上書きされます  
+            * 潜在バグレポートのプレビューは[こちら]($CODE_BUG_REPORT_URL)　※ワークフローが動くと上書きされます  
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+      ## PRコメントアップロード
+      - name: Upload pr-comment
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: ${{ env.pr-comment-directory }}
+          overwrite: true
+      ## 静的解析結果の解析
+      ## * CheckStyleでWaningまたはErrorが検出されていた場合、ワークフローを中断する
+      ## * SpotBugsでbugが検出されていた場合、ワークフローを中断する
+      - name: Check for Warnings and Errors
+        run: |
+          if grep -q "<error" ${{ inputs.work-directory }}/checkstyle-result.xml || \
+             grep -q "<BugInstance" ${{ inputs.work-directory }}/spotbugsXml.xml; then
+            echo "静的解析でエラーまたは警告が検出されたため、ワークフローを中断します。"
+            exit 1
+          fi      
+
+      # テスト、パッケージ（Maven）
       - name: Build with Maven
-        run: mvn clean install surefire-report:report-only
+        run: mvn install jacoco:report surefire-report:report-only
       ## アーティファクトのアップロード（イメージビルド向けの一時保存）
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -120,28 +201,25 @@ jobs:
       ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
         run: |
-          mkdir -p pages/${{ env.test-report-directory }}
-          mv ${{ inputs.dist-directory }}/reports/* pages/${{ env.test-report-directory }}
-          mv pages/${{ env.test-report-directory }}/surefire.html pages/${{ env.test-report-directory }}/index.html
+          mv ${{ env.test-report-directory_built }}/${{ env.coverage-tool-name }} ${{ env.test-report-directory_for_transport-to-pages }}
+          mv ${{ env.test-report-directory_built }}/test/surefire.html ${{ env.test-report-directory_built }}/test/index.html
+          mv ${{ env.test-report-directory_built }}/test ${{ env.test-report-directory_for_transport-to-pages }}
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
-          name: test-report_${{ inputs.app-name }}
+          name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
+          overwrite: true
       - name: PR comment
         if: ${{ github.event.pull_request.number != '' }}
         run: |
-          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
-          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/test-report"
-
-          TEST_REPORT_URL="$TEST_REPORT_ROOT_URL/index.html"
+          COVERAGE_REPORT_URL="$TEST_REPORT_ROOT_URL/${{ env.coverage-tool-name }}/index.html"
+          TEST_REPORT_URL="$TEST_REPORT_ROOT_URL/test/index.html"
           
           echo "
             ## テスト結果のフィードバック  
-            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
-            * テスト結果レポートのプレビュー環境は[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます  
+            * カバレッジレポートのプレビューは[こちら]($COVERAGE_REPORT_URL)　※ワークフローが動くと上書きされます  
+            * テスト結果レポートのプレビューは[こちら]($TEST_REPORT_URL)　※ワークフローが動くと上書きされます  
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
   
       # アーティファクト公開（公開先：GitHub Packages）
@@ -162,13 +240,12 @@ jobs:
           echo "
             ## パッケージプッシュのフィードバック  
             * 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
-            " >> pr/${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
-
-      - run: tree
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
 
       # PRコメントアップロード
       - name: Upload pr-comment
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
-          path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
+          path: ${{ env.pr-comment-directory }}
+          overwrite: true

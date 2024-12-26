@@ -5,6 +5,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 受注明細.
+ */
 @Getter
 @Setter
 @EqualsAndHashCode
