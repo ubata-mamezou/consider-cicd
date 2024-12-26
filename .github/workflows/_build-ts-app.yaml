@@ -116,6 +116,7 @@ jobs:
         continue-on-error: true
       - run: tree test-result #debug
         continue-on-error: true
+      - run: npm run lint
       - name: Run Lint
         run: npm run lint:ci
         continue-on-error: true #Lintエラーは後続でチェックするためスキップ
