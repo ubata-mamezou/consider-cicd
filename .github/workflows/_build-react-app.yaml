@@ -168,7 +168,7 @@ jobs:
         run: npm run test:ci
       ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
-        run: mv test-result/* ${{ env.test-report-directory_for_transport-to-pages }}
+        run: mv ${{ env.test-report-directory_built }}/* ${{ env.test-report-directory_for_transport-to-pages }}
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
