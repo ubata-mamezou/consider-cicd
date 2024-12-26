@@ -73,6 +73,11 @@ jobs:
       # bug-check-tool-name: spotbugs
     steps:
       # イメージビルド実行環境セットアップ
+      ## コードをチェックアウト
+      - name: checkout source
+        uses: actions/checkout@v4
+      ## 後続プロセスで使用するディレクトリの初期化
+      - run: mkdir -p ${{ inputs.pr-comment-folder-name }}
       ## 編集を伴う変数定義
       - name: variable settings
         run: |
@@ -83,11 +88,6 @@ jobs:
           echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
           echo "PAGES_URL=$PAGES_URL" >> $GITHUB_ENV
           echo "TEST_REPORT_ROOT_URL=$TEST_REPORT_ROOT_URL" >> $GITHUB_ENV
-      ## コードをチェックアウト
-      - name: checkout source
-        uses: actions/checkout@v4
-      ## 後続プロセスで使用するディレクトリの初期化
-      - run: mkdir -p ${{ inputs.pr-comment-folder-name }}
       ## 対象のアーティファクトをダウンロード
       ## note: キャッシュ/リストアだと受け渡しの挙動が不安定だったので、アップロード/ダウンロードで実現
       - name: download artifact
