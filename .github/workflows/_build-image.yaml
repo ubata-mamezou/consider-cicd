@@ -63,11 +63,31 @@ jobs:
     defaults:
       run:
         working-directory: ${{ inputs.work-directory }}
+    env:
+      pr-comment-directory: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
+      # test-report-directory_built: ${{ inputs.dist-directory }}/reports
+      test-report-directory_for_transport-to-pages: pages/${{ inputs.app-name }}/reports
+      test-report-directory_for_pages: ${{ inputs.app-name }}/reports
+      # coverage-tool-name: jacoco
+      # style-check-tool-name: checkstyle
+      # bug-check-tool-name: spotbugs
     steps:
       # イメージビルド実行環境セットアップ
+      ## 編集を伴う変数定義
+      - name: variable settings
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
+          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ env.test-report-directory_for_pages }}"
+
+          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
+          echo "PAGES_URL=$PAGES_URL" >> $GITHUB_ENV
+          echo "TEST_REPORT_ROOT_URL=$TEST_REPORT_ROOT_URL" >> $GITHUB_ENV
       ## コードをチェックアウト
       - name: checkout source
         uses: actions/checkout@v4
+      ## 後続プロセスで使用するディレクトリの初期化
+      - run: mkdir -p ${{ inputs.pr-comment-folder-name }}
       ## 対象のアーティファクトをダウンロード
       ## note: キャッシュ/リストアだと受け渡しの挙動が不安定だったので、アップロード/ダウンロードで実現
       - name: download artifact
@@ -78,12 +98,11 @@ jobs:
       ## PRコメントダウンロード
       ## * PRコメントがある場合、加筆するためダウンロード。
       ## * ファイルが存在しなくてもエラーにしない
-      - run: mkdir ${{ inputs.pr-comment-folder-name }} -p
       - name: Download pr-comment
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
-          path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
+          path: ${{ env.pr-comment-directory }}
         continue-on-error: true
 
       # イメージビルド
@@ -143,8 +162,8 @@ jobs:
       # スキャンレポートのアップロード（レポート公開向けの一時保存）
       - name: move scan report
         run: |
-          mkdir -p pages/${{ inputs.app-name }}/reports/image-scan
-          mv trivy-resource/result/* pages/${{ inputs.app-name }}/reports/image-scan
+          mkdir -p ${{ env.test-report-directory_for_transport-to-pages }}/image-scan
+          mv trivy-resource/result/* ${{ env.test-report-directory_for_transport-to-pages }}/image-scan
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
@@ -153,27 +172,24 @@ jobs:
       - name: PR FB
         if: ${{ github.event.pull_request.number != '' }}
         run: |
-          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
-
-          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/image-scan"
-          SCAN_REPORT_URL="$TEST_REPORT_ROOT_URL/index.html"
+          SCAN_REPORT_URL="$TEST_REPORT_ROOT_URL/image-scan/index.html"
           
           echo "
             ## 脆弱性テスト結果のフィードバック
             * スキャン結果レポートのプレビューは[こちら]($SCAN_REPORT_URL)　※ワークフローが動くと上書きされます
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
   
-      # FIXME: 脆弱性があってもパイプラインが進んでしまっている
       # 脆弱性が見つかった場合、パイプラインを終了させる
-      # - name: Check for vulnerabilities
-      #   run: |
-      #     if grep -q '"Vulnerabilities": \[' trivy-resource/result/index.html; then
-      #       echo "Vulnerabilities found."
-      #       exit 1
-      #     else
-      #       echo "No vulnerabilities found."
-      #     fi
+      - name: Check for vulnerabilities
+        run: |
+          if grep -q -E '<td class="severity">HIGHT|<td class="severity">CRITICAL' ${{ env.test-report-directory_for_transport-to-pages }}/image-scan/index.html; then
+            echo "High or Critical Vulnerabilities found."
+            exit 1
+          elif grep -q '<td class="severity">' ${{ env.test-report-directory_for_transport-to-pages }}/image-scan/index.html; then
+            echo "Vulnerabilities found."
+          else
+            echo "No vulnerabilities found."
+          fi
 
       # コンテナイメージ公開（公開先：GitHub Packages）
       - name: Publish Docker image to GitHub Packages
@@ -191,5 +207,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.pr-comment-cache-key }}
-          path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
+          path: ${{ env.pr-comment-directory }}
           overwrite: true
