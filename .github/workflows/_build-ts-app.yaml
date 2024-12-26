@@ -91,7 +91,6 @@ jobs:
       ## 後続プロセスで使用するディレクトリの初期化
       - run: |
           mkdir -p ${{ inputs.pr-comment-folder-name }}
-          mkdir -p ${{ env.test-report-directory_built }}/${{ env.style-check-tool-name }}
           mkdir -p ${{ env.test-report-directory_for_transport-to-pages }}
       ## PRコメントダウンロード
       ## * PRコメントがある場合、加筆するためダウンロード。
@@ -153,16 +152,10 @@ jobs:
           overwrite: true
       ## 静的解析結果の解析
       ## * ESLintでWaningまたはErrorが検出されていた場合、ワークフローを中断する
-      - run: tree test-result #debug
-      - name: Check if Lint Report Exists
-        run: |
-          if [ ! -f test-result/reports/lint/index.html ]; then
-            echo "Lint report not found!"
-            exit 1
-          fi
+      - run: tree pages #debug
       - name: Check for Warnings and Errors
         run: |
-          if grep -q -E "error|warnings" ${{ env.test-report-directory_built }}/${{ env.style-check-tool-name }}/index.html; then
+          if grep -q -E "error|warnings" ${{ env.test-report-directory_for_transport-to-pages }}/${{ env.style-check-tool-name }}/index.html; then
             exit 1
           fi
 
