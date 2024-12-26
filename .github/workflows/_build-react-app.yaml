@@ -148,16 +148,10 @@ jobs:
           overwrite: true
       ## 静的解析結果の解析
       ## * ESLintでWaningまたはErrorが検出されていた場合、ワークフローを中断する
-      - run: tree test-result # debug
-      - name: 静的解析結果が見えてない？
-        run: |
-          if [ ! -f test-result/reports/lint/index.html ]; then
-            echo "Lint report not found!"
-            exit 1
-          fi
       - name: Check for Warnings and Errors
+        if: test -f ${{ inputs.work-directory }}/${{ env.test-report-directory_for_transport-to-pages }}/${{ env.style-check-tool-name }}/index.html
         run: |
-          if grep -q -E "error|warnings" test-result/reports/lint/index.html; then
+          if grep -q -E "error|warnings" ${{ env.test-report-directory_for_transport-to-pages }}/${{ env.style-check-tool-name }}/index.html; then
             exit 1
           fi
 
