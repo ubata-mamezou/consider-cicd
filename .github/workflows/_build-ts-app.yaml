@@ -111,6 +111,7 @@ jobs:
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
 
       # 静的解析（Lint）
+      - run: npm cache clean --force
       - run: ls -l test-result  
         continue-on-error: true
       - run: tree test-result #debug
