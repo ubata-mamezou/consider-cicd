@@ -11,7 +11,7 @@ updates:
       - "/order-ui/"
     schedule:
       interval: "daily"
-  - package-ecosystem: "mvn"
+  - package-ecosystem: "maven"
     directory: "/order/"
     schedule:
       interval: "daily"
