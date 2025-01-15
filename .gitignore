@@ -1,8 +1,17 @@
-order/.mvn
-order/mvnw
-order/mvnw.cmd
+#java
+*/.mvn
+*/mvnw
+*/mvnw.cmd
+## Eclipse
+*/.metadata
+*/bin
+*/Servers
+
+#ts
 customer/node_modules
 customer/customer-service/test-result
-order-ui/node_modules
 customer/customer-service/pages
+
+#ui
+order-ui/node_modules
 order-ui/test-result
