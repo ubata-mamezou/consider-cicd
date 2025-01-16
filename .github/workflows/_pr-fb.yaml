@@ -31,6 +31,7 @@ jobs:
       uses: actions/checkout@v4
     # PRコメントダウンロード（事前にアップロードしていたファイルを取得）
     - name: download pr-comment
+      id: download-pr-comment
       uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.pr-comment-cached-key }}
@@ -39,7 +40,9 @@ jobs:
 
     # PRコメント
     - name: PR comment
-      if: ${{ github.event.pull_request.number != '' }} && test -f ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+      # PRにフィードバックするにはフィードバック先が必要なのでPR番号を持っていない場合はスキップ
+      # フィードバックコメントがない場合も同様にスキップ
+      if: ${{ github.event.pull_request.number != '' }} && ${{ steps.download-pr-comment != 'failure' }} && test -f ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
       # Tips: botが1回もコメントしてない場合、--edit-lastを付けるとエラーになる
       # botのコメントが1つもない場合、「no comments found for current user」となってしまう。
       # それに対処するため、「||」以降に通常のコメントコマンドも併記している。
