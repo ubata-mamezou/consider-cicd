@@ -6,13 +6,8 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-<<<<<<< HEAD
 		<version>3.4.1</version>
 		<relativePath/>
-=======
-		<version>3.3.5</version>
-		<relativePath />
->>>>>>> a8cd2eca3d0711da72d7c4623ec3de272ce3d8f2
 		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.mau.consider.cicd</groupId>
@@ -60,10 +55,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-<<<<<<< HEAD
 			<version>1.18.36</version>
-=======
->>>>>>> a8cd2eca3d0711da72d7c4623ec3de272ce3d8f2
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
