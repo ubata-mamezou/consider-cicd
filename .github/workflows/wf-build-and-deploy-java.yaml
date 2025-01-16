@@ -52,16 +52,6 @@ jobs:
       pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
       pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
       is-publish: true
-  # テストレポートを公開
-  publish-test-result:
-    needs: 
-      - workflow-config
-      - build-image
-    uses: ./.github/workflows/_publish-report.yaml
-    with:
-      app-name: ${{ needs.workflow-config.outputs.app-name}}
-      test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
-      scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
   # デプロイ
   deploy:
     needs:
@@ -81,8 +71,20 @@ jobs:
       ecs-service-name: ${{ needs.workflow-config.outputs.ecs-service-name}}
       ecs-task-name: ${{ needs.workflow-config.outputs.ecs-task-name}}
       env-variables: ${{ needs.workflow-config.outputs.env-variables}}
+  # テストレポートを公開
+  publish-test-result:
+    if: always()
+    needs: 
+      - workflow-config
+      - build-image
+    uses: ./.github/workflows/_publish-report.yaml
+    with:
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
   # PRフィードバック
   pr-feedback:
+    if: always()
     needs: 
       - workflow-config
       - build-image
