@@ -1,0 +1,51 @@
+# # PRへのフィードバック
+# * PRがトリガーではない場合、フィードバック先がないため、何もせずに終了します
+# ## 前提条件
+# * PRへのフィードバック事項を下記の条件でファイルにまとめてアップロードしていること。
+#   * key: inputs.pr-comment-cached-keyに設定してください
+#   * file name: pr-comment.md固定
+name: PR feedback
+
+on:
+  workflow_call:
+      inputs:
+        pr-comment-cached-key:
+          description: キャッシュしたPRコメントファイルのキー名
+          required: true
+          type: string
+        pr-comment-folder-name:
+          description: PRへのフィードバックコメントファイルの格納先フォルダー名
+          required: true
+          type: string
+        pr-comment-file-name:
+          description: PRへのフィードバックコメントファイル名
+          required: true
+          type: string
+                
+jobs:
+  pr-feedback:
+    runs-on: ubuntu-latest
+    steps:
+    ## コードをチェックアウト
+    - name: checkout source
+      uses: actions/checkout@v4
+    # PRコメントダウンロード（事前にアップロードしていたファイルを取得）
+    - name: download pr-comment
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.pr-comment-cached-key }}
+        path: ${{ inputs.pr-comment-folder-name }}
+
+    # debug
+    - run: tree
+
+    # PRコメント
+    - name: PR comment
+      if: ${{ github.event.pull_request.number != '' }}
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --edit-last --body-file ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
+        # GH_ENTERPRISE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # GH_HOST: your-host.com 

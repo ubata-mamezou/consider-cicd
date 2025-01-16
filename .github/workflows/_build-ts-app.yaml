@@ -1,9 +1,14 @@
 # TypeScriptアプリケーションのビルド
-# # 前提とする言語など
-# * TypeScript
+# ## 前提とする言語など
 # * Node.js
-# * jest
-name: (reusable workflow) Build TypeScript Application
+# * (Nest.js)
+# * (TypeScript)
+# * lint: esLint
+# * test: jest
+# * build: vite
+# * ※「xxx: yyy」：yyyをベースとして実装していますが、xxxコマンドで実行できればよいので他のモノでも代替可。
+# * ※(yyy)：yyyをベースとして実装していますが、当ワークフローはこれに特化した処理は含んでいないため、他のモノでも代替可。
+name: Build TypeScript Application
 
 on:
   workflow_call:
@@ -37,6 +42,18 @@ on:
         description: ビルドしたアーティファクトのキャッシュキー名
         required: true
         type: string
+      pr-comment-cache-key:
+        description: PRコメントファイルのキャッシュキー名
+        required: true
+        type: string
+      pr-comment-folder-name:
+        description: PRへのフィードバックコメントファイルの格納先フォルダー名
+        required: true
+        type: string
+      pr-comment-file-name:
+        description: PRへのフィードバックコメントファイル名
+        required: true
+        type: string
       is-publish:
         description: Jar,イメージの公開有無(true:公開する、false:公開しない)
         required: false
@@ -49,6 +66,8 @@ jobs:
     defaults:
       run:
         working-directory: ${{ inputs.work-directory }}
+    env:
+      test-report-directory: ${{ inputs.app-name }}/reports/test-report
     steps:
       # 実行環境セットアップ
       ## コードをチェックアウト
@@ -66,16 +85,26 @@ jobs:
         run: |
           npm install
           npm install --save-dev jest-html-reporters
+      ## PRコメントダウンロード
+      ## * PRコメントがある場合、加筆するためダウンロード。
+      ## * ファイルが存在しなくてもエラーにしない
+      - run: mkdir ${{ inputs.pr-comment-folder-name }}
+      - name: Download pr-comment
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: ${{ inputs.pr-comment-folder-name }}
+        continue-on-error: true
+
       # 静的解析（Lint）
       - name: Run Lint
         run: npm run lint
+
       # テスト
       - name: Run Unit Tests
         run: npm run test:ci
-      # テストレポートのアップロード（レポート公開向けの一時保存）
+      ## テストレポートのアップロード（レポート公開向けの一時保存）
       - name: move test report
-        env:
-          test-report-directory: ${{ inputs.app-name }}/reports/test-report
         run: |
           mkdir -p pages/${{ env.test-report-directory }}
           mv test-result/* pages/${{ env.test-report-directory }}
@@ -84,22 +113,34 @@ jobs:
         with:
           name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
-      # アーティファクト生成
+      - name: PR comment
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
+          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ inputs.app-name }}/reports/test-report"
+
+          COVERAGE_URL="$TEST_REPORT_ROOT_URL/coverage/lcov-report/index.html"
+          TEST_REPORT_URL="$TEST_REPORT_ROOT_URL/rest-report/index.html"
+          
+          echo "
+            ## テスト結果のフィードバック  
+            * ワークフローごとに保存しているテスト結果は[こちら]($ARTIFACT_URL)　※GitHubの設定期間保持されます（デフォルト：90日）  
+            * カバレッジレポートのプレビューは[こちら]($COVERAGE_URL)　※次のワークフローが動くと上書きされます  
+            * テスト結果レポートのプレビュー環境は[こちら]($TEST_REPORT_URL)　※次のワークフローが動くと上書きされます  
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+  
+      # ビルド
       - name: Build TS App
         run: npm run build
-      # アーティファクトのアップロード（イメージビルド向けの一時保存）
+      ## アーティファクトのアップロード（イメージビルド向けの一時保存）
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.build-artifacts-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
-      # # アーティファクトのキャッシュ（イメージビルド向けの一時保存）
-      # - name: Cache build artifacts
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
-      #     key: ${{ inputs.build-artifacts-cache-key }}
-      #     fail-on-cache-miss: true
+
       # アーティファクト公開（公開先：GitHub Packages）
       - name: Publish artifact to GitHub Packages
         if: inputs.is-publish
@@ -108,9 +149,22 @@ jobs:
           npm config set @${{ github.repository_owner }}:registry=https://npm.pkg.github.com
           npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
           npm publish || echo "Publish failed, skipping"
-        ## 同一バージョンを公開するとエラーになってパイプラインがfailしてしまうので、エラーが発生しても成功扱いにするように設定
-        continue-on-error: true
-      # アーティファクト公開コールバック
-      - name: callback
+        continue-on-error: true #リポジトリがimmutableの場合、同一バージョンのpushはできないため、エラー無視
+      ## アーティファクト公開コールバック
+      - name: callback to console
         if: steps.publish-artifact-to-packages.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
+      - name: callback to PR
+        if: ${{ steps.publish-artifact-to-packages.outcome == 'failure' && github.event.pull_request.number != '' }}
+        run: |
+          echo "
+            ## パッケージプッシュのフィードバック  
+            * 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+
+      # PRコメントアップロード
+      - name: Upload pr-comment
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}

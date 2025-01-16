@@ -2,7 +2,7 @@
 
 ## backend(TS)
 [![CI TS Application](https://github.com/ubata-mamezou/consider-cicd/actions/workflows/wf-build-ts.yaml/badge.svg)](https://github.com/ubata-mamezou/consider-cicd/actions/workflows/wf-build-ts.yaml)
-[![CI/CD TS Appication](https://github.com/ubata-mamezou/consider-cicd/actions/workflows/build-ts.yaml/badge.svg)](https://github.com/ubata-mamezou/consider-cicd/actions/workflows/build-ts.yaml)
+[![CI/CD TS Application](https://github.com/ubata-mamezou/consider-cicd/actions/workflows/build-ts.yaml/badge.svg)](https://github.com/ubata-mamezou/consider-cicd/actions/workflows/build-ts.yaml)
 * [coverage-report](https://ubata-mamezou.github.io/consider-cicd/customer-service/reports/test-report/coverage/lcov-report/index.html)
 * [test-report](https://ubata-mamezou.github.io/consider-cicd/customer-service/reports/test-report/test-report/index.html)
 * [container security scan report](https://ubata-mamezou.github.io/consider-cicd/customer-service/reports/image-scan/)

@@ -1,5 +1,7 @@
-# customer-serviceを本番環境にデプロイ
-name: Deploy to AWS(customer-service:production)
+# デプロイ
+# * デプロイ先：本番環境
+# * デプロイ対象：customer-service
+name: Deploy to AWS(env:production, app:customer-service)
 
 on:
   workflow_dispatch: 
@@ -10,13 +12,13 @@ on:
       - 'customer/**'
 
 jobs:
-  # ワークフローの設定ロード
+  # ワークフロー設定のロード
   workflow-config:
     uses: ./.github/workflows/_load-config.yaml
     with:
       profile: prod
       config-file-directory: customer/customer-service
-  # デプロイ(デプロイ先：AWS)
+  # デプロイ
   deploy:
     needs: workflow-config
     uses: ./.github/workflows/_deploy-prod-aws-backend.yaml
