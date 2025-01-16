@@ -1,5 +1,7 @@
-# order-serviceをステージング環境にデプロイ
-name: Deploy to AWS(order-service:staging)
+# デプロイ
+# * デプロイ先：ステージング環境
+# * デプロイ対象：order-service
+name: Deploy to AWS(env:staging, app:order-service)
 
 on:
   workflow_dispatch: 
@@ -10,13 +12,13 @@ on:
       - 'order/**'
 
 jobs:
-  # ワークフローの設定ロード
+  # ワークフロー設定のロード
   workflow-config:
     uses: ./.github/workflows/_load-config.yaml
     with:
       profile: stage
       config-file-directory: order
-  # デプロイ(デプロイ先：AWS)
+  # デプロイ
   deploy:
     needs: workflow-config
     uses: ./.github/workflows/_deploy-stage-aws-backend.yaml

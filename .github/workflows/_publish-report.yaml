@@ -1,8 +1,9 @@
 # # レポート公開
+# ## 前提とする言語、環境など
 # * レポート公開先：GitHub Pages
 # ## 前提条件
 # * GitHub Pagesが利用可能になっていること
-name: (reusable workflow) Publish Reports
+name: Publish Reports
 
 on:
   workflow_call:
@@ -39,13 +40,14 @@ jobs:
       with:
         name: ${{ inputs.test-report-cached-key }}
         path: pages
+      continue-on-error: true
     - name: download image scan report
       if: ${{ inputs.scan-report-cached-key != '' }}
       uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.scan-report-cached-key }}
         path: pages
-    - run: tree #debug
+      continue-on-error: true
 
     # レポート公開(公開先：GitHub Pages)
     - name: upload report

@@ -1,9 +1,13 @@
 # # Reactアプリケーションのビルド
-# ## 前提とする言語など
-# * React
-# * TypeScript
+# ## 前提とする言語、環境など
 # * Node.js
-# * Vite
+# * (React)
+# * (TypeScript)
+# * lint: esLint
+# * test: jest
+# * build: vite
+# * ※「xxx: yyy」：yyyをベースとして実装していますが、xxxコマンドで実行できればよいので他のモノでも代替可。
+# * ※(yyy)：yyyをベースとして実装していますが、当ワークフローはこれに特化した処理は含んでいないため、他のモノでも代替可。
 name: CI React Application
 
 on:
@@ -19,7 +23,7 @@ on:
       - reopened
 
 jobs:
-  # ワークフローの設定ロード
+  # ワークフロー設定のロード
   workflow-config:
     uses: ./.github/workflows/_load-config.yaml
     with:
@@ -37,9 +41,13 @@ jobs:
       node-version: ${{ needs.workflow-config.outputs.node-version}}
       test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
       build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+      pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
+      pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
       is-publish: false
   # テストレポートを公開
   publish-test-result:
+    if: always()
     needs: 
       - workflow-config
       - build
@@ -47,3 +55,14 @@ jobs:
     with:
       app-name: order-ui
       test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+  # PRフィードバック
+  pr-feedback:
+    if: always()
+    needs: 
+      - workflow-config
+      - build
+    uses: ./.github/workflows/_pr-fb.yaml
+    with:
+      pr-comment-cached-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
+      pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}

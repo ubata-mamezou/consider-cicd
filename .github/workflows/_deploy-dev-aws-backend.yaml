@@ -1,5 +1,6 @@
-# AWSへのデプロイ(開発環境)
-name: (reusable workflow) deploy aws (env:dev, app:backend)
+# AWSへのデプロイ(開発環境、バックエンド)
+# * 前提条件などは`_deploy-aws-backend.yaml`参照
+name: deploy aws (env:dev, app:backend)
 
 on:
   workflow_call:
@@ -33,11 +34,7 @@ on:
         required: true
         type: string
       env-variables:
-        description: |
-          環境変数(JSON) 
-          ■指定例
-          {"name": "PORT", "value": "8082"}, 
-          {"name": "TEST_ENV", "value": "dev"}
+        description: 環境変数(JSON) ※設定方法は設定ファイルテンプレート参照
         required: false
         type: string
         default: ""

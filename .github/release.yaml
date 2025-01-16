@@ -1,18 +1,24 @@
 changelog:
   exclude:
+    # リリース ノートに表示しない pull request のラベルの一覧
     labels:
       - ignore-for-release
+    # pull request をリリースノートから除外するユーザーまたはボット ログイン ハンドルの一覧
     authors:
       - octocat
+      - dependabot
   categories:
     - title: Breaking Changes 🛠
       labels:
         - Semver-Major
         - breaking-change
-    - title: Exciting New Features 🎉
+    - title: New Features 🎉
       labels:
         - Semver-Minor
         - enhancement
-    - title: Other Changes
+    - title: Bus fix 🐛
+      labels:
+        - bug
+    - title: Other Changes 
       labels:
         - "*"
