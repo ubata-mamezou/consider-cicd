@@ -8,6 +8,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 受注。
+ */
 @Getter
 @Setter
 @EqualsAndHashCode
