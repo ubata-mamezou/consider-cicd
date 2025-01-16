@@ -1,7 +1,13 @@
 # # TypeScriptアプリケーションのビルド
 # ## 前提とする言語など
-# * TypeScript
 # * Node.js
+# * (Nest.js)
+# * (TypeScript)
+# * lint: esLint
+# * test: jest
+# * build: vite
+# * ※「xxx: yyy」：yyyをベースとして実装していますが、xxxコマンドで実行できればよいので他のモノでも代替可。
+# * ※(yyy)：yyyをベースとして実装していますが、当ワークフローはこれに特化した処理は含んでいないため、他のモノでも代替可。
 name: CI/CD TS Application
 
 on:
@@ -13,7 +19,7 @@ on:
       - 'customer/**'
 
 jobs:
-  # ワークフローの設定ロード
+  # ワークフロー設定のロード
   workflow-config:
     uses: ./.github/workflows/_load-config.yaml
     with:
@@ -31,6 +37,9 @@ jobs:
       node-version: ${{ needs.workflow-config.outputs.node-version}}
       test-report-cache-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
       build-artifacts-cache-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
+      pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
+      pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
       is-publish: true
   # イメージビルド
   build-image:
@@ -45,17 +54,10 @@ jobs:
       dist-directory: ${{ needs.workflow-config.outputs.dist-directory}}
       build-artifacts-cached-key: ${{ needs.workflow-config.outputs.build-artifacts-cache-key}}
       scan-report-cache-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
+      pr-comment-cache-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
+      pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}
       is-publish: true
-  # テストレポートを公開
-  publish-test-result:
-    needs: 
-      - workflow-config
-      - build-image
-    uses: ./.github/workflows/_publish-report.yaml
-    with:
-      app-name: ${{ needs.workflow-config.outputs.app-name}}
-      test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
-      scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
   # デプロイ
   deploy:
     needs: 
@@ -72,3 +74,26 @@ jobs:
       ecs-service-name: ${{ needs.workflow-config.outputs.ecs-service-name}}
       ecs-task-name: ${{ needs.workflow-config.outputs.ecs-task-name}}
       env-variables: ${{ needs.workflow-config.outputs.env-variables}}
+  # テストレポートを公開
+  publish-test-result:
+    if: always()
+    needs: 
+      - workflow-config
+      - build-image
+    uses: ./.github/workflows/_publish-report.yaml
+    with:
+      app-name: ${{ needs.workflow-config.outputs.app-name}}
+      test-report-cached-key: ${{ needs.workflow-config.outputs.test-report-cache-key}}
+      scan-report-cached-key: ${{ needs.workflow-config.outputs.scan-report-cache-key}}
+  # PRフィードバック
+  pr-feedback:
+    if: always()
+    needs: 
+      - workflow-config
+      - build-image
+      - deploy
+    uses: ./.github/workflows/_pr-fb.yaml
+    with:
+      pr-comment-cached-key: ${{ needs.workflow-config.outputs.pr-comment-cache-key }}
+      pr-comment-folder-name: ${{ needs.workflow-config.outputs.pr-comment-folder-name }}
+      pr-comment-file-name: ${{ needs.workflow-config.outputs.pr-comment-file-name }}

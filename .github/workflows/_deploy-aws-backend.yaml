@@ -1,31 +1,35 @@
 # # AWSへのデプロイ
-# * イメージ公開先：GitHub Packages(CI/CD)、ECR(デプロイ先)
-# * デプロイ先の環境：AWS
+# ## 前提とする言語、環境など
+# * イメージ取得先：GitHub Packages
+# * デプロイ環境
+#   * コンテナレジストリ：ECR
+#   * サービスの実行環境：ECS+(Fargate)
+# * ※(yyy)：yyyをベースとして実装していますが、当ワークフローはこれに特化した処理は含んでいないため、他のモノでも代替可。
 # ## 前提条件
-# * イメージビルドが完了し、GitHub Packagesに公開されていること
+# * デプロイ対象バージョンのイメージがGitHub Packagesに公開されていること
 # * デプロイ先に必要な環境が構築されていること
 #   * VPC、サブネットなどのネットワーク設定
 #   * IAM：デプロイに必要なポリシーが設定されているユーザーが設定されていること
 #   * ECR
 #   * ECS：クラスター、サービス、タスク定義を設定し、サービスが動作していること
 # * GitHub SecretsにIAMのCredential情報を設定済みであること
-#   * 必要なポリシー
+#   * IAMに必要なポリシー
 #     * AmazonEC2ContainerRegistryFullAccess：イメージのプッシュに使用
 #     * AmazonECS_FullAccess：ECSの操作に使用
 #     * AmazonECSTaskExecutionRolePolicy：タスク定義の実行に使用
 #     * AmazonS3ReadOnlyAccess：S3から環境設定ファイルを取得する際に使用（任意）
-#   * 設定が必要な値
-#     * AWS_ACCESS_KEY_ID
-#     * AWS_SECRET_ACCESS_KEY
+#   * 設定値：当ワークフローのsecrets参照
 # ## Appendix. 構築する際は段階を踏むと組みやすくなります
-# 1. イメージプッシュまで構築する
-#   1. ネットワーク、IAM、ECRを設定
-#   2. IAMのCredential情報を設定
-#   3. イメージプッシュまで構築
-# 2. サービス更新部分を追加で構築する
-#   1. プッシュされたイメージを使ったサービスを動作させる
-#   2. サービス更新を構築
-name: (reusable workflow) deploy aws for backend
+# 1. まずイメージプッシュまでを構築する
+#   1. デプロイ先の環境構築：ネットワーク、IAM、ECRなど
+#   2. IAMのCredential情報をGitHubに設定
+#   3. イメージプッシュまでのコードを実装/検証
+# 2. 続いてサービス更新処理を追加で構築する
+#   1. デプロイ先の環境構築：ECRにプッシュしたイメージを使ったサービスを動作させる
+#   2. サービス更新処理を実装/検証
+# ## 未対応事項
+# * タスク定義の削除
+name: deploy aws for backend
 
 on:
   workflow_call:
@@ -62,8 +66,10 @@ on:
         description: |
           環境変数(JSON) 
           ■指定例
-          {"name": "PORT", "value": "8082"}, 
-          {"name": "TEST_ENV", "value": "dev"}
+          [
+            {"name": "PORT", "value": "8082"}, 
+            {"name": "TEST_ENV", "value": "dev"}
+          ]
         required: false
         type: string
         default: ""
@@ -112,15 +118,17 @@ jobs:
         run: |
           docker tag ${{ env.GITHUB_PACKAGES_IMAGE_URL }} ${{ env.ECR_IMAGE_URL }}
           docker push ${{ env.ECR_IMAGE_URL }}
-        continue-on-error: true
-      ## イメージプッシュのコールバック：レジストリがImmutableの場合、同一バージョンを設定することはできないので、ログとしてその旨をコンソールに出力
+        continue-on-error: true #リポジトリがimmutableの場合、同一バージョンのpushはできないため、エラー無視
+      ### イメージプッシュのコールバック
+      ### * 前ステップがエラーだった場合、エラーが出ている旨をコンソールに表示
       - name: callback
         if: steps.push-image-to-ecr.outcome == 'failure'
         run: echo 同一バージョンのパッケージはプッシュできません。バージョンを変えるか、同一バージョンのパッケージを削除してリトライしてください。
 
       # サービスを更新
-      ## タスク定義の作成(AWSからタスク定義を取得し、それをもとに新しいタスク定義を作成)
-      ## * 環境変数の設定はタスク定義の内容に合わせて変更してください(該当行：{"name": "PORT", "value": "8082"}, {"name": "TEST_ENV", "value": "dev"})
+      ## タスク定義の作成
+      ## * AWSからタスク定義を取得し、それをもとに新しいタスク定義を作成)
+      ## * 環境変数の設定はタスク定義の内容に合わせて変更してください
       ## * 機密情報を扱う場合はGitHub Secretsに値を設定し、その値を環境変数に設定してください
       - name: create new task
         run: |

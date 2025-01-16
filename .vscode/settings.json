@@ -1,12 +1,27 @@
 {
   "java.compile.nullAnalysis.mode": "automatic",
-  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.configuration.updateBuildConfiguration": "automatic",
   "cSpell.words": [
     "appenv",
     "cicd",
     "mvnw",
+    "jacoco",
     "nestjs",
+    "puppycrawl",
     "sato",
     "takahashi"
+  ],
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java"
+  },
+  "java.checkstyle.configuration": "C:\\Users\\Z038267\\ws\\mine-repository\\consider-cicd\\order\\config\\google_checks_cs10.9.3.xml",
+  "java.checkstyle.version": "10.9.3",
+  "java.saveActions.organizeImports": true,
+  "java.completion.importOrder": [
+    "#",
+    "jakarta",
+    "java",
+    "javax",
+    "*"
   ]
 }

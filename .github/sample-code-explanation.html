@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>sample-code-explanation.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%82%B3%E3%83%BC%E3%83%89%E3%81%AE%E8%AA%AC%E6%98%8E">サンプルコードの説明</h1>
+<h2 id="%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%82%B3%E3%83%BC%E3%83%89%E6%A7%8B%E6%88%90">サンプルコード構成</h2>
+<ul>
+<li><img class="emoji" alt="file_folder" src="data:image/png;base64,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" /> .github
+<ul>
+<li>pull_request_template.md：PRテンプレート ※1</li>
+<li>release.yaml：リリースノート自動生成 ※1</li>
+<li><img class="emoji" alt="file_folder" src="data:image/png;base64,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" /> workflows: ワークフロー
+<ul>
+<li>wf-build-and-deploy-java.yaml: バックエンド（Java）のビルド～開発環境へのデプロイ ※2</li>
+<li>wf-build-and-deploy-react.yaml: フロントエンド（SSG）のビルド～開発環境へのデプロイ ※2</li>
+<li>wf-build-and-deploy-ts.yaml: バックエンド（TypeScript）のビルド～開発環境へのデプロイ ※2</li>
+<li>wf-build-java.yaml: バックエンド（Java）のビルド ※2</li>
+<li>wf-build-react.yaml: フロントエンド（SSG）のビルド ※2</li>
+<li>wf-build-ts.yaml: バックエンド（TypeScript）のビルド ※2</li>
+<li>wf-deploy-prod_customer-service.yaml: 本番環境への顧客サービスのデプロイ ※3</li>
+<li>wf-deploy-prod_order-service.yaml: 本番環境への受注サービスのデプロイ ※3</li>
+<li>wf-deploy-stage_customer-service.yaml: ステージング環境への顧客サービスのデプロイ ※3</li>
+<li>wf-deploy-stage_order-service.yaml: ステージング環境への受注サービスのデプロイ ※3</li>
+<li>_build-image.yaml: イメージビルド ※2</li>
+<li>_build-java-app.yaml: Java+Mavenアプリケーションビルド ※2</li>
+<li>_build-react-app.yaml: Reactアプリケーションビルド ※2</li>
+<li>_build-ts-app.yaml: TypeScript+Nodeアプリケーションビルド ※2</li>
+<li>_deploy-aws-backend.yaml: バックエンドのデプロイ ※2</li>
+<li>_deploy-aws-frontend.yaml: フロントエンドのデプロイ ※2</li>
+<li>_deploy-dev-aws-backend.yaml: バックエンドの開発環境へのデプロイ ※2</li>
+<li>_deploy-dev-aws-frontend.yaml: フロントエンドの開発環境へのデプロイ ※2</li>
+<li>_deploy-prod-aws-backend.yaml: バックエンドの本番環境へのデプロイ ※2</li>
+<li>_deploy-stage-aws-backend.yaml: バックエンドのステージング環境への ※2</li>
+<li>_load-config.yaml: 設定ファイルの読み込み ※2</li>
+<li>_publish-report.yaml: レポート公開 ※2</li>
+<li><img class="emoji" alt="file_folder" src="data:image/png;base64,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" /> template: テンプレート
+<ul>
+<li>workflow-config.yaml: ワークフロー設定ファイルのテンプレート ※2</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>※_xxx.yaml: 再利用可能ワークフロー（端的に言うと部品化されたワークフローで、他ワークフローから呼び出されることが前提になります）
+※1: そのまま利用可能<br>
+※2: 技術スタックが同じなら、そのまま利用可能<br>
+※3: これを例としてアプリケーションに合わせた実装が必要。
+※フロントエンドのステージング、本番へのデプロイワークフローは特化したものの量産にしかならないので省略しています</p>
+<h2 id="%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%82%B3%E3%83%BC%E3%83%89%E3%81%AE%E6%B5%81%E3%82%8C">サンプルコードの流れ</h2>
+<h3 id="wf-build-java-wf-build-ts">wf-build-java, wf-build-ts</h3>
+<p>featureからdevelopブランチへのPRの作成、変更、リオープンをトリガーとしたワークフロー。
+後述する<code>wf-build-and-deploy-java</code>の「アーティファクト公開」、「イメージ公開」、「デプロイ」のないものが、当ワークフローの流れになります。<br>
+重複部分が多いので、フローは省略します。</p>
+<h3 id="wf-build-react">wf-build-react</h3>
+<p>featureからdevelopブランチへのPRの作成、変更、リオープンをトリガーとしたワークフロー。
+後述する<code>wf-build-and-deploy-react</code>の「デプロイ」のないものが、当ワークフローの流れになります。<br>
+重複部分が多いので、フローは省略します。</p>
+<h3 id="wf-build-and-deploy-java-wf-build-and-deploy-ts">wf-build-and-deploy-java, wf-build-and-deploy-ts</h3>
+<p>developブランチへのプッシュをトリガーとしたワークフロー。
+両者とも基本的な流れは同じなので<code>wf-build-and-deploy-java</code>を例に説明します。</p>
+<pre><code class="language-mermaid"><div class="mermaid">sequenceDiagram
+  actor reviewer
+
+  box workflow
+    participant wf-build-and-deploy-java
+    participant build-java-app
+    participant build-image
+    participant deploy-dev-aws-backend
+    participant deploy-aws-backend
+    participant publish-report
+  end
+
+  box GitHub
+    participant Repository
+    participant Actions
+    participant InternalStorage
+    participant Packages
+    participant Pages
+  end
+
+  box AWS
+    participant ECR
+    participant ECS
+  end
+
+  reviewer ->> Repository: developブランチのPRをマージ
+  Actions ->> Repository: 監視
+  Actions ->> wf-build-and-deploy-java: ワークフロー実行
+  note over wf-build-and-deploy-java: ビルドなど
+  wf-build-and-deploy-java ->>+ build-java-app: ビルドなど
+    build-java-app ->> build-java-app: ビルド
+    build-java-app ->> build-java-app: テスト
+    build-java-app ->> InternalStorage: テストレポートアップロード
+    build-java-app ->> build-java-app: パッケージ
+    build-java-app ->> InternalStorage: ビルドリソースアップロード
+    note over build-java-app: アーティファクト公開
+    build-java-app ->> Packages: アーティファクト公開
+    build-java-app -->>- wf-build-and-deploy-java: -
+  note over wf-build-and-deploy-java: イメージビルド
+  wf-build-and-deploy-java ->>+ build-image: イメージビルド
+    build-image ->> InternalStorage: ビルドリソースダウンロード
+    build-image ->> build-image: イメージビルド
+    build-image ->> build-image: 脆弱性スキャン
+    build-image ->> InternalStorage: 脆弱性スキャンレポートアップロード
+    note over build-image: イメージ公開
+    build-image ->> Packages: イメージ公開
+    build-image -->>- wf-build-and-deploy-java: - 
+  par deploy 
+    note over wf-build-and-deploy-java: デプロイ
+    wf-build-and-deploy-java ->>+ deploy-dev-aws-backend: デプロイ(開発環境)
+      deploy-dev-aws-backend ->>+ deploy-aws-backend: デプロイ
+        deploy-aws-backend ->> Packages: イメージ取得
+        deploy-aws-backend ->> ECR: イメージプッシュ
+        deploy-aws-backend ->> ECS: タスク定義取得(rev 0)
+        deploy-aws-backend ->> deploy-dev-aws-backend: タスク定義生成(rev 1)
+        deploy-aws-backend ->> ECS: タスク定義登録(rev 1)
+        deploy-aws-backend ->> ECS: サービス更新
+        deploy-aws-backend ->>- deploy-dev-aws-backend: -
+      deploy-dev-aws-backend -->>- wf-build-and-deploy-java: -
+  and publish reports
+    note over wf-build-and-deploy-java: レポート公開
+    wf-build-and-deploy-java ->>+ publish-report: レポート公開
+      publish-report ->> InternalStorage: テストレポートダウンロード
+      publish-report ->> InternalStorage: 脆弱性スキャンレポートダウンロード
+      publish-report ->> Pages: レポート公開
+      publish-report -->>- wf-build-and-deploy-java: -
+  end
+</div></code></pre>
+<h3 id="wf-build-and-deploy-react">wf-build-and-deploy-react</h3>
+<p>developブランチへのプッシュをトリガーとしたワークフロー。
+基本的な流れは<code>wf-build-and-deploy-java</code>と同じ。
+コンテナー駆動ではないためイメージビルドがないのと、実行環境で使用するサービスが異なります。</p>
+<pre><code class="language-mermaid"><div class="mermaid">sequenceDiagram
+  actor reviewer
+
+  box workflow
+    participant wf-build-and-deploy-react
+    participant build-react-app
+    participant deploy-dev-aws-frontend
+    participant deploy-aws-frontend
+    participant publish-report
+  end
+
+  box GitHub
+    participant Repository
+    participant Actions
+    participant InternalStorage
+    participant Pages
+  end
+
+  box AWS
+    participant S3
+    participant CloudFront
+  end
+
+  reviewer ->> Repository: developブランチのPRをマージ
+  Actions ->> Repository: 監視
+  Actions ->> wf-build-and-deploy-react: ワークフロー実行
+  note over wf-build-and-deploy-react: ビルドなど
+  wf-build-and-deploy-react ->>+ build-react-app: ビルドなど
+    build-react-app ->> build-react-app: ビルド
+    build-react-app ->> build-react-app: テスト
+    build-react-app ->> InternalStorage: テストレポートアップロード
+    build-react-app ->> build-react-app: パッケージ
+    build-react-app ->> InternalStorage: ビルドリソースアップロード
+    build-react-app -->>- wf-build-and-deploy-react: -
+  par deploy 
+    note over wf-build-and-deploy-react: デプロイ
+    wf-build-and-deploy-react ->>+ deploy-dev-aws-frontend: デプロイ(開発環境)
+      deploy-dev-aws-frontend ->>+ deploy-aws-frontend: デプロイ
+        deploy-aws-frontend ->> InternalStorage: ビルドリソースダウンロード
+        deploy-aws-frontend ->> S3: コンテンツ同期
+        deploy-aws-frontend ->> CloudFront: キャッシュ削除
+        deploy-aws-frontend ->>- deploy-dev-aws-frontend: -
+      deploy-dev-aws-frontend -->>- wf-build-and-deploy-react: -
+  and publish reports
+    note over wf-build-and-deploy-react: レポート公開
+    wf-build-and-deploy-react ->>+ publish-report: レポート公開
+      publish-report ->> InternalStorage: テストレポートダウンロード
+      publish-report ->> InternalStorage: 脆弱性スキャンレポートダウンロード
+      publish-report ->> Pages: レポート公開
+      publish-report -->>- wf-build-and-deploy-react: -
+  end
+</div></code></pre>
+<h3 id="wf-deploy-stagecustomer-service-wf-deploy-stageorder-service">wf-deploy-stage_customer-service, wf-deploy-stage_order-service</h3>
+<p>releaseブランチへのプッシュをトリガーとしたワークフロー。</p>
+<pre><code class="language-mermaid"><div class="mermaid">sequenceDiagram
+  actor reviewer
+
+  box workflow
+    participant wf-deploy-stage_customer-service
+    participant deploy-stage-aws-backend
+  end
+
+  box GitHub
+    participant Repository
+    participant Actions
+  end
+
+  reviewer ->> Repository: releaseブランチのPRをマージ
+  Actions ->> Repository: 監視
+  Actions ->> wf-deploy-stage_customer-service: ワークフロー実行
+    wf-deploy-stage_customer-service ->>+ deploy-stage-aws-backend: デプロイ(ステージング環境)
+    note over deploy-stage-aws-backend: `wf-build-and-deploy-java`のデプロイと同じため、省略
+</div></code></pre>
+<h3 id="wf-deploy-prodcustomer-service-wf-deploy-prodorder-service">wf-deploy-prod_customer-service, wf-deploy-prod_order-service</h3>
+<p>mainブランチへのプッシュをトリガーとしたワークフロー。
+デプロイ処理の流れは<code>wf-build-and-deploy-java</code>のデプロイ同じため、省略します。</p>
+<pre><code class="language-mermaid"><div class="mermaid">sequenceDiagram
+  actor reviewer
+
+  box workflow
+    participant wf-deploy-prod_customer-service
+    participant deploy-prod-aws-backend
+  end
+
+  box GitHub
+    participant Repository
+    participant Actions
+  end
+
+  reviewer ->> Repository: releaseブランチのPRをマージ
+  Actions ->> Repository: 監視
+  Actions ->> wf-deploy-prod_customer-service: ワークフロー実行
+    wf-deploy-prod_customer-service ->>+ deploy-prod-aws-backend: デプロイ(本番環境)
+    note over deploy-prod-aws-backend: `wf-build-and-deploy-java`のデプロイと同じため、省略
+</div></code></pre>
+<h2 id="appendix-%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AE%E8%A8%AD%E5%AE%9A%E4%BE%8B">Appendix. アプリの設定例</h2>
+<ul>
+<li>TypeScriptアプリケーション<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"scripts"</span>: {
+    <span class="hljs-comment">// # ビルドが実行されるスクリプトの設定</span>
+    <span class="hljs-comment">// * UI(SSG)なら静的コンテンツ、backendならnpmモジュールのビルド</span>
+    <span class="hljs-comment">// * vite, nestなど採用しているミドルによってコマンドが変わるので、これらの差異をアプリで吸収することを目的としています。</span>
+    <span class="hljs-comment">// ## UI(SSG)の場合:環境別のビルドを区別したいので、環境別にコマンドを作成</span>
+    <span class="hljs-comment">// * Suffixのないスクリプトはアプリケーション新規作成時に作成されます。その他は設定ファイルの切り替え方法に合わせて追加が必要です。</span>
+    <span class="hljs-attr">"build"</span>: <span class="hljs-string">"tsc -b &amp;&amp; vite build"</span>,
+    <span class="hljs-attr">"build:dev"</span>: <span class="hljs-string">"tsc -b &amp;&amp; vite build --mode dev"</span>,
+    <span class="hljs-attr">"build:stage"</span>: <span class="hljs-string">"tsc -b &amp;&amp; vite build --mode stage"</span>,
+    <span class="hljs-attr">"build:prod"</span>: <span class="hljs-string">"tsc -b &amp;&amp; vite build --mode prod"</span>,
+    <span class="hljs-comment">// ## backendの場合:環境情報は外部から注入できるので環境別にコマンドを作成する必要はありません</span>
+    <span class="hljs-comment">// * 基本、アプリケーション新規作成時に作成されます。</span>
+    <span class="hljs-attr">"build"</span>: <span class="hljs-string">"nest build"</span>,
+
+    <span class="hljs-comment">// # 静的解析が実行されるスクリプトの設定</span>
+    <span class="hljs-comment">// * 基本、アプリケーション新規作成時に作成されます。</span>
+    <span class="hljs-attr">"lint"</span>: <span class="hljs-string">"eslint \"{src,apps,libs,test}/**/*.ts\" --fix"</span>,
+
+    <span class="hljs-comment">// # テスト実行、カバレッジレポート生成およびテスト結果生成が実行されるスクリプトの設定</span>
+    <span class="hljs-comment">// * ローカルとは区別しておく方が良いのでSuffixを付けています。</span>
+    <span class="hljs-comment">//   * ローカルと同じにすると、ローカルでテストを実行する度、レポートが生成されて重く邪魔になってしまう</span>
+    <span class="hljs-attr">"test:ci"</span>: <span class="hljs-string">"jest --coverage"</span>,
+  },
+  <span class="hljs-comment">// # テスト結果の出力設定</span>
+  <span class="hljs-comment">// * カバレッジレポートやテスト結果は、特定の場所に集約してください。サンプルコードでは`test-result`配下に集約しています。</span>
+  <span class="hljs-comment">//    * テスト結果の取得先が散在するとその分亜流が増えるため、これを抑止することを目的としています。</span>
+  <span class="hljs-attr">"jest"</span>: {
+    <span class="hljs-attr">"moduleFileExtensions"</span>: [
+      <span class="hljs-string">"js"</span>,
+      <span class="hljs-string">"json"</span>,
+      <span class="hljs-string">"ts"</span>
+    ],
+    <span class="hljs-attr">"rootDir"</span>: <span class="hljs-string">"src"</span>,
+    <span class="hljs-attr">"testRegex"</span>: <span class="hljs-string">".*\\.spec\\.ts$"</span>,
+    <span class="hljs-attr">"transform"</span>: {
+      <span class="hljs-attr">"^.+\\.(t|j)s$"</span>: <span class="hljs-string">"ts-jest"</span>
+    },
+    <span class="hljs-attr">"collectCoverageFrom"</span>: [
+      <span class="hljs-string">"**/*.(t|j)s"</span>
+    ],
+    <span class="hljs-attr">"coverageDirectory"</span>: <span class="hljs-string">"../test-result/coverage"</span>,
+    <span class="hljs-attr">"testEnvironment"</span>: <span class="hljs-string">"node"</span>,
+    <span class="hljs-attr">"coverageReporters"</span>: [<span class="hljs-string">"text"</span>, <span class="hljs-string">"lcov"</span>],
+    <span class="hljs-attr">"reporters"</span>: [
+      <span class="hljs-string">"default"</span>,
+      [
+        <span class="hljs-string">"jest-html-reporters"</span>,
+        {
+          <span class="hljs-attr">"publicPath"</span>: <span class="hljs-string">"./test-result/test-report"</span>,
+          <span class="hljs-attr">"filename"</span>: <span class="hljs-string">"index.html"</span>,
+          <span class="hljs-attr">"expand"</span>: <span class="hljs-literal">true</span>
+        }
+      ]
+    ]
+  }
+}  
+</div></code></pre>
+</li>
+</ul>
+
+</body>
+</html>
