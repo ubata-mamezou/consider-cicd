@@ -1,5 +1,6 @@
-# AWSへのデプロイ(ステージング環境)
-name: (reusable workflow) deploy aws (env:staging, app:backend)
+# AWSへのデプロイ(ステージング環境、バックエンド)
+# * 前提条件などは`_deploy-aws-backend.yaml`参照
+name: deploy aws (env:staging, app:backend)
 
 on:
   workflow_call:

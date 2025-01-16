@@ -1,7 +1,14 @@
-# イメージビルド
-## 事前条件
-## ・イメージビルドに使用するアーティファクトを事前にアップロードしてください。
-name: (reusable workflow) build-image
+# # イメージビルド
+# ## 前提とする言語、環境など
+# * 脆弱性スキャン：Trivy　※流れを検証するため、組み込んだ仮のツール。広く採用されていますが、プロジェクトで正式採用されたものではないのでご注意ください。
+# * イメージビルド：Docker Engine
+# * イメージの公開先：GitHub Packages
+# ## 事前条件
+# * イメージビルドに使用するビルドしたリソースを事前にアップロードしてください。
+#   * ここでのリソースはDockerfileから参照したいもの一式。
+#   * Dockerfileは1つで、ローカルも、CIも兼用する必要があるので、ディレクトリ構成も順守する必要があります。
+#   * 例. Maven：targetフォルダー、NPM：distフォルダー
+name: build-image
 
 on:
   workflow_call:
@@ -30,10 +37,23 @@ on:
         description: 脆弱性スキャンレポートのキャッシュキー名
         required: true
         type: string
+      pr-comment-cache-key:
+        description: PRコメントファイルのキャッシュキー名
+        required: true
+        type: string
+      pr-comment-folder-name:
+        description: PRへのフィードバックコメントファイルの格納先フォルダー名
+        required: true
+        type: string
+      pr-comment-file-name:
+        description: PRへのフィードバックコメントファイル名
+        required: true
+        type: string
       is-publish:
         description: イメージを公開する(true:公開、false:公開しない)
         required: false
         type: boolean
+
 env:
   GITHUB_PACKAGES_ARTIFACT_URL: ${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
 
@@ -43,26 +63,52 @@ jobs:
     defaults:
       run:
         working-directory: ${{ inputs.work-directory }}
+    env:
+      pr-comment-directory: ${{ inputs.work-directory }}/${{ inputs.pr-comment-folder-name }}
+      # test-report-directory_built: ${{ inputs.dist-directory }}/reports
+      test-report-directory_for_transport-to-pages: pages/${{ inputs.app-name }}/reports
+      test-report-directory_for_pages: ${{ inputs.app-name }}/reports
+      # coverage-tool-name: jacoco
+      # style-check-tool-name: checkstyle
+      # bug-check-tool-name: spotbugs
     steps:
       # イメージビルド実行環境セットアップ
       ## コードをチェックアウト
       - name: checkout source
         uses: actions/checkout@v4
+      ## 後続プロセスで使用するディレクトリの初期化
+      - run: mkdir -p ${{ inputs.pr-comment-folder-name }}
+      ## 編集を伴う変数定義
+      - name: variable settings
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          PAGES_URL="https://${{ github.repository_owner }}.github.io/$REPO_NAME"
+          TEST_REPORT_ROOT_URL="$PAGES_URL/${{ env.test-report-directory_for_pages }}"
+
+          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
+          echo "PAGES_URL=$PAGES_URL" >> $GITHUB_ENV
+          echo "TEST_REPORT_ROOT_URL=$TEST_REPORT_ROOT_URL" >> $GITHUB_ENV
       ## 対象のアーティファクトをダウンロード
+      ## note: キャッシュ/リストアだと受け渡しの挙動が不安定だったので、アップロード/ダウンロードで実現
       - name: download artifact
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.build-artifacts-cached-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
-      # ## 対象のアーティファクトを復元(取得元：GitHub Packages)
-      # - name: Restore build artifacts
-      #   uses: actions/cache/restore@v4
-      #   with:
-      #     path: ${{ inputs.work-directory }}${{ inputs.dist-directory }}
-      #     key: ${{ inputs.build-artifacts-cache-key }}
+      ## PRコメントダウンロード
+      ## * PRコメントがある場合、加筆するためダウンロード。
+      ## * ファイルが存在しなくてもエラーにしない
+      - name: Download pr-comment
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: ${{ env.pr-comment-directory }}
+        continue-on-error: true
+
       # イメージビルド
       - name: Build Docker image
         run: docker build -t ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }} .
+
       # 脆弱性スキャン実行環境セットアップ
       ## キャッシュ（Trivy DB）
       - name: Cache Trivy DB
@@ -82,6 +128,7 @@ jobs:
         run: |
           mkdir trivy-resource/template -p
           wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O trivy-resource/template/html.tpl
+
       # 脆弱性スキャン（Trivy）
       - name: Scan Docker image with Trivy
         id: execute-image-scan
@@ -89,46 +136,76 @@ jobs:
           mkdir trivy-resource/result -p
           trivy image --format template --template "@contrib/html.tpl" -o trivy-resource/result/index.html ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
         env:
-          # 脆弱性のマスターデータ取得の時にratelimitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
-          # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを緩和する理由
-          # ACTIONS_RUNTIME_TOKEN はGitHub Actions内でジョブが実行される間だけ有効な一時的なトークンで、GitHubのAPIリクエストの認証に使用できます。
-          # ACTIONS_RUNTIME_TOKENを使用して認証することで、GitHubのパブリックAPIと異なり、Actions用のレートリミットが適用され、より多くのリクエストを許可されます。
-          # GitHubは認証されたリクエストに対して、無認証リクエストよりも高いレートリミットを提供しているため、ACTIONS_RUNTIME_TOKENを使用することでAPIへのアクセス制限が緩和され、結果としてレートリミットに引っかかりにくくなります。
+          # 脆弱性のマスターデータ取得の時にrate limitかかるため、ACTIONS_RUNTIME_TOKENにTOKENを設定
+          # # Tips: ACTIONS_RUNTIME_TOKENがレートリミットを**緩和**する理由
+          # * ACTIONS_RUNTIME_TOKEN はGitHub Actions内でジョブが実行される間だけ有効な一時的なトークンで、GitHubのAPIリクエストの認証に使用できます。
+          # * ACTIONS_RUNTIME_TOKENを使用して認証することで、GitHubのパブリックAPIと異なり、Actions用のレートリミットが適用され、より多くのリクエストを許可されます。
+          # * GitHubは認証されたリクエストに対して、無認証リクエストよりも高いレートリミットを提供しているため、ACTIONS_RUNTIME_TOKENを使用することでAPIへのアクセス制限が緩和され、結果としてレートリミットに引っかかりにくくなります。
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true #retelimitによるエラーが頻発するので暫定的にエラー無視
-      # 脆弱性スキャンコールバック
+        continue-on-error: true #rete limitによるエラーが頻発するので暫定的にエラー無視
+      ## 脆弱性スキャンコールバック
       - name: callback
         if: steps.execute-image-scan.outcome == 'failure'
         run: |
           echo 時間帯によってTrivyDBのダウンロードに失敗するため、エラーを抑止しています。
           echo イメージスキャンが異常終了しているため、脆弱性結果はありません。
           echo "<h1>イメージスキャンが異常終了しているため、脆弱性結果はありません</h1>" > trivy-resource/result/index.html
+      - name: callback to PR
+        if: ${{ steps.execute-image-scan.outcome == 'failure' && github.event.pull_request.number != '' }}
+        run: |
+          echo "
+            ## 脆弱性スキャンに失敗しました  
+            * 時間帯によってTrivyDBのダウンロードに失敗するため、エラーを抑止しています。
+            * イメージスキャンが異常終了しているため、脆弱性結果はありません。
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+  
       # スキャンレポートのアップロード（レポート公開向けの一時保存）
       - name: move scan report
         run: |
-          mkdir -p pages/${{ inputs.app-name }}/reports/image-scan
-          mv trivy-resource/result/* pages/${{ inputs.app-name }}/reports/image-scan
+          mkdir -p ${{ env.test-report-directory_for_transport-to-pages }}/image-scan
+          mv trivy-resource/result/* ${{ env.test-report-directory_for_transport-to-pages }}/image-scan
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.scan-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
-      # FIXME: 脆弱性があってもパイプラインが進んでしまっている
+      - name: PR FB
+        if: ${{ github.event.pull_request.number != '' }}
+        run: |
+          SCAN_REPORT_URL="$TEST_REPORT_ROOT_URL/image-scan/index.html"
+          
+          echo "
+            ## 脆弱性テスト結果のフィードバック
+            * スキャン結果レポートのプレビューは[こちら]($SCAN_REPORT_URL)　※ワークフローが動くと上書きされます
+            " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+  
       # 脆弱性が見つかった場合、パイプラインを終了させる
       - name: Check for vulnerabilities
         run: |
-          if grep -q '"Vulnerabilities": \[' trivy-resource/result/index.html; then
-            echo "Vulnerabilities found."
+          if grep -q -E '<td class="severity">HIGHT|<td class="severity">CRITICAL' ${{ env.test-report-directory_for_transport-to-pages }}/image-scan/index.html; then
+            echo "High or Critical Vulnerabilities found."
             exit 1
+          elif grep -q '<td class="severity">' ${{ env.test-report-directory_for_transport-to-pages }}/image-scan/index.html; then
+            echo "Vulnerabilities found."
           else
             echo "No vulnerabilities found."
           fi
+
       # コンテナイメージ公開（公開先：GitHub Packages）
       - name: Publish Docker image to GitHub Packages
         if: inputs.is-publish == true
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
+
       # クリーンアップ
       - name: Remove Docker images
         run: docker rmi ghcr.io/${{ github.repository_owner }}/${{ inputs.app-name }}:${{ inputs.app-version }}
+
+      # PRコメントアップロード
+      - name: Upload pr-comment
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.pr-comment-cache-key }}
+          path: ${{ env.pr-comment-directory }}
+          overwrite: true

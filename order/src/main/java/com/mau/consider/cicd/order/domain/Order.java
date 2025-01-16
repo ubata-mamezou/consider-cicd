@@ -1,9 +1,11 @@
 package com.mau.consider.cicd.order.domain;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotEmpty;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,15 +15,34 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "details")
 public class Order {
   /** 受注ID。 */
   @Id
   private Long id;
   private LocalDate orderAt;
   private LocalDate shippingAt;
-  private List<OrderDetail> details;
+  @NotEmpty
+  private List<OrderDetail> details = new ArrayList<>();
 
+  /**
+   * 受注詳細リスト取得.
+   *
+   * @return 受注詳細リスト
+   */
+  public List<OrderDetail> getDetails() {
+    return Collections.unmodifiableList(details);
+  }
+
+  public void setDetails(@NotEmpty List<OrderDetail> details) {
+    this.details = new ArrayList<>(details);
+  }
+
+  /**
+   * テストデータ作成.
+   *
+   * @return テストデータ
+   */
   public static Order createTestData() {
     var order = new Order() {
       {
@@ -125,7 +146,7 @@ public class Order {
                 setQuantity(110);
               }
             }
-            ));
+        ));
       }
     };
     return order;
