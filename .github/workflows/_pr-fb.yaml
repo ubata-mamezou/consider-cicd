@@ -31,19 +31,23 @@ jobs:
       uses: actions/checkout@v4
     # PRコメントダウンロード（事前にアップロードしていたファイルを取得）
     - name: download pr-comment
+      id: download-pr-comment
       uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.pr-comment-cached-key }}
         path: ${{ inputs.pr-comment-folder-name }}
-
-    # debug
-    - run: tree
+      continue-on-error: true
 
     # PRコメント
     - name: PR comment
-      if: ${{ github.event.pull_request.number != '' }}
+      # PRにフィードバックするにはフィードバック先が必要なのでPR番号を持っていない場合はスキップ
+      # フィードバックコメントのダウンロードに失敗した場合も同様にスキップ
+      if: github.event.pull_request.number != '' && steps.download-pr-comment.outcome != 'failure'
+      # Tips: botが1回もコメントしてない場合、--edit-lastを付けるとエラーになる
+      # botのコメントが1つもない場合、「no comments found for current user」となってしまう。
+      # それに対処するため、「||」以降に通常のコメントコマンドも併記している。
       run: |
-        gh pr comment ${{ github.event.pull_request.number }} --edit-last --body-file ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
+        gh pr comment ${{ github.event.pull_request.number }} --body-file ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }} --edit-last || gh pr comment ${{ github.event.pull_request.number }} --body-file ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # memo: Enterprise planの場合、下記のパラメータが必要になるらしい
