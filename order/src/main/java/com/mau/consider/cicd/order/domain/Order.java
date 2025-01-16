@@ -15,6 +15,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 public class Order {
+  /** 受注ID。 */
   @Id
   private Long id;
   private LocalDate orderAt;
