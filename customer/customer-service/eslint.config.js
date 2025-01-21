@@ -23,7 +23,7 @@ export default [
       parserOptions: {
         project: './tsconfig.json',
         tsconfigRootDir: __dirname,
-        sourceType: 'module',
+        sourceType: 'commonjs',
       },
     },
     plugins: {
@@ -40,6 +40,7 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
       //ESLintとPrettierのコンフリクト解消
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
+      'quotes': ['error', 'single'], // シングルクォーテーションを強制
       // 'sort-imports': [
       //   'error',
       //   {

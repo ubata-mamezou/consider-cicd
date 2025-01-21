@@ -17,7 +17,21 @@ npx nest generate module customers
 npx nest generate controller customers
 # service
 npx nest generate service customers
+
+# ui inbound
+## current directory: view
+npx nest g module customer-management
+npx nest g controller customer-management
+
+# service
+## current directory: src
+mkdir customers
+cd customers
+npx nest g module customer --flat
+npx nest g service customer --flat
 ```
+
+
 
 
 ## 環境情報をうまく取り扱うために
