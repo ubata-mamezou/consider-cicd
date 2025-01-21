@@ -5,6 +5,7 @@
 * :file_folder: .github
   * pull_request_template.md：PRテンプレート ※1
   * release.yaml：リリースノート自動生成 ※1
+  * dependabot.yml：dependabotによる依存関係の監視　※1
   * :file_folder: workflows: ワークフロー
     * wf-build-and-deploy-java.yaml: バックエンド（Java）のビルド～開発環境へのデプロイ ※2
     * wf-build-and-deploy-react.yaml: フロントエンド（SSG）のビルド～開発環境へのデプロイ ※2

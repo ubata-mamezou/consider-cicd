@@ -23,5 +23,6 @@
     "java",
     "javax",
     "*"
-  ]
+  ],
+  "prettier.singleQuote": true
 }
