@@ -1,0 +1,125 @@
+openapi: 3.0.0
+x-stoplight:
+  id: 6yq85r0kc892q
+info:
+  description: customer api example
+  title: customer-api
+  version: '1.0'
+  contact:
+    name: yz-sample
+    url: 'http://sample/contact'
+    email: yz-sample@sample.com
+  license:
+    name: MIT
+    url: 'http://sample/license'
+# termsOfService: for show-customer view.
+servers:
+  - url: 'http://localhost:3000'
+tags:
+  - name: edit-customer
+    description: 顧客変更画面
+  - name: show-customer
+    description: 顧客照会画面
+paths:
+  '/view/show-customer/{customerId}/initialize':
+    parameters:
+      - schema:
+          type: string
+        name: customerId
+        in: path
+        required: true
+        description: 顧客ID
+    get:
+      summary: 顧客照会-初期表示
+      description: －
+      tags:
+        - show-customer
+      responses:
+        '200':
+          $ref: '#/components/responses/Customer'
+      operationId: show-customer_initialize
+      x-stoplight:
+        id: 9o51guudx24qh
+  '/view/edit-customer/{customerId}/initialize':
+    parameters:
+      - schema:
+          type: string
+        name: customerId
+        description: 顧客ID
+        in: path
+        required: true
+    put:
+      summary: edit customer initialize
+      tags: 
+        - edit-customer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+      operationId: edit-customer_initialize
+      x-stoplight:
+        id: k1s72myx2m886
+      description: 顧客変更　初期表示
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCustomerReq'
+components:
+  schemas:
+    Customer:
+      title: Customer
+      x-stoplight:
+        id: kc7m1pt89j2q8
+      type: object
+      properties:
+        id:
+          type: integer
+          x-stoplight:
+            id: rxkmlqq9cpkl6
+        rank:
+          $ref: '#/components/schemas/CustomerRank'
+        name:
+          type: string
+          x-stoplight:
+            id: zar3omjs93lfh
+        address:
+          type: string
+          x-stoplight:
+            id: 7ipbimnetjdrj
+    UpdateCustomerReq:
+      title: UpdateCustomerReq
+      x-stoplight:
+        id: wp6prcvpme6ae
+      type: object
+      description: 顧客更新リクエスト
+      properties:
+        rank:
+          $ref: '#/components/schemas/CustomerRank'
+        name:
+          type: string
+          x-stoplight:
+            id: etvorzvikxumi
+        address:
+          type: string
+          x-stoplight:
+            id: i2i7h8wmr1bst
+    CustomerRank:
+      title: CustomerRank
+      x-stoplight:
+        id: 9es7akyvkvpu1
+      description: 顧客ランク
+      enum:
+        - A
+        - B
+        - C
+  responses:
+    Customer:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Customer'

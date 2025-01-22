@@ -16,7 +16,15 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@service/customers/*": [
+        "src/customers/*"
+      ],
+      "@view/*": [
+        "src/view/*"
+      ]
+    }
   },
   "exclude": [
     "node_modules",

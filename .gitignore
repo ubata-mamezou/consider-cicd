@@ -16,3 +16,4 @@ customer/customer-service/pages
 order-ui/node_modules
 order-ui/test-result
 order/pages
+customer/api/dist
