@@ -1,6 +1,8 @@
-rm dist/api-server
+# param
+# * 1: service-name
+rm dist/$1-api -rf
 npx openapi-generator-cli generate \
   -i openapi.yaml \
-  -g typescript-nestjs \
-  -o dist/customer-api \
-  -c server-config.json
+  -g typescript-fetch \
+  -o dist/$1-api \
+  -c server-config.yaml

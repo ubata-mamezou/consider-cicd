@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { SearchCustomerController } from './search-customer.controller';
+import { SearchCustomerController } from '@view/search-customer';
 
 describe('SearchCustomerController', () => {
   let controller: SearchCustomerController;

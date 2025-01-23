@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@nestjs/cli": "^10.4.7"
+    "@nestjs/cli": "^10.4.7",
+    "handlebars": "^4.7.8"
   }
 }

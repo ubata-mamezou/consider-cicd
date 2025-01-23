@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { RouterModule } from '@nestjs/core';
+import { CreateCustomerModule } from '@view/create-customer';
+import { EditCustomerModule } from '@view/edit-customer';
+import { SearchCustomerModule } from '@view/search-customer';
+import { ShowCustomerModule } from '@view/show-customer';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppConfig } from './AppConfig';
 import { CustomerModule } from './customer/customer.module';
-import { SearchCustomerModule } from './view/search-customer/search-customer.module';
-import { ShowCustomerModule } from '@view/show-customer/show-customer.module';
-import { EditCustomerModule } from './view/edit-customer/edit-customer.module';
-import { RouterModule } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RouterModule } from '@nestjs/core';
     ShowCustomerModule,
     SearchCustomerModule,
     EditCustomerModule,
+    CreateCustomerModule,
     RouterModule.register([
       {
         path: 'view',

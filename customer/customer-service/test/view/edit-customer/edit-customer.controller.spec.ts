@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EditCustomerController } from '@view/edit-customer/index';
+
+import { EditCustomerController } from '@view/edit-customer';
 
 describe('EditCustomerController', () => {
   let controller: EditCustomerController;
