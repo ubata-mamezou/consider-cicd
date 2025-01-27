@@ -1,6 +1,6 @@
-# コントローラーの生成
+# コントローラーテストの生成
 #
-# * 1: 生成先の相対パス ex. src/view/create-customer
+# * 1: 生成先の相対パス ex. test/view/create-customer
 # * 2: 画面名（物理） ex. create-customer
 # * 3: 画面名（論理） ex. 顧客登録
 # 
@@ -15,7 +15,7 @@ node -e "
 const fs = require('fs');
 const Handlebars = require('handlebars');
 
-const template = fs.readFileSync('templates/controller.hbs', 'utf8');
+const template = fs.readFileSync('templates/controller.spec.hbs', 'utf8');
 
 const compiled = Handlebars.compile(template);
 
@@ -25,5 +25,5 @@ const content = compiled({
   className: '$CAMEL_CASE_VIEW_NAME'
 });
 
-fs.writeFileSync('$1/$2.controller.ts', content);
+fs.writeFileSync('$1/$2.controller.spec.ts', content);
 "

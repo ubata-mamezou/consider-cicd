@@ -1,0 +1,15 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:memory:?cache=shared"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  version   Int
+  name      String
+  address   String
+}

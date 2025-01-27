@@ -22,7 +22,7 @@ const compiled = Handlebars.compile(template);
 const content = compiled({
   logicalName: '$3',
   physicalName: '$2',
-  className: '$CAMEL_CASE_NAME'
+  className: '$CAMEL_CASE_VIEW_NAME'
 });
 
 fs.writeFileSync('$1/$2.module.ts', content);
