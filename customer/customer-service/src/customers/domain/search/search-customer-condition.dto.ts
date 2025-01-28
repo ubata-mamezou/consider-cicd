@@ -1,4 +1,4 @@
-import { CustomerRank } from '../domain/customer-rank.vo';
+import { CustomerRank } from '../customer-rank.vo';
 
 /**
  * 顧客検索条件。

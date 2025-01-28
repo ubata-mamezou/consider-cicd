@@ -31,7 +31,7 @@ export interface SearchCustomerCondition {
      * @type {CustomerRank}
      * @memberof SearchCustomerCondition
      */
-    id?: CustomerRank;
+    rank?: CustomerRank;
 }
 
 
@@ -53,7 +53,7 @@ export function SearchCustomerConditionFromJSONTyped(json: any, ignoreDiscrimina
     }
     return {
         
-        'id': json['id'] == null ? undefined : CustomerRankFromJSON(json['id']),
+        'rank': json['id'] == null ? undefined : CustomerRankFromJSON(json['id']),
     };
 }
 
@@ -68,7 +68,7 @@ export function SearchCustomerConditionToJSONTyped(value?: SearchCustomerConditi
 
     return {
         
-        'id': CustomerRankToJSON(value['id']),
+        'id': CustomerRankToJSON(value['rank']),
     };
 }
 
