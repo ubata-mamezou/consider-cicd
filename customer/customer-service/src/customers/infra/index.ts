@@ -1,6 +1,6 @@
 /**
  * インフラストラクチャレイヤパッケージ。
  */
-export * from './customer-table.converter';
-export * from './customer.repository-impl';
+export * from './repository/customer-table.converter';
+export * from './repository/customer.repository-impl';
 

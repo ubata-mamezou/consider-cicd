@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { CustomerRepository } from '../domain/customer.repository';
 import { SearchCustomerCondition } from '../domain/search/search-customer-condition.dto';
@@ -10,7 +10,7 @@ import { SaveCustomer } from '../domain/save';
  */
 @Injectable()
 export class CustomerService {
-  constructor(private readonly repository: CustomerRepository) {}
+  constructor(@Inject('CustomerRepository') private readonly repository: CustomerRepository) {}
 
   /**
    * 顧客取得

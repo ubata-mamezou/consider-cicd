@@ -7,7 +7,9 @@ import { CustomerService } from '@service/customers/index';
 @Controller('delete-customer')
 export class DeleteCustomerController {
 
-  constructor(private readonly service: CustomerService) {}
+  constructor(private readonly service: CustomerService) {
+    console.log('CustomerService:', service);
+  }
 
   /**
    * 初期表示。

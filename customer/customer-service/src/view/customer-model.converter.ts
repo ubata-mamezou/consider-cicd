@@ -7,8 +7,18 @@ import { SearchCustomerCondition } from '@service/customers/domain/search';
 
 @Injectable()
 export class CustomerModelConverter {
-  toSearchCustomerCondition = (source: SearchCustomerConditionModel) => {
-    return new SearchCustomerCondition(source.rank as CustomerRank);
+  toSearchCustomerCondition = (
+    page: number,
+    limit: number,
+    maximumRecords: number,
+    condition: SearchCustomerConditionModel,
+  ) => {
+    return new SearchCustomerCondition(
+      page,
+      limit,
+      maximumRecords,
+      condition !== undefined ? condition.rank as CustomerRank : null,
+    );
   };
 
   toSaveCustomerWhenInit = (source: CreateCustomerReq): SaveCustomer => {

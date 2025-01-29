@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { CustomerService } from '@service/customers/app/customer.service';
 import { CustomerModelConverter } from '@view/customer-model.converter';
 import { CreateCustomerReq } from 'src/models/create-customer-req';

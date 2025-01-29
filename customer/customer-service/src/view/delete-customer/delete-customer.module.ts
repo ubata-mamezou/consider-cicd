@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
-import { CustomerService } from '@service/customers/index';
-import { CustomerModelConverter } from '@view/customer-model.converter';
-import { DeleteCustomerController } from '@view/delete-customer';
+import { CustomerModule } from '@service/customers/index';
+import { DeleteCustomerController } from './delete-customer.controller';
 
 /**
  * 顧客削除モジュール
  */
 @Module({
-  imports: [CustomerModelConverter, CustomerService],
-  controllers: [DeleteCustomerController]
+  imports: [CustomerModule],
+  controllers: [DeleteCustomerController],
 })
 export class DeleteCustomerModule {}

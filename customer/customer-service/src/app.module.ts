@@ -10,6 +10,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppConfig } from './AppConfig';
 import { CustomerModule } from './customer/customer.module';
+import { DeleteCustomerModule } from '@view/delete-customer';
 
 @Module({
   imports: [
@@ -20,8 +21,9 @@ import { CustomerModule } from './customer/customer.module';
     CustomerModule,
     ShowCustomerModule,
     SearchCustomerModule,
-    EditCustomerModule,
     CreateCustomerModule,
+    EditCustomerModule,
+    DeleteCustomerModule,
     RouterModule.register([
       {
         path: 'view',
@@ -33,7 +35,15 @@ import { CustomerModule } from './customer/customer.module';
       },
       {
         path: 'view',
+        module: CreateCustomerModule,
+      },
+      {
+        path: 'view',
         module: EditCustomerModule,
+      },
+      {
+        path: 'view',
+        module: DeleteCustomerModule,
       },
     ]),
   ],

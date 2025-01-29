@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
+import { CustomerModule } from '@service/customers/index';
+import { ViewCommonModule } from '@view/view-common.module';
 import { CreateCustomerController } from './create-customer.controller';
-import { CustomerModelConverter } from '@view/customer-model.converter';
-import { CustomerService } from '@service/customers/index';
 
 @Module({
-  imports: [CustomerModelConverter, CustomerService],
+  imports: [ViewCommonModule, CustomerModule],
   controllers: [CreateCustomerController]
 })
 export class CreateCustomerModule {}

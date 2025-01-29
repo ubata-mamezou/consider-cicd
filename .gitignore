@@ -10,7 +10,7 @@
 #ts
 customer/node_modules
 customer/customer-service/test-result
-customer/customer-service/pages
+customer/customer-service/pages 
 
 #ui
 order-ui/node_modules
