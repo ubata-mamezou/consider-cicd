@@ -3,9 +3,10 @@
   "java.configuration.updateBuildConfiguration": "automatic",
   "cSpell.words": [
     "appenv",
+    "autoincrement",
     "cicd",
-    "mvnw",
     "jacoco",
+    "mvnw",
     "nestjs",
     "puppycrawl",
     "sato",

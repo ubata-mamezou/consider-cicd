@@ -14,6 +14,8 @@ export class CustomerTableConverter {
           CustomerRankUtils.from(source.rank),
           source.name,
           source.address,
+          source.createAt,
+          source.updateAt,
         );
   };
 
@@ -21,21 +23,38 @@ export class CustomerTableConverter {
     return source === null ? null : source.map(this.toEntity);
   };
 
-  fromCreateDto = (source: SaveCustomer): Prisma.CustomerCreateInput => {
+  fromCreateDtoBySaveCustomer = (source: SaveCustomer): Prisma.CustomerCreateInput => {
     return source === null
       ? null
       : {
-          version: 0,
+          version: source._version,
           rank: source._rank,
           name: source._name,
           address: source._address,
+          createAt: new Date(),
+          updateAt: new Date()
         };
   };
 
-  fromUpdateDto = (source: SaveCustomer): Prisma.CustomerUpdateInput => {
+  private fromUpdateDtoByCustomer = (source: Customer): Prisma.CustomerUpdateInput => {
     return source === null
       ? null
       : {
+          version: source._version,
+          rank: source._rank,
+          name: source._name,
+          address: source._address,
+          createAt: source._createAt,
+          updateAt: source._updateAt
+        };
+  };
+
+  fromUpdateDtoBySaveCustomer = (current: Customer, source: SaveCustomer): Prisma.CustomerUpdateInput => {
+    let dto = this.fromUpdateDtoByCustomer(current);
+    return source === null
+      ? null
+      : {
+          ...dto,
           version: source._version,
           rank: source._rank,
           name: source._name,

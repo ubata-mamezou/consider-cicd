@@ -5,8 +5,8 @@ import { CustomerRank } from '../customer-rank.vo';
  */
 export class SaveCustomer {
   constructor(
-    private id: number | null,
-    private version: number,
+    private id: number = null,
+    private version: number = 0,
     private rank: CustomerRank,
     private name: string,
     private address: string,

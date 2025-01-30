@@ -43,6 +43,6 @@ export class EditCustomerController {
     @Headers('version') version: number,
     @Body() req: CreateCustomerReq,
   ) {
-    return this.service.update(id, this.converter.toSaveCustomer(id, version, req));
+    return this.service.update(id, this.converter.toSaveCustomer(id, Number(version), req));
   }
 }

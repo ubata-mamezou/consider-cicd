@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, Query } from '@nestjs/common';
+import { Body, Controller, HttpCode, ParseIntPipe, Post, Query } from '@nestjs/common';
 
 import { CustomerService } from '@service/customers/app/customer.service';
 import { CustomerModelConverter } from '@view/customer-model.converter';
@@ -23,9 +23,9 @@ export class SearchCustomerController {
   @Post('/search')
   @HttpCode(200)
   async search(
-    @Query('page') page: number,
-    @Query('limit') limit: number,
-    @Query('maximum-records') maximumRecords: number,
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('maximum-records') maximumRecords: number = 1000,
     @Body() condition: SearchCustomerCondition,
   ) {
     return this.service.list(

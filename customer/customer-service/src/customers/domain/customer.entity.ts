@@ -10,6 +10,8 @@ export class Customer {
     private rank: CustomerRank,
     private name: string,
     private address: string,
+    private createAt: Date,
+    private updateAt: Date
   ) {}
 
   get _id() {
@@ -30,5 +32,13 @@ export class Customer {
 
   get _address() {
     return this.address;
+  }
+
+  get _createAt() {
+    return this.createAt;
+  }
+
+  get _updateAt() {
+    return this.updateAt;
   }
 }
