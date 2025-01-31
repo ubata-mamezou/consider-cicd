@@ -30,7 +30,7 @@ paths:
   '/view/show-customer/{customerId}':
     parameters:
       - schema:
-          type: string
+          type: number
         name: customerId
         in: path
         required: true
@@ -320,8 +320,8 @@ paths:
       x-stoplight:
         id: jyfcufov1sxf7
       description: 顧客削除 削除
-  /view/search-customer:
-    get:
+  /view/search-customer/search:
+    post:
       summary: search-customer search
       tags:
         - search-customer
@@ -334,6 +334,30 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Customer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
       operationId: search-customer_search
       x-stoplight:
         id: fkl7uay3q8wz0
@@ -346,22 +370,25 @@ paths:
       parameters:
         - schema:
             type: number
+            default: 1
           in: query
           name: page
           required: true
-          description: ページ番号
+          description: 'ページ番号(default: 1)'
         - schema:
             type: number
+            default: 10
           in: query
           name: limit
           required: true
-          description: 1ページあたりの表示件数
+          description: '1ページあたりの表示件数(default: 10)'
         - schema:
             type: number
             default: 1000
           in: query
           name: maximum-records
-          description: '取得件数の上限(デフォルト:1000)'
+          description: '取得件数の上限(default:1000)'
+    parameters: []
 components:
   schemas:
     Customer:
@@ -370,6 +397,14 @@ components:
         id: kc7m1pt89j2q8
       type: object
       description: 顧客
+      x-examples:
+        Example 1:
+          id: 1
+          rank: A
+          name: suzuki
+          address: tokyo
+          createAt: '2025-01-30T05:14:31.788Z'
+          updateAt: '2025-01-30T06:31:17.201Z'
       properties:
         id:
           type: integer
@@ -388,6 +423,18 @@ components:
           x-stoplight:
             id: 7ipbimnetjdrj
           description: 住所
+        createAt:
+          type: string
+          x-stoplight:
+            id: qdukqtxuyjae5
+          description: 作成日時
+          format: date-time
+        updateAt:
+          type: string
+          x-stoplight:
+            id: bgqyo1cq57yk1
+          description: 更新日時
+          format: date-time
     CreateCustomerReq:
       title: CreateCustomerReq
       x-stoplight:
@@ -425,10 +472,10 @@ components:
       x-stoplight:
         id: nzudt4nuu0jq7
       type: object
-      properties:
-        id:
-          $ref: '#/components/schemas/CustomerRank'
       description: 顧客検索条件
+      properties:
+        rank:
+          $ref: '#/components/schemas/CustomerRank'
   responses:
     Customer:
       description: Example response

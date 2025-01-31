@@ -6,10 +6,16 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { DateUtil } from '../utils/date.util';
+import { DateUtil } from '../../infra/utils/date.util';
 
 /**
  * アクセスログインターセプター
+ *
+ * APIのリクエストとレスポンスを捕捉して、アクセスログを出力します。
+ * @example 
+ * // アプリへの設定：
+ * // エンドポイント（main.ts）にグローバルインターセプターとして設定してください。
+ * app.useGlobalInterceptors(new AccessLogInterceptor());
  */
 @Injectable()
 export class AccessLogInterceptor implements NestInterceptor {
@@ -23,7 +29,7 @@ export class AccessLogInterceptor implements NestInterceptor {
     let startLog = '';
     startLog += DateUtil.formatDateTimeWhenNow();
     startLog += ` ${controllerName}#${methodName}`;
-    startLog += ` [URL]${method}: ${originalUrl}`;
+    startLog += ` [path]${method}: ${originalUrl}`;
     startLog += ` [query]${JSON.stringify(query)}`;
     startLog += ` [request]${JSON.stringify(body)}`;
     startLog += ' #accessLog';
