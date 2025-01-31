@@ -1,5 +1,17 @@
 {
   "configurations": [
+    
+
+
+    {
+      "name": "node(customer)",
+      "program": "${workspaceFolder}/customer/customer-service/src/main.ts",
+      "request": "launch",
+      // "skipFiles": [
+      //   "<node_internals>/**"
+      // ],
+      "type": "node"
+    },
     {
       "type": "java",
       "name": "Spring Boot-Application<order>",

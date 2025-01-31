@@ -1,0 +1,34 @@
+# globalProperties:
+#   models: ""　modelのみ生成する設定
+# allowUnicodeIdentifiers: false
+# disallowAdditionalPropertiesIfNotPresent
+# ensureUniqueParams
+  #  modelPackage: view/models
+# additionalProperties:
+enumNameSuffix: ""
+# enumPropertyNaming
+# enumPropertyNamingReplaceSpecialChar
+# enumUnknownDefaultCase
+fileNaming: kebab-case
+# importFileExtension
+# legacyDiscriminatorBehavior: false
+# licenseName
+modelPropertyNaming: camelCase
+npmName: customer-api-client
+# npmRepository
+npmVersion: 0.0.1
+# nullSafeAdditionalProps
+# paramNaming
+# prefixParameterInterfaces
+# prependFormOrBodyParameters
+# sagasAndRecords
+# snapshot
+# sortModelPropertiesByRequiredFlag
+# sortParamsByRequiredFlag
+# stringEnums
+supportsES6: false
+# useSingleRequestParameter: true (default:パラメータオブジェクトパターンではなく、引数は個別に展開された方が良いっケースは考えられる)
+# useSquareBracketsInArrayNames
+# validationAttributes: false (default)
+# withInterfaces: false (default：実装を切り替えたいようなケースがある場合、あった方が良いケースも考えられる)
+# withoutRuntimeChecks: false (default)

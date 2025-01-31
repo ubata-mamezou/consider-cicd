@@ -17,7 +17,21 @@ npx nest generate module customers
 npx nest generate controller customers
 # service
 npx nest generate service customers
+
+# ui inbound
+## current directory: view
+npx nest g module customer-management
+npx nest g controller customer-management
+
+# service
+## current directory: src
+mkdir customers
+cd customers
+npx nest g module customer --flat
+npx nest g service customer --flat
 ```
+
+
 
 
 ## 環境情報をうまく取り扱うために
@@ -105,7 +119,6 @@ npx jest --reporters=default --reporters=jest-html-reporters --coverage --collec
 }
 ```
 
-
 ## Appendix：トラブルシューティング
 
 * Delete `␍`eslint(prettier/prettier)
@@ -123,3 +136,20 @@ LintはprettierがLFを期待しているが、Windows環境下ではCRLFがデ�
     'prettier/prettier': ['error', { endOfLine: 'auto' }], //追加
   },
 ```
+
+## メモ書き
+
+### 開発ルール
+* index.tsの配置
+  * コンポーネントファイルを格納しているフォルダーは一律配置する。
+  * コンポーネントファイルが無くてもディレクトリの意味を表したい場合も配置する。
+
+### OpenAPI-Generator
+* ローカル環境構築
+  ```sh
+  npm install @openapitools/openapi-generator-cli -g
+  openapi-generator-cli version
+  ```
+
+### Stoplight
+

@@ -1,0 +1,32 @@
+globalProperties:
+  models: ""
+# allowUnicodeIdentifiers
+# disallowAdditionalPropertiesIfNotPresent
+# ensureUniqueParams
+enumNameSuffix: ""
+# enumPropertyNaming
+# enumPropertyNamingReplaceSpecialChar
+# enumUnknownDefaultCase
+fileNaming: kebab-case
+# importFileExtension
+legacyDiscriminatorBehavior: false
+# licenseName
+# modelPropertyNaming
+npmName: customer-api
+# npmRepository
+npmVersion: 0.0.1
+# nullSafeAdditionalProps
+# paramNaming
+# prefixParameterInterfaces
+# prependFormOrBodyParameters
+# sagasAndRecords
+# snapshot
+# sortModelPropertiesByRequiredFlag
+# sortParamsByRequiredFlag
+# stringEnums
+# supportsES6: false #(Default) NestJSはNodeに最適化されているため、CommonJSとして利用する
+# useSingleRequestParameter
+# useSquareBracketsInArrayNames
+# validationAttributes: true
+withInterfaces: true
+# withoutRuntimeChecks: true

@@ -10,9 +10,13 @@
 #ts
 customer/node_modules
 customer/customer-service/test-result
-customer/customer-service/pages
+customer/customer-service/pages 
 
 #ui
 order-ui/node_modules
 order-ui/test-result
 order/pages
+customer/api/dist
+customer/customer-service/prisma/migrations/migration_lock.toml
+customer/customer-service/prisma/dev.db
+customer/customer-service/prisma/dev.db-journal

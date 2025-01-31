@@ -1,8 +1,9 @@
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { CustomerController } from './customer.controller';
 import { CustomerService } from './customer.service';
 import { AppConfig } from '../AppConfig';
-import { ConfigService } from '@nestjs/config';
 
 describe('CustomerController', () => {
   let controller: CustomerController;
