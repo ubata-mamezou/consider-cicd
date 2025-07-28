@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.1</version>
+		<version>3.4.4</version>
 		<relativePath/>
 		<!-- lookup parent from repository -->
 	</parent>
@@ -151,7 +151,7 @@
 					<dependency>
 						<groupId>com.puppycrawl.tools</groupId>
 						<artifactId>checkstyle</artifactId>
-						<version>10.9.3</version>
+						<version>10.23.0</version>
 					</dependency>
 				</dependencies>
 				<executions>
@@ -176,7 +176,7 @@
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
-				<version>4.8.6.4</version>
+				<version>4.9.3.0</version>
 				<configuration>
 					<!-- 設定ファイル -->
 					<includeFilterFile>${project.basedir}/config/spotbugs-include.xml</includeFilterFile>
@@ -190,7 +190,7 @@
 						<plugin>
 							<groupId>com.h3xstream.findsecbugs</groupId>
 							<artifactId>findsecbugs-plugin</artifactId>
-							<version>1.12.0</version>
+							<version>1.13.0</version>
 						</plugin>
 					</plugins>
 				</configuration>
@@ -209,7 +209,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>3.5.2</version>
+				<version>3.5.3</version>
 				<configuration>
 					<!-- 出力先ディレクトリ -->
 					<outputDirectory>${project.build.directory}/reports/test</outputDirectory>
