@@ -38,18 +38,9 @@ export default [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
-      //ESLintとPrettierのコンフリクト解消
-      'prettier/prettier': ['error', { endOfLine: 'auto' }],
+      
+      'prettier/prettier': ['error', { endOfLine: 'auto' }], //ESLintとPrettierのコンフリクト解消
       'quotes': ['error', 'single'], // シングルクォーテーションを強制
-      // 'sort-imports': [
-      //   'error',
-      //   {
-      //     ignoreCase: false,
-      //     ignoreDeclarationSort: false,
-      //     ignoreMemberSort: false,
-      //     memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
-      //   },
-      // ],
       'import/order': [
         'error',
         {
