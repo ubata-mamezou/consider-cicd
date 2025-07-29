@@ -11,6 +11,10 @@ on:
     paths: 
       - 'customer/**'
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   # ワークフロー設定のロード
   workflow-config:

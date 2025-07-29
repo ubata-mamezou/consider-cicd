@@ -1,0 +1,48 @@
+openapi: 3.0.0
+info:
+  title: common-model
+  description: 共通モデル
+  version: '1.0'
+paths: {}
+components:
+  schemas:
+    ErrorRes:
+      title: ErrorRes
+      x-stoplight:
+        id: t0j6dozwxznhw
+      type: object
+      description: エラーレスポンス
+      required:
+        - id
+      properties:
+        id:
+          type: array
+          x-stoplight:
+            id: d14wd0jf1n2wq
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    ErrorDetail:
+      title: ErrorDetail
+      x-stoplight:
+        id: kxxhzdv3lg90r
+      type: object
+      description: エラー詳細
+      properties:
+        messageId:
+          type: string
+          x-stoplight:
+            id: 8qybffyjp4ep2
+          description: メッセージID
+        category:
+          x-stoplight:
+            id: gu9u9347v95ol
+          description: 分類
+          enum:
+            - info
+            - warn
+            - error
+        message:
+          type: string
+          x-stoplight:
+            id: c97fnlokbx3a4
+          description: メッセージ

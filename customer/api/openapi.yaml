@@ -1,0 +1,485 @@
+openapi: 3.0.0
+x-stoplight:
+  id: 6yq85r0kc892q
+info:
+  description: customer api example
+  title: customer-api
+  version: '1.0'
+  contact:
+    name: yz-sample
+    url: 'http://sample/contact'
+    email: yz-sample@sample.com
+  license:
+    name: MIT
+    url: 'http://sample/license'
+# termsOfService: for show-customer view.
+servers:
+  - url: 'http://localhost:3000'
+tags:
+  - name: create-customer
+    description: 顧客登録
+  - name: delete-customer
+    description: 顧客削除
+  - name: edit-customer
+    description: 顧客変更
+  - name: search-customer
+    description: 顧客検索
+  - name: show-customer
+    description: 顧客照会
+paths:
+  '/view/show-customer/{customerId}':
+    parameters:
+      - schema:
+          type: number
+        name: customerId
+        in: path
+        required: true
+        description: 顧客ID
+    get:
+      summary: show-customer initialize
+      description: 顧客照会 初期表示
+      tags:
+        - show-customer
+      responses:
+        '200':
+          $ref: '#/components/responses/Customer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+      operationId: show-customer_initialize
+      x-stoplight:
+        id: 9o51guudx24qh
+  '/view/edit-customer/{customerId}':
+    parameters:
+      - schema:
+          type: string
+        name: customerId
+        description: 顧客ID
+        in: path
+        required: true
+    put:
+      summary: edit-customer edit
+      tags:
+        - edit-customer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+      operationId: edit-customer_edit
+      x-stoplight:
+        id: k1s72myx2m886
+      description: 顧客変更 変更
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerReq'
+      parameters:
+        - schema:
+            type: number
+          in: header
+          name: version
+          description: バージョン
+          required: true
+    get:
+      summary: edit-customer initialize
+      tags:
+        - edit-customer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+      operationId: edit-customer_initialize
+      x-stoplight:
+        id: tw81bhaxupzte
+      description: 顧客変更 初期表示
+  /view/create-customer:
+    post:
+      summary: create-customer create
+      description: 顧客登録 登録
+      tags:
+        - create-customer
+      responses:
+        '201':
+          description: Created
+          headers:
+            created-url:
+              schema:
+                type: string
+              description: リソースを示すURL
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+      operationId: create-customer_create
+      x-stoplight:
+        id: 6uxktyjd4qscm
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerReq'
+  '/view/delete-customer/{customerId}':
+    parameters:
+      - schema:
+          type: string
+        name: customerId
+        in: path
+        required: true
+        description: 顧客ID
+    get:
+      summary: delete-customer initialize
+      tags:
+        - delete-customer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+      operationId: delete-customer_initialize
+      x-stoplight:
+        id: c27bx2m6m1fxj
+      description: 顧客削除 初期表示
+    delete:
+      summary: delete-customer delete
+      tags:
+        - delete-customer
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+      operationId: delete-customer_delete
+      x-stoplight:
+        id: jyfcufov1sxf7
+      description: 顧客削除 削除
+  /view/search-customer/search:
+    post:
+      summary: search-customer search
+      tags:
+        - search-customer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: ./common-model.yaml#/components/schemas/ErrorRes
+      operationId: search-customer_search
+      x-stoplight:
+        id: fkl7uay3q8wz0
+      description: 顧客検索 検索
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchCustomerCondition'
+      parameters:
+        - schema:
+            type: number
+            default: 1
+          in: query
+          name: page
+          required: true
+          description: 'ページ番号(default: 1)'
+        - schema:
+            type: number
+            default: 10
+          in: query
+          name: limit
+          required: true
+          description: '1ページあたりの表示件数(default: 10)'
+        - schema:
+            type: number
+            default: 1000
+          in: query
+          name: maximum-records
+          description: '取得件数の上限(default:1000)'
+    parameters: []
+components:
+  schemas:
+    Customer:
+      title: Customer
+      x-stoplight:
+        id: kc7m1pt89j2q8
+      type: object
+      description: 顧客
+      x-examples:
+        Example 1:
+          id: 1
+          rank: A
+          name: suzuki
+          address: tokyo
+          createAt: '2025-01-30T05:14:31.788Z'
+          updateAt: '2025-01-30T06:31:17.201Z'
+      properties:
+        id:
+          type: integer
+          x-stoplight:
+            id: rxkmlqq9cpkl6
+          description: ID
+        rank:
+          $ref: '#/components/schemas/CustomerRank'
+        name:
+          type: string
+          x-stoplight:
+            id: zar3omjs93lfh
+          description: 名前
+        address:
+          type: string
+          x-stoplight:
+            id: 7ipbimnetjdrj
+          description: 住所
+        createAt:
+          type: string
+          x-stoplight:
+            id: qdukqtxuyjae5
+          description: 作成日時
+          format: date-time
+        updateAt:
+          type: string
+          x-stoplight:
+            id: bgqyo1cq57yk1
+          description: 更新日時
+          format: date-time
+    CreateCustomerReq:
+      title: CreateCustomerReq
+      x-stoplight:
+        id: wp6prcvpme6ae
+      type: object
+      description: 顧客登録リクエスト
+      required:
+        - rank
+        - name
+        - address
+      properties:
+        rank:
+          $ref: '#/components/schemas/CustomerRank'
+        name:
+          type: string
+          x-stoplight:
+            id: etvorzvikxumi
+          description: 名前
+        address:
+          type: string
+          x-stoplight:
+            id: i2i7h8wmr1bst
+          description: 住所
+    CustomerRank:
+      title: CustomerRank
+      x-stoplight:
+        id: 9es7akyvkvpu1
+      description: 顧客ランク
+      enum:
+        - A
+        - B
+        - C
+    SearchCustomerCondition:
+      title: SearchCustomerCondition
+      x-stoplight:
+        id: nzudt4nuu0jq7
+      type: object
+      description: 顧客検索条件
+      properties:
+        rank:
+          $ref: '#/components/schemas/CustomerRank'
+  responses:
+    Customer:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Customer'
