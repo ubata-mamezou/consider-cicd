@@ -82,7 +82,7 @@ jobs:
         uses: actions/checkout@v4
       ## JDK をセットアップ
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
