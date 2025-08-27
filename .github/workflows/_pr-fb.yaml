@@ -28,7 +28,7 @@ jobs:
     steps:
     ## コードをチェックアウト
     - name: checkout source
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     # PRコメントダウンロード（事前にアップロードしていたファイルを取得）
     - name: download pr-comment
       id: download-pr-comment

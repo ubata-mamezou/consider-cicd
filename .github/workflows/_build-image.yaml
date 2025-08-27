@@ -75,7 +75,7 @@ jobs:
       # イメージビルド実行環境セットアップ
       ## コードをチェックアウト
       - name: checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       ## 後続プロセスで使用するディレクトリの初期化
       - run: mkdir -p ${{ inputs.pr-comment-folder-name }}
       ## 編集を伴う変数定義
