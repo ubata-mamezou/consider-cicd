@@ -91,7 +91,7 @@ jobs:
       ## 対象のアーティファクトをダウンロード
       ## note: キャッシュ/リストアだと受け渡しの挙動が不安定だったので、アップロード/ダウンロードで実現
       - name: download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ${{ inputs.build-artifacts-cached-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
@@ -99,7 +99,7 @@ jobs:
       ## * PRコメントがある場合、加筆するためダウンロード。
       ## * ファイルが存在しなくてもエラーにしない
       - name: Download pr-comment
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ env.pr-comment-directory }}
