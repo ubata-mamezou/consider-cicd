@@ -51,7 +51,7 @@ jobs:
 
     # レポート公開(公開先：GitHub Pages)
     - name: upload report
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v4
       with:
         path: pages
     - name: Deploy to GitHub Pages
