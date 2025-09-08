@@ -62,7 +62,7 @@ jobs:
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
       ## AWS Credential情報を設定
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
