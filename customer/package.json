@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "@nestjs/cli": "^10.4.7"
+    "@nestjs/cli": "^11.0.10"
   }
 }
