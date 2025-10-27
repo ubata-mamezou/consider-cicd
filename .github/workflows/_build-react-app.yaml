@@ -133,7 +133,7 @@ jobs:
         run: |
           mv ${{ env.test-report-directory_built }}/${{ env.style-check-tool-name }} ${{ env.test-report-directory_for_transport-to-pages }}
       - name: Upload Test Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
@@ -149,7 +149,7 @@ jobs:
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
       ## PRコメントアップロード
       - name: Upload pr-comment
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ env.pr-comment-directory }}
@@ -170,7 +170,7 @@ jobs:
       - name: move test report
         run: mv ${{ env.test-report-directory_built }}/* ${{ env.test-report-directory_for_transport-to-pages }}
       - name: Upload Test Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
@@ -192,7 +192,7 @@ jobs:
         run: npm run build
       ## アーティファクトのアップロード（イメージビルド向けの一時保存）
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ inputs.build-artifacts-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
@@ -220,7 +220,7 @@ jobs:
 
       # PRコメントアップロード
       - name: Upload pr-comment
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ env.pr-comment-directory }}
