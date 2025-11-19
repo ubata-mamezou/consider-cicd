@@ -158,7 +158,7 @@ jobs:
       ## * ESLintでWaningまたはErrorが検出されていた場合、ワークフローを中断する
       - name: Check for Warnings and Errors
         run: |
-          if grep -q -E "error|warnings" ${{ env.test-report-directory_for_transport-to-pages }}/${{ env.style-check-tool-name }}/index.html; then
+          if grep -oP '\d+ problems? \(\d+ errors?, \d+ warnings?\)' ${{ env.test-report-directory_for_transport-to-pages }}/${{ env.style-check-tool-name }}/index.html; then
             echo "静的解析でエラーまたは警告が検出されたため、ワークフローを中断します。"
             exit 1
           fi
@@ -190,7 +190,7 @@ jobs:
       # ビルド
       - name: Build App
         run: npm run build
-      ## アーティファクトのアップロード（イメージビルド向けの一時保存）
+      ## アーティファクトのアップロード（デプロイ向けの一時保存）
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:

@@ -1,0 +1,21 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { {{className}}Controller } from '@view/{{physicalName}}';
+
+/**
+ * {{logicalName}}コントローラーテスト
+ */
+describe('{{className}}Controller', () => {
+  let controller: {{className}}Controller;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [{{className}}Controller],
+    }).compile();
+
+    controller = module.get<{{className}}Controller>({{className}}Controller);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+});

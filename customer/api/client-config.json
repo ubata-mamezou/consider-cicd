@@ -1,0 +1,10 @@
+{
+  "npmName": "customer-api-client",
+  "supportsES6": true,
+  "modelPropertyNaming": "camelCase",
+  "apiPrefix": "",
+  
+  "enumNameSuffix": "",
+  "fileNaming": "kebab-case",
+  "modelFileSuffix": ".model"
+}

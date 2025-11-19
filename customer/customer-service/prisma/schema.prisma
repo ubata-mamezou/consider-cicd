@@ -1,0 +1,28 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Customer {
+  id       Int      @id @default(autoincrement())
+  version  Int      @default(0)
+  rank     String
+  name     String
+  address  String
+  createAt DateTime @default(now())
+  updateAt DateTime @default(now()) @updatedAt
+}
+
+model CustomerHistory {
+  id         Int      @id @default(autoincrement())
+  customerId Int
+  version    Int
+  rank       String
+  name       String
+  address    String
+  createAt   DateTime
+}

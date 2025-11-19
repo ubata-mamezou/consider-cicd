@@ -1,7 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
-import { CustomerService } from './customer.service';
-import { Customer } from './customer';
 import { ConfigService } from '@nestjs/config';
+
+import { Customer } from './customer';
+import { CustomerService } from './customer.service';
 import { AppConfig } from '../AppConfig';
 
 /**
