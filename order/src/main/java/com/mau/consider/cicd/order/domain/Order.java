@@ -11,12 +11,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 受注.
+ * 受注。
  */
 @Getter
 @Setter
 @EqualsAndHashCode(exclude = "details")
 public class Order {
+  /** 受注ID。 */
   @Id
   private Long id;
   private LocalDate orderAt;
