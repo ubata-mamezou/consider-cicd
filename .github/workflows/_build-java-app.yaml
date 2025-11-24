@@ -79,7 +79,7 @@ jobs:
       # 実行環境セットアップ
       ## コードをチェックアウト
       - name: checkout source
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       ## JDK をセットアップ
       - name: Set up JDK
         uses: actions/setup-java@v5
