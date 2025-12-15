@@ -112,7 +112,7 @@ jobs:
       # 脆弱性スキャン実行環境セットアップ
       ## キャッシュ（Trivy DB）
       - name: Cache Trivy DB
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/trivy  # TrivyのDBキャッシュの保存場所
           key: ${{ runner.os }}-trivy-db
