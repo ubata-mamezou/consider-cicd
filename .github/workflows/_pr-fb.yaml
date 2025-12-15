@@ -35,7 +35,7 @@ jobs:
     # PRコメントダウンロード（事前にアップロードしていたファイルを取得）
     - name: download pr-comment
       id: download-pr-comment
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: ${{ inputs.pr-comment-cached-key }}
         path: ${{ inputs.pr-comment-folder-name }}

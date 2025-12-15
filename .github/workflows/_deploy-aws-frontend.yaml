@@ -56,7 +56,7 @@ jobs:
       # デプロイ実行環境セットアップ
       ## 対象のアーティファクトをダウンロード
       - name: download artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: ${{ inputs.build-artifacts-cached-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}
