@@ -165,7 +165,7 @@ jobs:
           mkdir -p ${{ env.test-report-directory_for_transport-to-pages }}/image-scan
           mv trivy-resource/result/* ${{ env.test-report-directory_for_transport-to-pages }}/image-scan
       - name: Upload Test Report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.scan-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
@@ -204,7 +204,7 @@ jobs:
 
       # PRコメントアップロード
       - name: Upload pr-comment
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ env.pr-comment-directory }}
