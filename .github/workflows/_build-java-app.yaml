@@ -88,7 +88,7 @@ jobs:
           distribution: 'temurin'
       ## キャッシュ（Mavenリポジトリ）
       - name: Cache Maven packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -124,7 +124,7 @@ jobs:
       ## * PRコメントがある場合、加筆するためダウンロード。
       ## * ファイルが存在しなくてもエラーにしない
       - name: Download pr-comment
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ env.pr-comment-directory }}
@@ -155,7 +155,7 @@ jobs:
           mv ${{ env.test-report-directory_built }}/${{ env.bug-check-tool-name }}/spotbugs.html ${{ env.test-report-directory_built }}/${{ env.bug-check-tool-name }}/index.html
           mv ${{ env.test-report-directory_built }}/${{ env.bug-check-tool-name }} ${{ env.test-report-directory_for_transport-to-pages }}
       - name: Upload Test Report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
@@ -173,7 +173,7 @@ jobs:
             " >> ${{ inputs.pr-comment-folder-name }}/${{ inputs.pr-comment-file-name }}
       ## PRコメントアップロード
       - name: Upload pr-comment
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ env.pr-comment-directory }}
@@ -194,7 +194,7 @@ jobs:
         run: mvn install jacoco:report surefire-report:report-only
       ## アーティファクトのアップロード（イメージビルド向けの一時保存）
       - name: Upload artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.build-artifacts-cache-key }}
           path: ${{ inputs.work-directory }}/${{ inputs.dist-directory }}/${{ inputs.app-name }}-${{ inputs.app-version }}.jar
@@ -205,7 +205,7 @@ jobs:
           mv ${{ env.test-report-directory_built }}/test/surefire.html ${{ env.test-report-directory_built }}/test/index.html
           mv ${{ env.test-report-directory_built }}/test ${{ env.test-report-directory_for_transport-to-pages }}
       - name: Upload Test Report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.test-report-cache-key }}
           path: ${{ inputs.work-directory }}/pages
@@ -244,7 +244,7 @@ jobs:
 
       # PRコメントアップロード
       - name: Upload pr-comment
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.pr-comment-cache-key }}
           path: ${{ env.pr-comment-directory }}
